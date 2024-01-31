@@ -37,6 +37,7 @@
 #include "rendering_server_globals.h"
 #include "storage/texture_storage.h"
 
+
 static Transform2D _canvas_get_transform(RendererViewport::Viewport *p_viewport, RendererCanvasCull::Canvas *p_canvas, RendererViewport::Viewport::CanvasData *p_canvas_data, const Vector2 &p_vp_size) {
 	Transform2D xf = p_viewport->global_transform;
 
@@ -221,6 +222,9 @@ void RendererViewport::_configure_3d_render_buffers(Viewport *p_viewport) {
 			rb_config.set_texture_mipmap_bias(texture_mipmap_bias);
 			rb_config.set_use_taa(use_taa);
 			rb_config.set_use_debanding(p_viewport->use_debanding);
+			//FRED
+			rb_config.set_render_pass(p_viewport->render_pass);
+			rb_config.set_surface_override_material(p_viewport->surface_override_material);
 
 			p_viewport->render_buffers->configure(&rb_config);
 		}
@@ -973,6 +977,14 @@ void RendererViewport::viewport_set_clear_mode(RID p_viewport, RS::ViewportClear
 	viewport->clear_mode = p_clear_mode;
 }
 
+void RendererViewport::viewport_set_render_pass(RID p_viewport, RS::ViewportRenderPass p_render_pass) {
+	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
+	ERR_FAIL_NULL(viewport);
+
+	viewport->render_pass = p_render_pass;
+	_configure_3d_render_buffers(viewport);
+}
+
 void RendererViewport::viewport_attach_to_screen(RID p_viewport, const Rect2 &p_rect, DisplayServer::WindowID p_screen) {
 	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_NULL(viewport);
@@ -1216,6 +1228,18 @@ void RendererViewport::viewport_set_msaa_3d(RID p_viewport, RS::ViewportMSAA p_m
 		return;
 	}
 	viewport->msaa_3d = p_msaa;
+	_configure_3d_render_buffers(viewport);
+}
+
+//FRED
+void RendererViewport::viewport_set_surface_override_material(RID p_viewport,RID p_surface_override_material) {
+	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
+	ERR_FAIL_NULL(viewport);
+
+	if (viewport->surface_override_material == p_surface_override_material) {
+		return;
+	}
+	viewport->surface_override_material = p_surface_override_material;
 	_configure_3d_render_buffers(viewport);
 }
 

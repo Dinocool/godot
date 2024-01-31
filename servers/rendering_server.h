@@ -841,6 +841,15 @@ public:
 		VIEWPORT_SCALING_3D_MODE_OFF = 255, // for internal use only
 	};
 
+	//FRED
+	enum ViewportRenderPass {
+		VIEWPORT_RENDER_PASS_ALL,
+		VIEWPORT_RENDER_PASS_DEPTH_PRE_PASS,
+		VIEWPORT_RENDER_PASS_PRE_OPAQUE_PASS,
+		VIEWPORT_RENDER_PASS_OPAQUE_PASS,
+		VIEWPORT_RENDER_PASS_TRANSPARENT_PASS
+	};
+
 	virtual void viewport_set_use_xr(RID p_viewport, bool p_use_xr) = 0;
 	virtual void viewport_set_size(RID p_viewport, int p_width, int p_height) = 0;
 	virtual void viewport_set_active(RID p_viewport, bool p_active) = 0;
@@ -872,6 +881,8 @@ public:
 	};
 
 	virtual void viewport_set_clear_mode(RID p_viewport, ViewportClearMode p_clear_mode) = 0;
+
+	virtual void viewport_set_render_pass(RID p_viewport, ViewportRenderPass p_render_pass) = 0;
 
 	virtual RID viewport_get_render_target(RID p_viewport) const = 0;
 	virtual RID viewport_get_texture(RID p_viewport) const = 0;
@@ -931,6 +942,7 @@ public:
 		VIEWPORT_MSAA_MAX,
 	};
 
+	virtual void viewport_set_surface_override_material(RID p_viewport, RID p_material) = 0;
 	virtual void viewport_set_msaa_3d(RID p_viewport, ViewportMSAA p_msaa) = 0;
 	virtual void viewport_set_msaa_2d(RID p_viewport, ViewportMSAA p_msaa) = 0;
 

@@ -112,6 +112,7 @@ public:
 		RS::ViewportDebugDraw debug_draw = RenderingServer::VIEWPORT_DEBUG_DRAW_DISABLED;
 
 		RS::ViewportClearMode clear_mode = RenderingServer::VIEWPORT_CLEAR_ALWAYS;
+		RS::ViewportRenderPass render_pass = RenderingServer::VIEWPORT_RENDER_PASS_ALL;
 
 		RS::CanvasItemTextureFilter texture_filter = RS::CANVAS_ITEM_TEXTURE_FILTER_LINEAR;
 		RS::CanvasItemTextureRepeat texture_repeat = RS::CANVAS_ITEM_TEXTURE_REPEAT_DISABLED;
@@ -120,6 +121,9 @@ public:
 		bool use_hdr_2d = false;
 
 		uint32_t canvas_cull_mask = 0xffffffff;
+
+		//FRED
+		RID surface_override_material;
 
 		struct CanvasKey {
 			int64_t stacking;
@@ -236,6 +240,7 @@ public:
 	void viewport_set_vflip(RID p_viewport, bool p_enable);
 
 	void viewport_set_clear_mode(RID p_viewport, RS::ViewportClearMode p_clear_mode);
+	void viewport_set_render_pass(RID p_viewport, RS::ViewportRenderPass p_render_pass);
 
 	RID viewport_get_render_target(RID p_viewport) const;
 	RID viewport_get_texture(RID p_viewport) const;
@@ -275,6 +280,8 @@ public:
 	void viewport_set_occlusion_rays_per_thread(int p_rays_per_thread);
 	void viewport_set_occlusion_culling_build_quality(RS::ViewportOcclusionCullingBuildQuality p_quality);
 	void viewport_set_mesh_lod_threshold(RID p_viewport, float p_pixels);
+	//FRED
+	void viewport_set_surface_override_material(RID p_viewport, RID p_surface_override_material);
 
 	virtual int viewport_get_render_info(RID p_viewport, RS::ViewportRenderInfoType p_type, RS::ViewportRenderInfo p_info);
 	virtual void viewport_set_debug_draw(RID p_viewport, RS::ViewportDebugDraw p_draw);
@@ -307,6 +314,7 @@ public:
 	int get_total_primitives_drawn() const;
 	int get_total_draw_calls_used() const;
 	int get_num_viewports_with_motion_vectors() const;
+
 
 	// Workaround for setting this on thread.
 	void call_set_vsync_mode(DisplayServer::VSyncMode p_mode, DisplayServer::WindowID p_window);

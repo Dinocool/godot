@@ -2803,6 +2803,7 @@ void RenderingServer::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("viewport_set_positional_shadow_atlas_size", "viewport", "size", "use_16_bits"), &RenderingServer::viewport_set_positional_shadow_atlas_size, DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("viewport_set_positional_shadow_atlas_quadrant_subdivision", "viewport", "quadrant", "subdivision"), &RenderingServer::viewport_set_positional_shadow_atlas_quadrant_subdivision);
+	ClassDB::bind_method(D_METHOD("viewport_set_msaa_3d", "viewport", "msaa"), &RenderingServer::viewport_set_surface_override_material);
 	ClassDB::bind_method(D_METHOD("viewport_set_msaa_3d", "viewport", "msaa"), &RenderingServer::viewport_set_msaa_3d);
 	ClassDB::bind_method(D_METHOD("viewport_set_msaa_2d", "viewport", "msaa"), &RenderingServer::viewport_set_msaa_2d);
 	ClassDB::bind_method(D_METHOD("viewport_set_use_hdr_2d", "viewport", "enabled"), &RenderingServer::viewport_set_use_hdr_2d);

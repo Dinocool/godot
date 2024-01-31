@@ -611,6 +611,7 @@ public:
 	FUNC2(viewport_set_parent_viewport, RID, RID)
 
 	FUNC2(viewport_set_clear_mode, RID, ViewportClearMode)
+	FUNC2(viewport_set_render_pass, RID, ViewportRenderPass)
 
 	FUNC3(viewport_attach_to_screen, RID, const Rect2 &, int)
 	FUNC2(viewport_set_render_direct_to_screen, RID, bool)
@@ -652,6 +653,8 @@ public:
 	FUNC3(viewport_set_positional_shadow_atlas_quadrant_subdivision, RID, int, int)
 	FUNC2(viewport_set_msaa_2d, RID, ViewportMSAA)
 	FUNC2(viewport_set_msaa_3d, RID, ViewportMSAA)
+	//FRED
+	FUNC2(viewport_set_surface_override_material, RID, RID)
 	FUNC2(viewport_set_screen_space_aa, RID, ViewportScreenSpaceAA)
 	FUNC2(viewport_set_use_taa, RID, bool)
 	FUNC2(viewport_set_use_debanding, RID, bool)

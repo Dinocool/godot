@@ -89,6 +89,10 @@ private:
 	bool use_debanding = false;
 	RD::TextureSamples texture_samples = RD::TEXTURE_SAMPLES_1;
 
+	//FRED
+	RS::ViewportRenderPass render_pass;
+	RID surface_override_material;
+
 	// Named Textures
 
 	struct NTKey {
@@ -226,6 +230,9 @@ public:
 	_FORCE_INLINE_ RS::ViewportScreenSpaceAA get_screen_space_aa() const { return screen_space_aa; }
 	_FORCE_INLINE_ bool get_use_taa() const { return use_taa; }
 	_FORCE_INLINE_ bool get_use_debanding() const { return use_debanding; }
+	//FRED
+	_FORCE_INLINE_ RID get_surface_override_material() const { return surface_override_material; }
+	_FORCE_INLINE_ RS::ViewportRenderPass get_render_pass() const { return render_pass; }
 
 	uint64_t get_auto_exposure_version() const { return auto_exposure_version; }
 	void set_auto_exposure_version(const uint64_t p_auto_exposure_version) { auto_exposure_version = p_auto_exposure_version; }

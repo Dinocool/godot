@@ -29,6 +29,9 @@
 /**************************************************************************/
 
 #include "render_forward_clustered.h"
+#include "scene_shader_forward_clustered.h"
+
+#include "servers/rendering/renderer_rd/storage_rd/material_storage.h"
 #include "core/config/project_settings.h"
 #include "core/object/worker_thread_pool.h"
 #include "servers/rendering/renderer_rd/framebuffer_cache_rd.h"
@@ -338,9 +341,23 @@ void RenderForwardClustered::_render_list_template(RenderingDevice::DrawListID p
 				shader = scene_shader.debug_shadow_splits_material_shader_ptr;
 			} else {
 #endif
-				material_uniform_set = surf->material_uniform_set;
-				shader = surf->shader;
-				surf->material->set_as_used();
+				bool over = false;
+				//FRED: OVERRIDE WITH A DEFAULT MATERIAL
+				if (p_params->surface_override_material.is_valid()) {
+					RendererRD::MaterialStorage *material_storage = RendererRD::MaterialStorage::get_singleton();
+					SceneShaderForwardClustered::MaterialData *md = static_cast<SceneShaderForwardClustered::MaterialData *>(material_storage->material_get_data(p_params->surface_override_material, RendererRD::MaterialStorage::SHADER_TYPE_3D));
+
+					if (md != nullptr) {
+					material_uniform_set = md->uniform_set;
+					shader = md->shader_data;
+					over = true;
+					}
+				}
+				if (!over){
+					material_uniform_set = surf->material_uniform_set;
+					shader = surf->shader;
+					surf->material->set_as_used();
+				}
 #ifdef DEBUG_ENABLED
 			}
 #endif
@@ -1662,6 +1679,11 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	bool using_ssil = !is_reflection_probe && p_render_data->environment.is_valid() && environment_get_ssil_enabled(p_render_data->environment);
 	bool using_motion_pass = rb_data.is_valid() && using_fsr2;
 
+	bool render_depth_pre_pass = (rb->get_render_pass() == RS::VIEWPORT_RENDER_PASS_ALL || rb->get_render_pass() == RS::VIEWPORT_RENDER_PASS_DEPTH_PRE_PASS);
+	bool render_pre_opaque_pass = (rb->get_render_pass() == RS::VIEWPORT_RENDER_PASS_ALL || rb->get_render_pass() == RS::VIEWPORT_RENDER_PASS_PRE_OPAQUE_PASS);
+	bool render_opaque_pass = (rb->get_render_pass() == RS::VIEWPORT_RENDER_PASS_ALL || rb->get_render_pass() == RS::VIEWPORT_RENDER_PASS_OPAQUE_PASS);
+	bool render_transparent_pass = (rb->get_render_pass() == RS::VIEWPORT_RENDER_PASS_ALL || rb->get_render_pass() == RS::VIEWPORT_RENDER_PASS_TRANSPARENT_PASS);
+
 	if (is_reflection_probe) {
 		uint32_t resolution = light_storage->reflection_probe_instance_get_resolution(p_render_data->reflection_probe);
 		screen_size.x = resolution;
@@ -1885,7 +1907,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	bool depth_pre_pass = bool(GLOBAL_GET("rendering/driver/depth_prepass/enable")) && depth_framebuffer.is_valid();
 
 	bool using_ssao = depth_pre_pass && !is_reflection_probe && p_render_data->environment.is_valid() && environment_get_ssao_enabled(p_render_data->environment);
-	if (depth_pre_pass) { //depth pre pass
+	if (depth_pre_pass && render_depth_pre_pass) { //depth pre pass
 
 		bool needs_pre_resolve = _needs_post_prepass_render(p_render_data, using_sdfgi || using_voxelgi);
 		if (needs_pre_resolve) {
@@ -1933,7 +1955,12 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 			normal_roughness_views[v] = rb_data->get_normal_roughness(v);
 		}
 	}
-	_pre_opaque_render(p_render_data, using_ssao, using_ssil, using_sdfgi || using_voxelgi, normal_roughness_views, rb_data.is_valid() && rb_data->has_voxelgi() ? rb_data->get_voxelgi() : RID());
+	//Don't render transparents in an override pass
+	//FRED
+	if (render_pre_opaque_pass) {
+		_pre_opaque_render(p_render_data, using_ssao, using_ssil, using_sdfgi || using_voxelgi, normal_roughness_views, rb_data.is_valid() && rb_data->has_voxelgi() ? rb_data->get_voxelgi() : RID());
+	}
+
 
 	RD::get_singleton()->draw_command_begin_label("Render Opaque Pass");
 
@@ -1950,7 +1977,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	RID rp_uniform_set = _setup_render_pass_uniform_set(RENDER_LIST_OPAQUE, p_render_data, radiance_texture, samplers, true);
 	bool can_continue_color = !scene_state.used_screen_texture && !using_ssr && !using_sss;
 	bool can_continue_depth = !(scene_state.used_depth_texture || scene_state.used_normal_texture) && !using_ssr && !using_sss;
-
+	if (render_opaque_pass)
 	{
 		bool render_motion_pass = !render_list[RENDER_LIST_MOTION].elements.is_empty();
 
@@ -1972,7 +1999,9 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 
 			uint32_t opaque_color_pass_flags = using_motion_pass ? (color_pass_flags & ~COLOR_PASS_FLAG_MOTION_VECTORS) : color_pass_flags;
 			RID opaque_framebuffer = using_motion_pass ? rb_data->get_color_pass_fb(opaque_color_pass_flags) : color_framebuffer;
-			RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].element_info.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, PASS_MODE_COLOR, opaque_color_pass_flags, rb_data.is_null(), p_render_data->directional_light_soft_shadows, rp_uniform_set, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
+			RenderListParameters render_list_params(render_list[RENDER_LIST_OPAQUE].elements.ptr(), render_list[RENDER_LIST_OPAQUE].element_info.ptr(), render_list[RENDER_LIST_OPAQUE].elements.size(), reverse_cull, PASS_MODE_COLOR, opaque_color_pass_flags, rb_data.is_null(), p_render_data->directional_light_soft_shadows, rp_uniform_set, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count, 0, rb->get_surface_override_material());
+
+			//FRED START RENDER
 			_render_list_with_draw_list(&render_list_params, opaque_framebuffer, load_color ? RD::INITIAL_ACTION_LOAD : RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, depth_pre_pass ? RD::INITIAL_ACTION_LOAD : RD::INITIAL_ACTION_CLEAR, RD::FINAL_ACTION_STORE, c, 1.0, 0);
 		}
 
@@ -2116,7 +2145,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 	rp_uniform_set = _setup_render_pass_uniform_set(RENDER_LIST_ALPHA, p_render_data, radiance_texture, samplers, true);
 
 	_setup_environment(p_render_data, is_reflection_probe, screen_size, !is_reflection_probe, p_default_bg_color, false);
-
+	if (render_transparent_pass)
 	{
 		uint32_t transparent_color_pass_flags = (color_pass_flags | COLOR_PASS_FLAG_TRANSPARENT) & ~(COLOR_PASS_FLAG_SEPARATE_SPECULAR);
 		if (using_motion_pass) {
@@ -2125,7 +2154,8 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 		}
 
 		RID alpha_framebuffer = rb_data.is_valid() ? rb_data->get_color_pass_fb(transparent_color_pass_flags) : color_only_framebuffer;
-		RenderListParameters render_list_params(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].element_info.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), false, PASS_MODE_COLOR, transparent_color_pass_flags, rb_data.is_null(), p_render_data->directional_light_soft_shadows, rp_uniform_set, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count);
+		//FRED
+		RenderListParameters render_list_params(render_list[RENDER_LIST_ALPHA].elements.ptr(), render_list[RENDER_LIST_ALPHA].element_info.ptr(), render_list[RENDER_LIST_ALPHA].elements.size(), false, PASS_MODE_COLOR, transparent_color_pass_flags, rb_data.is_null(), p_render_data->directional_light_soft_shadows, rp_uniform_set, get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME, Vector2(), p_render_data->scene_data->lod_distance_multiplier, p_render_data->scene_data->screen_mesh_lod_threshold, p_render_data->scene_data->view_count, 0, rb->get_surface_override_material());
 		_render_list_with_draw_list(&render_list_params, alpha_framebuffer, RD::INITIAL_ACTION_LOAD, RD::FINAL_ACTION_STORE, RD::INITIAL_ACTION_LOAD, RD::FINAL_ACTION_STORE);
 	}
 

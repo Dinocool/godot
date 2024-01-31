@@ -215,6 +215,10 @@ public:
 private:
 	friend class ViewportTexture;
 
+	//FRED CHANGE
+	Ref<Material> surface_override_material;
+	
+
 	Viewport *parent = nullptr;
 	Viewport *gui_parent = nullptr; // Whose gui.tooltip_popup it is.
 
@@ -687,6 +691,10 @@ public:
 	virtual bool is_attached_in_viewport() const { return false; };
 	virtual bool is_sub_viewport() const { return false; };
 
+	//FRED CHANGE
+	void set_surface_override_material(Ref<Material> material);
+	Ref<Material> get_surface_override_material() const;
+
 #ifndef _3D_DISABLED
 	bool use_xr = false;
 	friend class AudioListener3D;
@@ -786,9 +794,18 @@ public:
 		UPDATE_ALWAYS
 	};
 
+	enum RenderPass {
+		ALL,
+		DEPTH_PRE_PASS,
+		PRE_OPAQUE_PASS,
+		OPAQUE_PASS,
+		TRANSPARENT_PASS
+	};
+
 private:
 	UpdateMode update_mode = UPDATE_WHEN_VISIBLE;
 	ClearMode clear_mode = CLEAR_MODE_ALWAYS;
+	RenderPass render_pass = ALL;
 	bool size_2d_override_stretch = false;
 
 	void _internal_set_size(const Size2i &p_size, bool p_force = false);
@@ -815,6 +832,9 @@ public:
 	void set_clear_mode(ClearMode p_mode);
 	ClearMode get_clear_mode() const;
 
+	void set_render_pass(RenderPass p_mode);
+	RenderPass get_render_pass() const;
+
 	virtual Transform2D get_screen_transform_internal(bool p_absolute_position = false) const override;
 	virtual Transform2D get_popup_base_transform() const override;
 	virtual bool is_directly_attached_to_screen() const override;
@@ -835,6 +855,7 @@ VARIANT_ENUM_CAST(Viewport::SDFScale);
 VARIANT_ENUM_CAST(Viewport::SDFOversize);
 VARIANT_ENUM_CAST(Viewport::VRSMode);
 VARIANT_ENUM_CAST(SubViewport::ClearMode);
+VARIANT_ENUM_CAST(SubViewport::RenderPass);
 VARIANT_ENUM_CAST(Viewport::RenderInfo);
 VARIANT_ENUM_CAST(Viewport::RenderInfoType);
 VARIANT_ENUM_CAST(Viewport::DefaultCanvasItemTextureFilter);

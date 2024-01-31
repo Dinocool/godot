@@ -144,6 +144,10 @@ void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_co
 	use_taa = p_config->get_use_taa();
 	use_debanding = p_config->get_use_debanding();
 
+	//FRED
+	render_pass = p_config->get_render_pass();
+	surface_override_material = p_config->get_surface_override_material();
+
 	ERR_FAIL_COND_MSG(view_count == 0, "Must have at least 1 view");
 
 	update_samplers();

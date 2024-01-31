@@ -54,6 +54,7 @@
 #include "scene/resources/mesh.h"
 #include "scene/resources/text_line.h"
 #include "scene/resources/world_2d.h"
+#include "scene/resources/material.h"
 #include "scene/scene_string_names.h"
 #include "servers/audio_server.h"
 #include "servers/rendering/rendering_server_globals.h"
@@ -4016,6 +4017,26 @@ Transform2D Viewport::get_screen_transform_internal(bool p_absolute_position) co
 	return get_final_transform();
 }
 
+//FRED CHANGE
+Ref<Material> Viewport::get_surface_override_material() const {
+	ERR_READ_THREAD_GUARD_V(Ref<Material>());
+	return surface_override_material;
+}
+
+void Viewport::set_surface_override_material(Ref<Material> p_surface_override_material) {
+	ERR_MAIN_THREAD_GUARD;
+	if (surface_override_material == p_surface_override_material) {
+		return;
+	}
+	surface_override_material = p_surface_override_material;
+	if (surface_override_material.is_valid()) {
+		RS::get_singleton()->viewport_set_surface_override_material(viewport, p_surface_override_material->get_rid());
+	} else {
+		RS::get_singleton()->viewport_set_surface_override_material(viewport, RID());
+	}
+}
+
+
 void Viewport::update_mouse_cursor_state() {
 	// Updates need to happen in Window, because SubViewportContainers might be hidden behind other Controls.
 	Window *base_window = get_base_window();
@@ -4571,6 +4592,11 @@ void Viewport::_propagate_world_2d_changed(Node *p_node) {
 void Viewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_world_2d", "world_2d"), &Viewport::set_world_2d);
 	ClassDB::bind_method(D_METHOD("get_world_2d"), &Viewport::get_world_2d);
+
+	//FRED
+	ClassDB::bind_method(D_METHOD("set_surface_override_material", "material"), &Viewport::set_surface_override_material);
+	ClassDB::bind_method(D_METHOD("get_surface_override_material"), &Viewport::get_surface_override_material);
+
 	ClassDB::bind_method(D_METHOD("find_world_2d"), &Viewport::find_world_2d);
 
 	ClassDB::bind_method(D_METHOD("set_canvas_transform", "xform"), &Viewport::set_canvas_transform);
@@ -4743,6 +4769,8 @@ void Viewport::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "snap_2d_transforms_to_pixel"), "set_snap_2d_transforms_to_pixel", "is_snap_2d_transforms_to_pixel_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "snap_2d_vertices_to_pixel"), "set_snap_2d_vertices_to_pixel", "is_snap_2d_vertices_to_pixel_enabled");
 	ADD_GROUP("Rendering", "");
+	//FRED CHANGE
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "surface_override_material", PROPERTY_HINT_RESOURCE_TYPE, "BaseMaterial3D,ShaderMaterial"), "set_surface_override_material", "get_surface_override_material");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "msaa_2d", PROPERTY_HINT_ENUM, String::utf8("Disabled (Fastest),2× (Average),4× (Slow),8× (Slowest)")), "set_msaa_2d", "get_msaa_2d");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "msaa_3d", PROPERTY_HINT_ENUM, String::utf8("Disabled (Fastest),2× (Average),4× (Slow),8× (Slowest)")), "set_msaa_3d", "get_msaa_3d");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "screen_space_aa", PROPERTY_HINT_ENUM, "Disabled (Fastest),FXAA (Fast)"), "set_screen_space_aa", "get_screen_space_aa");
@@ -5027,6 +5055,17 @@ SubViewport::ClearMode SubViewport::get_clear_mode() const {
 	return clear_mode;
 }
 
+void SubViewport::set_render_pass(SubViewport::RenderPass p_render_pass) {
+	ERR_MAIN_THREAD_GUARD;
+	render_pass = p_render_pass;
+	RS::get_singleton()->viewport_set_render_pass(get_viewport_rid(), RS::ViewportRenderPass(p_render_pass));
+}
+
+SubViewport::RenderPass SubViewport::get_render_pass() const {
+	ERR_READ_THREAD_GUARD_V(ALL);
+	return render_pass;
+}
+
 DisplayServer::WindowID SubViewport::get_window_id() const {
 	ERR_READ_THREAD_GUARD_V(DisplayServer::INVALID_WINDOW_ID);
 	return DisplayServer::INVALID_WINDOW_ID;
@@ -5106,12 +5145,16 @@ void SubViewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_clear_mode", "mode"), &SubViewport::set_clear_mode);
 	ClassDB::bind_method(D_METHOD("get_clear_mode"), &SubViewport::get_clear_mode);
 
+	ClassDB::bind_method(D_METHOD("set_render_pass", "render_pass"), &SubViewport::set_render_pass);
+	ClassDB::bind_method(D_METHOD("get_render_pass"), &SubViewport::get_render_pass);
+
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "size", PROPERTY_HINT_NONE, "suffix:px"), "set_size", "get_size");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "size_2d_override", PROPERTY_HINT_NONE, "suffix:px"), "set_size_2d_override", "get_size_2d_override");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "size_2d_override_stretch"), "set_size_2d_override_stretch", "is_size_2d_override_stretch_enabled");
 	ADD_GROUP("Render Target", "render_target_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "render_target_clear_mode", PROPERTY_HINT_ENUM, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "render_target_update_mode", PROPERTY_HINT_ENUM, "Disabled,Once,When Visible,When Parent Visible,Always"), "set_update_mode", "get_update_mode");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "render_pass", PROPERTY_HINT_ENUM, "ALL,DEPTH_PRE_PASS,PRE_OPAQUE_PASS,OPAQUE_PASS,TRANSPARENT_PASS"), "set_render_pass", "get_render_pass");
 
 	BIND_ENUM_CONSTANT(CLEAR_MODE_ALWAYS);
 	BIND_ENUM_CONSTANT(CLEAR_MODE_NEVER);
@@ -5122,6 +5165,12 @@ void SubViewport::_bind_methods() {
 	BIND_ENUM_CONSTANT(UPDATE_WHEN_VISIBLE);
 	BIND_ENUM_CONSTANT(UPDATE_WHEN_PARENT_VISIBLE);
 	BIND_ENUM_CONSTANT(UPDATE_ALWAYS);
+
+	BIND_ENUM_CONSTANT(ALL);
+	BIND_ENUM_CONSTANT(DEPTH_PRE_PASS);
+	BIND_ENUM_CONSTANT(PRE_OPAQUE_PASS);
+	BIND_ENUM_CONSTANT(OPAQUE_PASS);
+	BIND_ENUM_CONSTANT(TRANSPARENT_PASS);
 }
 
 void SubViewport::_validate_property(PropertyInfo &p_property) const {

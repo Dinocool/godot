@@ -33,6 +33,7 @@
 
 #include "core/object/ref_counted.h"
 #include "servers/rendering_server.h"
+#include "scene/resources/material.h"
 
 class RenderSceneBuffersConfiguration : public RefCounted {
 	GDCLASS(RenderSceneBuffersConfiguration, RefCounted);
@@ -47,11 +48,13 @@ private:
 	RS::ViewportScaling3DMode scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_OFF;
 	RS::ViewportMSAA msaa_3d = RS::VIEWPORT_MSAA_DISABLED;
 	RS::ViewportScreenSpaceAA screen_space_aa = RS::VIEWPORT_SCREEN_SPACE_AA_DISABLED;
+	RS::ViewportRenderPass render_pass = RS::VIEWPORT_RENDER_PASS_ALL;
 
 	float fsr_sharpness = 0.0;
 	float texture_mipmap_bias = 0.0;
 	bool use_taa = false;
 	bool use_debanding = false;
+	RID surface_override_material;
 
 protected:
 	static void _bind_methods();
@@ -89,6 +92,13 @@ public:
 
 	bool get_use_debanding() const { return use_debanding; }
 	void set_use_debanding(bool p_use_debanding) { use_debanding = p_use_debanding; }
+
+	//FRED
+	RID get_surface_override_material() const { return surface_override_material; }
+	void set_surface_override_material(RID p_surface_override_material) { surface_override_material = p_surface_override_material; }
+
+	RS::ViewportRenderPass get_render_pass() const { return render_pass; }
+	void set_render_pass(RS::ViewportRenderPass p_render_pass) { render_pass = p_render_pass; }
 
 	RenderSceneBuffersConfiguration() {}
 	virtual ~RenderSceneBuffersConfiguration(){};
