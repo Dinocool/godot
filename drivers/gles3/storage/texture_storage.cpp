@@ -1813,6 +1813,29 @@ void TextureStorage::_update_render_target(RenderTarget *rt) {
 			texture->alloc_height = rt->size.y;
 			texture->active = true;
 		}
+		//DEPTH Texture
+		{
+			texture = get_texture(rt->depth_texture);
+			texture->format = Image::FORMAT_RF;
+			texture->real_format = Image::FORMAT_RF;
+			texture->target = texture_target;
+			if (rt->view_count > 1 && config->multiview_supported) {
+				texture->type = Texture::TYPE_LAYERED;
+				texture->layers = rt->view_count;
+			} else {
+				texture->type = Texture::TYPE_2D;
+				texture->layers = 1;
+			}
+			texture->gl_format_cache = GL_DEPTH_COMPONENT;
+			texture->gl_type_cache = GL_UNSIGNED_INT;
+			texture->gl_internal_format_cache = GL_DEPTH_COMPONENT24;
+			texture->tex_id = rt->depth;
+			texture->width = rt->size.x;
+			texture->alloc_width = rt->size.x;
+			texture->height = rt->size.y;
+			texture->alloc_height = rt->size.y;
+			texture->active = true;
+		}
 	}
 
 	glClearColor(0, 0, 0, 0);
@@ -2156,15 +2179,29 @@ RID TextureStorage::render_target_get_override_velocity(RID p_render_target) con
 	return rt->overridden.velocity;
 }
 
-RID TextureStorage::render_target_get_texture(RID p_render_target) {
+RID TextureStorage::render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer) {
 	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
 	ERR_FAIL_NULL_V(rt, RID());
 
-	if (rt->overridden.color.is_valid()) {
-		return rt->overridden.color;
-	}
 
-	return rt->texture;
+
+	switch (p_buffer) {
+		case RS::VIEWPORT_TEXTURE_BUFFER_COLOR:
+			if (rt->overridden.color.is_valid()) {
+				return rt->overridden.color;
+			}
+			return rt->texture;
+		case RS::VIEWPORT_TEXTURE_BUFFER_DEPTH:
+			return rt->depth_texture;
+		case RS::VIEWPORT_TEXTURE_BUFFER_DIFFUSE:
+			return rt->diffuse_texture;
+		case RS::VIEWPORT_TEXTURE_BUFFER_SPECULAR:
+			return rt->specular_texture;
+		case RS::VIEWPORT_TEXTURE_BUFFER_NORMAL_ROUGH:
+			return rt->normal_rough_texture;
+		case RS::VIEWPORT_TEXTURE_BUFFER_SUBSURFACE:
+			return rt->sss_texture;
+	}
 }
 
 void TextureStorage::render_target_set_transparent(RID p_render_target, bool p_transparent) {

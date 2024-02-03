@@ -201,7 +201,7 @@ public:
 	virtual RID render_target_get_override_depth(RID p_render_target) const override { return RID(); }
 	virtual RID render_target_get_override_velocity(RID p_render_target) const override { return RID(); }
 
-	virtual RID render_target_get_texture(RID p_render_target) override { return RID(); }
+	virtual RID render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer) override { return RID(); }
 };
 
 } // namespace RendererDummy

@@ -2779,7 +2779,7 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("viewport_set_update_mode", "viewport", "update_mode"), &RenderingServer::viewport_set_update_mode);
 	ClassDB::bind_method(D_METHOD("viewport_set_clear_mode", "viewport", "clear_mode"), &RenderingServer::viewport_set_clear_mode);
 	ClassDB::bind_method(D_METHOD("viewport_get_render_target", "viewport"), &RenderingServer::viewport_get_render_target);
-	ClassDB::bind_method(D_METHOD("viewport_get_texture", "viewport"), &RenderingServer::viewport_get_texture);
+	ClassDB::bind_method(D_METHOD("viewport_get_texture", "viewport", "buffer"), &RenderingServer::viewport_get_texture);
 	ClassDB::bind_method(D_METHOD("viewport_set_disable_3d", "viewport", "disable"), &RenderingServer::viewport_set_disable_3d);
 	ClassDB::bind_method(D_METHOD("viewport_set_disable_2d", "viewport", "disable"), &RenderingServer::viewport_set_disable_2d);
 	ClassDB::bind_method(D_METHOD("viewport_set_environment_mode", "viewport", "mode"), &RenderingServer::viewport_set_environment_mode);
@@ -2803,7 +2803,7 @@ void RenderingServer::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("viewport_set_positional_shadow_atlas_size", "viewport", "size", "use_16_bits"), &RenderingServer::viewport_set_positional_shadow_atlas_size, DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("viewport_set_positional_shadow_atlas_quadrant_subdivision", "viewport", "quadrant", "subdivision"), &RenderingServer::viewport_set_positional_shadow_atlas_quadrant_subdivision);
-	ClassDB::bind_method(D_METHOD("viewport_set_msaa_3d", "viewport", "msaa"), &RenderingServer::viewport_set_surface_override_material);
+	ClassDB::bind_method(D_METHOD("viewport_set_surface_override_material", "viewport", "surface_override_material"), &RenderingServer::viewport_set_surface_override_material);
 	ClassDB::bind_method(D_METHOD("viewport_set_msaa_3d", "viewport", "msaa"), &RenderingServer::viewport_set_msaa_3d);
 	ClassDB::bind_method(D_METHOD("viewport_set_msaa_2d", "viewport", "msaa"), &RenderingServer::viewport_set_msaa_2d);
 	ClassDB::bind_method(D_METHOD("viewport_set_use_hdr_2d", "viewport", "enabled"), &RenderingServer::viewport_set_use_hdr_2d);
@@ -2835,6 +2835,13 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_WHEN_VISIBLE); // Default
 	BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_WHEN_PARENT_VISIBLE);
 	BIND_ENUM_CONSTANT(VIEWPORT_UPDATE_ALWAYS);
+
+	BIND_ENUM_CONSTANT(VIEWPORT_TEXTURE_BUFFER_COLOR);
+	BIND_ENUM_CONSTANT(VIEWPORT_TEXTURE_BUFFER_DEPTH);
+	BIND_ENUM_CONSTANT(VIEWPORT_TEXTURE_BUFFER_DIFFUSE);
+	BIND_ENUM_CONSTANT(VIEWPORT_TEXTURE_BUFFER_SPECULAR);
+	BIND_ENUM_CONSTANT(VIEWPORT_TEXTURE_BUFFER_NORMAL_ROUGH);
+	BIND_ENUM_CONSTANT(VIEWPORT_TEXTURE_BUFFER_SUBSURFACE);
 
 	BIND_ENUM_CONSTANT(VIEWPORT_CLEAR_ALWAYS);
 	BIND_ENUM_CONSTANT(VIEWPORT_CLEAR_NEVER);

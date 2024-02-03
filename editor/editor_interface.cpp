@@ -110,7 +110,7 @@ Vector<Ref<Texture2D>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh
 	RS::get_singleton()->viewport_set_size(viewport, size, size);
 	RS::get_singleton()->viewport_set_transparent_background(viewport, true);
 	RS::get_singleton()->viewport_set_active(viewport, true);
-	RID viewport_texture = RS::get_singleton()->viewport_get_texture(viewport);
+	RID viewport_texture = RS::get_singleton()->viewport_get_texture(viewport,RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 
 	RID camera = RS::get_singleton()->camera_create();
 	RS::get_singleton()->viewport_attach_camera(viewport, camera);

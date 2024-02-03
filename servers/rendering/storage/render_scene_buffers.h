@@ -48,7 +48,6 @@ private:
 	RS::ViewportScaling3DMode scaling_3d_mode = RS::VIEWPORT_SCALING_3D_MODE_OFF;
 	RS::ViewportMSAA msaa_3d = RS::VIEWPORT_MSAA_DISABLED;
 	RS::ViewportScreenSpaceAA screen_space_aa = RS::VIEWPORT_SCREEN_SPACE_AA_DISABLED;
-	RS::ViewportRenderPass render_pass = RS::VIEWPORT_RENDER_PASS_ALL;
 
 	float fsr_sharpness = 0.0;
 	float texture_mipmap_bias = 0.0;
@@ -96,9 +95,6 @@ public:
 	//FRED
 	RID get_surface_override_material() const { return surface_override_material; }
 	void set_surface_override_material(RID p_surface_override_material) { surface_override_material = p_surface_override_material; }
-
-	RS::ViewportRenderPass get_render_pass() const { return render_pass; }
-	void set_render_pass(RS::ViewportRenderPass p_render_pass) { render_pass = p_render_pass; }
 
 	RenderSceneBuffersConfiguration() {}
 	virtual ~RenderSceneBuffersConfiguration(){};

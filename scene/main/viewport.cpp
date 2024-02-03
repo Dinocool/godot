@@ -170,7 +170,7 @@ Ref<Image> ViewportTexture::get_image() const {
 		}
 		return Ref<Image>();
 	}
-	return RS::get_singleton()->texture_2d_get(vp->texture_rid);
+	return RS::get_singleton()->texture_2d_get(buffer_rid);
 }
 
 void ViewportTexture::_setup_local_to_scene(const Node *p_loc_scene) {
@@ -184,28 +184,75 @@ void ViewportTexture::_setup_local_to_scene(const Node *p_loc_scene) {
 
 	vp->viewport_textures.insert(this);
 
+	set_buffer_mode(buffer_mode);
+
 	ERR_FAIL_NULL(RenderingServer::get_singleton());
 	if (proxy_ph.is_valid()) {
-		RS::get_singleton()->texture_proxy_update(proxy, vp->texture_rid);
+		RS::get_singleton()->texture_proxy_update(proxy, buffer_rid);
 		RS::get_singleton()->free(proxy_ph);
 		proxy_ph = RID();
 	} else {
 		ERR_FAIL_COND(proxy.is_valid()); // Should be invalid.
-		proxy = RS::get_singleton()->texture_proxy_create(vp->texture_rid);
+		proxy = RS::get_singleton()->texture_proxy_create(buffer_rid);
 	}
 	vp_changed = false;
 
 	emit_changed();
 }
 
+void ViewportTexture::set_buffer_mode(BufferMode p_buffer_mode) {
+	buffer_mode = p_buffer_mode;
+
+	if (!vp)
+		return;
+
+	switch (buffer_mode) {
+		case BUFFER_COLOR:
+			buffer_rid = vp->color_texture_rid;
+			break;
+		case BUFFER_DEPTH:
+			buffer_rid = vp->depth_texture_rid;
+			break;
+		case BUFFER_DIFFUSE:
+			buffer_rid = vp->diffuse_texture_rid;
+			break;
+		case BUFFER_SPECULAR:
+			buffer_rid = vp->specular_texture_rid;
+			break;
+		case BUFFER_NORMAL_ROUGH:
+			buffer_rid = vp->normal_rough_texture_rid;
+			break;
+		case BUFFER_SUBSURFACE:
+			buffer_rid = vp->subsurface_texture_rid;
+			break;
+	}
+
+	RS::get_singleton()->texture_proxy_update(proxy, buffer_rid);
+}
+
+ViewportTexture::BufferMode ViewportTexture::get_buffer_mode() const {
+	return buffer_mode;
+}
+
 void ViewportTexture::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("set_buffer_mode", "p_buffer_mode"), &ViewportTexture::set_buffer_mode);
+	ClassDB::bind_method(D_METHOD("get_buffer_mode"), &ViewportTexture::get_buffer_mode);
 	ClassDB::bind_method(D_METHOD("set_viewport_path_in_scene", "path"), &ViewportTexture::set_viewport_path_in_scene);
 	ClassDB::bind_method(D_METHOD("get_viewport_path_in_scene"), &ViewportTexture::get_viewport_path_in_scene);
 
 	ADD_PROPERTY(PropertyInfo(Variant::NODE_PATH, "viewport_path", PROPERTY_HINT_NODE_PATH_VALID_TYPES, "Viewport", PROPERTY_USAGE_DEFAULT | PROPERTY_USAGE_NODE_PATH_FROM_SCENE_ROOT), "set_viewport_path_in_scene", "get_viewport_path_in_scene");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "buffer_mode", PROPERTY_HINT_ENUM, "Color,Depth,Diffuse,Specular,Normal Roughness, Subsurface"), "set_buffer_mode", "get_buffer_mode");
+
+	BIND_ENUM_CONSTANT(BUFFER_COLOR);
+	BIND_ENUM_CONSTANT(BUFFER_DEPTH);
+	BIND_ENUM_CONSTANT(BUFFER_DIFFUSE);
+	BIND_ENUM_CONSTANT(BUFFER_SPECULAR);
+	BIND_ENUM_CONSTANT(BUFFER_NORMAL_ROUGH);
+	BIND_ENUM_CONSTANT(BUFFER_SUBSURFACE);
 }
 
 ViewportTexture::ViewportTexture() {
+	set_buffer_mode(BUFFER_COLOR);
 	set_local_to_scene(true);
 }
 
@@ -348,7 +395,7 @@ void Viewport::_sub_window_update(Window *p_window) {
 		close_icon->draw(sw.canvas_item, r.position + Vector2(r.size.width - close_h_ofs, -close_v_ofs));
 	}
 
-	RS::get_singleton()->canvas_item_add_texture_rect(sw.canvas_item, r, sw.window->get_texture()->get_rid());
+	RS::get_singleton()->canvas_item_add_texture_rect(sw.canvas_item, r, sw.window->get_texture(ViewportTexture::BUFFER_COLOR)->get_rid());
 }
 
 void Viewport::_sub_window_grab_focus(Window *p_window) {
@@ -1324,9 +1371,16 @@ void Viewport::_update_canvas_items(Node *p_node) {
 	}
 }
 
-Ref<ViewportTexture> Viewport::get_texture() const {
+Ref<ViewportTexture> Viewport::get_texture(ViewportTexture::BufferMode p_buffer) const {
 	ERR_READ_THREAD_GUARD_V(Ref<ViewportTexture>());
-	return default_texture;
+	switch (p_buffer) {
+		case ViewportTexture::BUFFER_NORMAL_ROUGH:
+			return normal_rough_texture;
+		case ViewportTexture::BUFFER_DEPTH:
+			return depth_texture;
+		default:
+			return color_texture;
+	}
 }
 
 void Viewport::set_positional_shadow_atlas_size(int p_size) {
@@ -4923,12 +4977,32 @@ Viewport::Viewport() {
 	world_2d->register_viewport(this);
 
 	viewport = RenderingServer::get_singleton()->viewport_create();
-	texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport);
+	color_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_COLOR));
+	color_texture.instantiate();
+	color_texture->vp = const_cast<Viewport *>(this);
+	viewport_textures.insert(color_texture.ptr());
+	color_texture->proxy = RS::get_singleton()->texture_proxy_create(color_texture_rid);
+	color_texture->set_buffer_mode(ViewportTexture::BUFFER_COLOR);
 
-	default_texture.instantiate();
-	default_texture->vp = const_cast<Viewport *>(this);
-	viewport_textures.insert(default_texture.ptr());
-	default_texture->proxy = RS::get_singleton()->texture_proxy_create(texture_rid);
+	depth_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_DEPTH));
+	depth_texture.instantiate();
+	depth_texture->vp = const_cast<Viewport *>(this);
+	viewport_textures.insert(depth_texture.ptr());
+	depth_texture->proxy = RS::get_singleton()->texture_proxy_create(depth_texture_rid);
+	depth_texture->set_buffer_mode(ViewportTexture::BUFFER_DEPTH);
+
+	diffuse_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_DIFFUSE));
+	specular_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_SPECULAR));
+	normal_rough_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_NORMAL_ROUGH));
+	normal_rough_texture.instantiate();
+	normal_rough_texture->vp = const_cast<Viewport *>(this);
+	viewport_textures.insert(normal_rough_texture.ptr());
+	normal_rough_texture->proxy = RS::get_singleton()->texture_proxy_create(normal_rough_texture_rid);
+	normal_rough_texture->set_buffer_mode(ViewportTexture::BUFFER_NORMAL_ROUGH);
+
+	subsurface_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_SUBSURFACE));
+
+
 
 	canvas_layers.insert(nullptr); // This eases picking code (interpreted as the canvas of the Viewport).
 
@@ -5055,17 +5129,6 @@ SubViewport::ClearMode SubViewport::get_clear_mode() const {
 	return clear_mode;
 }
 
-void SubViewport::set_render_pass(SubViewport::RenderPass p_render_pass) {
-	ERR_MAIN_THREAD_GUARD;
-	render_pass = p_render_pass;
-	RS::get_singleton()->viewport_set_render_pass(get_viewport_rid(), RS::ViewportRenderPass(p_render_pass));
-}
-
-SubViewport::RenderPass SubViewport::get_render_pass() const {
-	ERR_READ_THREAD_GUARD_V(ALL);
-	return render_pass;
-}
-
 DisplayServer::WindowID SubViewport::get_window_id() const {
 	ERR_READ_THREAD_GUARD_V(DisplayServer::INVALID_WINDOW_ID);
 	return DisplayServer::INVALID_WINDOW_ID;
@@ -5145,16 +5208,12 @@ void SubViewport::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_clear_mode", "mode"), &SubViewport::set_clear_mode);
 	ClassDB::bind_method(D_METHOD("get_clear_mode"), &SubViewport::get_clear_mode);
 
-	ClassDB::bind_method(D_METHOD("set_render_pass", "render_pass"), &SubViewport::set_render_pass);
-	ClassDB::bind_method(D_METHOD("get_render_pass"), &SubViewport::get_render_pass);
-
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "size", PROPERTY_HINT_NONE, "suffix:px"), "set_size", "get_size");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2I, "size_2d_override", PROPERTY_HINT_NONE, "suffix:px"), "set_size_2d_override", "get_size_2d_override");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "size_2d_override_stretch"), "set_size_2d_override_stretch", "is_size_2d_override_stretch_enabled");
 	ADD_GROUP("Render Target", "render_target_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "render_target_clear_mode", PROPERTY_HINT_ENUM, "Always,Never,Next Frame"), "set_clear_mode", "get_clear_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "render_target_update_mode", PROPERTY_HINT_ENUM, "Disabled,Once,When Visible,When Parent Visible,Always"), "set_update_mode", "get_update_mode");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "render_pass", PROPERTY_HINT_ENUM, "ALL,DEPTH_PRE_PASS,PRE_OPAQUE_PASS,OPAQUE_PASS,TRANSPARENT_PASS"), "set_render_pass", "get_render_pass");
 
 	BIND_ENUM_CONSTANT(CLEAR_MODE_ALWAYS);
 	BIND_ENUM_CONSTANT(CLEAR_MODE_NEVER);
@@ -5165,12 +5224,6 @@ void SubViewport::_bind_methods() {
 	BIND_ENUM_CONSTANT(UPDATE_WHEN_VISIBLE);
 	BIND_ENUM_CONSTANT(UPDATE_WHEN_PARENT_VISIBLE);
 	BIND_ENUM_CONSTANT(UPDATE_ALWAYS);
-
-	BIND_ENUM_CONSTANT(ALL);
-	BIND_ENUM_CONSTANT(DEPTH_PRE_PASS);
-	BIND_ENUM_CONSTANT(PRE_OPAQUE_PASS);
-	BIND_ENUM_CONSTANT(OPAQUE_PASS);
-	BIND_ENUM_CONSTANT(TRANSPARENT_PASS);
 }
 
 void SubViewport::_validate_property(PropertyInfo &p_property) const {

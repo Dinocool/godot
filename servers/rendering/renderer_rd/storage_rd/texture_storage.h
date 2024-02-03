@@ -330,6 +330,9 @@ private:
 		Size2i size;
 		uint32_t view_count;
 		RID color;
+		RID depth;
+		RID normal_rough;
+
 		Vector<RID> color_slices;
 		RID color_multisample; // Needed when 2D MSAA is enabled.
 
@@ -407,6 +410,12 @@ private:
 
 		//texture generated for this owner (nor RD).
 		RID texture;
+		RID depth_texture;
+		RID specular_texture;
+		RID diffuse_texture;
+		RID normal_rough_texture;
+		RID sss_texture;
+
 		bool was_used;
 
 		//clear request
@@ -756,10 +765,10 @@ public:
 	virtual RID render_target_get_override_velocity(RID p_render_target) const override;
 	RID render_target_get_override_velocity_slice(RID p_render_target, const uint32_t p_layer) const;
 
-	virtual RID render_target_get_texture(RID p_render_target) override;
+	virtual RID render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer) override;
 
 	RID render_target_get_rd_framebuffer(RID p_render_target);
-	RID render_target_get_rd_texture(RID p_render_target);
+	RID render_target_get_rd_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer);
 	RID render_target_get_rd_texture_slice(RID p_render_target, uint32_t p_layer);
 	RID render_target_get_rd_texture_msaa(RID p_render_target);
 	RID render_target_get_rd_backbuffer(RID p_render_target);

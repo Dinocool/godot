@@ -145,7 +145,6 @@ void RenderSceneBuffersRD::configure(const RenderSceneBuffersConfiguration *p_co
 	use_debanding = p_config->get_use_debanding();
 
 	//FRED
-	render_pass = p_config->get_render_pass();
 	surface_override_material = p_config->get_surface_override_material();
 
 	ERR_FAIL_COND_MSG(view_count == 0, "Must have at least 1 view");
@@ -384,7 +383,7 @@ RID RenderSceneBuffersRD::create_texture_view(const StringName &p_context, const
 RID RenderSceneBuffersRD::get_texture(const StringName &p_context, const StringName &p_texture_name) const {
 	NTKey key(p_context, p_texture_name);
 
-	ERR_FAIL_COND_V(!named_textures.has(key), RID());
+	ERR_FAIL_COND_V_MSG(!named_textures.has(key), RID(), "Named textures does not contain context: " + p_context + ", name: " + p_texture_name);
 
 	return named_textures[key].texture;
 }
@@ -625,6 +624,21 @@ RID RenderSceneBuffersRD::get_depth_texture() {
 		return depth;
 	} else {
 		return get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH);
+	}
+}
+
+RID RenderSceneBuffersRD::get_render_target_texture(RS::ViewportTextureBuffer p_texture_buffer) {
+	if (render_target.is_null()) {
+		// not applicable when there is no render target (likely this is for a reflection probe)
+		return RID();
+	}
+
+	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
+	RID texture = texture_storage->render_target_get_rd_texture(render_target,p_texture_buffer);
+	if (texture.is_valid()) {
+		return texture;
+	} else {
+		return RID();
 	}
 }
 

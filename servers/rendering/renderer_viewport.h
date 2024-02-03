@@ -112,7 +112,6 @@ public:
 		RS::ViewportDebugDraw debug_draw = RenderingServer::VIEWPORT_DEBUG_DRAW_DISABLED;
 
 		RS::ViewportClearMode clear_mode = RenderingServer::VIEWPORT_CLEAR_ALWAYS;
-		RS::ViewportRenderPass render_pass = RenderingServer::VIEWPORT_RENDER_PASS_ALL;
 
 		RS::CanvasItemTextureFilter texture_filter = RS::CANVAS_ITEM_TEXTURE_FILTER_LINEAR;
 		RS::CanvasItemTextureRepeat texture_repeat = RS::CANVAS_ITEM_TEXTURE_REPEAT_DISABLED;
@@ -240,10 +239,9 @@ public:
 	void viewport_set_vflip(RID p_viewport, bool p_enable);
 
 	void viewport_set_clear_mode(RID p_viewport, RS::ViewportClearMode p_clear_mode);
-	void viewport_set_render_pass(RID p_viewport, RS::ViewportRenderPass p_render_pass);
 
 	RID viewport_get_render_target(RID p_viewport) const;
-	RID viewport_get_texture(RID p_viewport) const;
+	RID viewport_get_texture(RID p_viewport, RS::ViewportTextureBuffer p_buffer) const;
 	RID viewport_get_occluder_debug_texture(RID p_viewport) const;
 
 	void viewport_set_prev_camera_data(RID p_viewport, const RendererSceneRender::CameraData *p_camera_data);

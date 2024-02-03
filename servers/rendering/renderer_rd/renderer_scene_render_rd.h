@@ -139,7 +139,9 @@ protected:
 
 	void _debug_sdfgi_probes(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_framebuffer, uint32_t p_view_count, const Projection *p_camera_with_transforms);
 
+	virtual bool _render_buffers_has_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
 	virtual RID _render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
+	virtual RID _render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers, uint32_t p_layer) = 0;
 	virtual RID _render_buffers_get_velocity_texture(Ref<RenderSceneBuffersRD> p_render_buffers) = 0;
 
 	bool _needs_post_prepass_render(RenderDataRD *p_render_data, bool p_use_gi);
@@ -147,6 +149,8 @@ protected:
 
 	void _render_buffers_copy_screen_texture(const RenderDataRD *p_render_data);
 	void _render_buffers_copy_depth_texture(const RenderDataRD *p_render_data);
+	void _render_buffers_copy_viewport_depth_texture(const RenderDataRD *p_render_data);
+	void _render_buffers_copy_viewport_normals_rough_texture(const RenderDataRD *p_render_data);
 	void _render_buffers_post_process_and_tonemap(const RenderDataRD *p_render_data);
 	void _post_process_subpass(RID p_source_texture, RID p_framebuffer, const RenderDataRD *p_render_data);
 	void _disable_clear_request(const RenderDataRD *p_render_data);

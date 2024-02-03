@@ -223,7 +223,6 @@ void RendererViewport::_configure_3d_render_buffers(Viewport *p_viewport) {
 			rb_config.set_use_taa(use_taa);
 			rb_config.set_use_debanding(p_viewport->use_debanding);
 			//FRED
-			rb_config.set_render_pass(p_viewport->render_pass);
 			rb_config.set_surface_override_material(p_viewport->surface_override_material);
 
 			p_viewport->render_buffers->configure(&rb_config);
@@ -977,14 +976,6 @@ void RendererViewport::viewport_set_clear_mode(RID p_viewport, RS::ViewportClear
 	viewport->clear_mode = p_clear_mode;
 }
 
-void RendererViewport::viewport_set_render_pass(RID p_viewport, RS::ViewportRenderPass p_render_pass) {
-	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
-	ERR_FAIL_NULL(viewport);
-
-	viewport->render_pass = p_render_pass;
-	_configure_3d_render_buffers(viewport);
-}
-
 void RendererViewport::viewport_attach_to_screen(RID p_viewport, const Rect2 &p_rect, DisplayServer::WindowID p_screen) {
 	Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_NULL(viewport);
@@ -1049,11 +1040,11 @@ RID RendererViewport::viewport_get_render_target(RID p_viewport) const {
 	return viewport->render_target;
 }
 
-RID RendererViewport::viewport_get_texture(RID p_viewport) const {
+RID RendererViewport::viewport_get_texture(RID p_viewport, RS::ViewportTextureBuffer p_buffer) const {
 	const Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_NULL_V(viewport, RID());
 
-	return RSG::texture_storage->render_target_get_texture(viewport->render_target);
+	return RSG::texture_storage->render_target_get_texture(viewport->render_target,p_buffer);
 }
 
 RID RendererViewport::viewport_get_occluder_debug_texture(RID p_viewport) const {

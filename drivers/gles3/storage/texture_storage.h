@@ -373,17 +373,24 @@ struct RenderTarget {
 		RID depth;
 		RID velocity;
 
+
 		struct FBOCacheEntry {
 			GLuint fbo;
 			GLuint color;
 			GLuint depth;
 			Size2i size;
 			Vector<GLuint> allocated_textures;
+
 		};
 		RBMap<uint32_t, FBOCacheEntry> fbo_cache;
 	} overridden;
 
 	RID texture;
+	RID depth_texture;
+	RID specular_texture;
+	RID diffuse_texture;
+	RID normal_rough_texture;
+	RID sss_texture;
 
 	Color clear_color = Color(1, 1, 1, 1);
 	bool clear_requested = false;
@@ -669,7 +676,7 @@ public:
 	virtual RID render_target_get_override_depth(RID p_render_target) const override;
 	virtual RID render_target_get_override_velocity(RID p_render_target) const override;
 
-	virtual RID render_target_get_texture(RID p_render_target) override;
+	virtual RID render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer) override;
 
 	void bind_framebuffer(GLuint framebuffer) {
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);

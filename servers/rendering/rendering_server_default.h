@@ -611,7 +611,6 @@ public:
 	FUNC2(viewport_set_parent_viewport, RID, RID)
 
 	FUNC2(viewport_set_clear_mode, RID, ViewportClearMode)
-	FUNC2(viewport_set_render_pass, RID, ViewportRenderPass)
 
 	FUNC3(viewport_attach_to_screen, RID, const Rect2 &, int)
 	FUNC2(viewport_set_render_direct_to_screen, RID, bool)
@@ -624,7 +623,7 @@ public:
 	FUNC2(viewport_set_update_mode, RID, ViewportUpdateMode)
 
 	FUNC1RC(RID, viewport_get_render_target, RID)
-	FUNC1RC(RID, viewport_get_texture, RID)
+	FUNC2RC(RID, viewport_get_texture, RID, ViewportTextureBuffer)
 
 	FUNC2(viewport_set_disable_2d, RID, bool)
 	FUNC2(viewport_set_environment_mode, RID, ViewportEnvironmentMode)

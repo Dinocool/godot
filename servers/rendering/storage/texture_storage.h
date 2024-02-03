@@ -179,7 +179,7 @@ public:
 	virtual RID render_target_get_override_velocity(RID p_render_target) const = 0;
 
 	// get textures
-	virtual RID render_target_get_texture(RID p_render_target) = 0;
+	virtual RID render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer) = 0;
 };
 
 #endif // TEXTURE_STORAGE_H

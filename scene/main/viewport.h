@@ -53,6 +53,17 @@ class Window;
 class World2D;
 
 class ViewportTexture : public Texture2D {
+public:
+	enum BufferMode {
+		BUFFER_COLOR,
+		BUFFER_DEPTH,
+		BUFFER_DIFFUSE,
+		BUFFER_SPECULAR,
+		BUFFER_NORMAL_ROUGH,
+		BUFFER_SUBSURFACE
+	};
+
+private:
 	GDCLASS(ViewportTexture, Texture2D);
 
 	NodePath path;
@@ -66,6 +77,9 @@ class ViewportTexture : public Texture2D {
 
 	mutable RID proxy_ph;
 	mutable RID proxy;
+
+	BufferMode buffer_mode;
+	RID buffer_rid;
 
 protected:
 	static void _bind_methods();
@@ -86,6 +100,9 @@ public:
 	virtual bool has_alpha() const override;
 
 	virtual Ref<Image> get_image() const override;
+
+	virtual void set_buffer_mode(BufferMode p_buffer_mode);
+	virtual BufferMode get_buffer_mode() const;
 
 	ViewportTexture();
 	~ViewportTexture();
@@ -293,7 +310,15 @@ private:
 
 	void _update_global_transform();
 
-	RID texture_rid;
+	RID color_texture_rid;
+	Ref<ViewportTexture> color_texture;
+	RID depth_texture_rid;
+	Ref<ViewportTexture> depth_texture;
+	RID diffuse_texture_rid;
+	RID specular_texture_rid;
+	RID normal_rough_texture_rid;
+	Ref<ViewportTexture> normal_rough_texture;
+	RID subsurface_texture_rid;
 
 	DebugDraw debug_draw = DEBUG_DRAW_DISABLED;
 
@@ -314,7 +339,6 @@ private:
 	float mesh_lod_threshold = 1.0;
 	bool use_occlusion_culling = false;
 
-	Ref<ViewportTexture> default_texture;
 	HashSet<ViewportTexture *> viewport_textures;
 
 	void _update_viewport_path();
@@ -542,7 +566,7 @@ public:
 	void set_use_hdr_2d(bool p_enable);
 	bool is_using_hdr_2d() const;
 
-	Ref<ViewportTexture> get_texture() const;
+	Ref<ViewportTexture> get_texture(ViewportTexture::BufferMode p_buffer) const;
 
 	void set_positional_shadow_atlas_size(int p_size);
 	int get_positional_shadow_atlas_size() const;
@@ -794,18 +818,9 @@ public:
 		UPDATE_ALWAYS
 	};
 
-	enum RenderPass {
-		ALL,
-		DEPTH_PRE_PASS,
-		PRE_OPAQUE_PASS,
-		OPAQUE_PASS,
-		TRANSPARENT_PASS
-	};
-
 private:
 	UpdateMode update_mode = UPDATE_WHEN_VISIBLE;
 	ClearMode clear_mode = CLEAR_MODE_ALWAYS;
-	RenderPass render_pass = ALL;
 	bool size_2d_override_stretch = false;
 
 	void _internal_set_size(const Size2i &p_size, bool p_force = false);
@@ -832,9 +847,6 @@ public:
 	void set_clear_mode(ClearMode p_mode);
 	ClearMode get_clear_mode() const;
 
-	void set_render_pass(RenderPass p_mode);
-	RenderPass get_render_pass() const;
-
 	virtual Transform2D get_screen_transform_internal(bool p_absolute_position = false) const override;
 	virtual Transform2D get_popup_base_transform() const override;
 	virtual bool is_directly_attached_to_screen() const override;
@@ -845,6 +857,8 @@ public:
 	SubViewport();
 	~SubViewport();
 };
+
+VARIANT_ENUM_CAST(ViewportTexture::BufferMode);
 VARIANT_ENUM_CAST(Viewport::Scaling3DMode);
 VARIANT_ENUM_CAST(SubViewport::UpdateMode);
 VARIANT_ENUM_CAST(Viewport::PositionalShadowAtlasQuadrantSubdiv);
@@ -855,7 +869,6 @@ VARIANT_ENUM_CAST(Viewport::SDFScale);
 VARIANT_ENUM_CAST(Viewport::SDFOversize);
 VARIANT_ENUM_CAST(Viewport::VRSMode);
 VARIANT_ENUM_CAST(SubViewport::ClearMode);
-VARIANT_ENUM_CAST(SubViewport::RenderPass);
 VARIANT_ENUM_CAST(Viewport::RenderInfo);
 VARIANT_ENUM_CAST(Viewport::RenderInfoType);
 VARIANT_ENUM_CAST(Viewport::DefaultCanvasItemTextureFilter);
