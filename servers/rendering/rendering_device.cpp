@@ -2542,6 +2542,9 @@ RID RenderingDevice::uniform_set_create(const Vector<Uniform> &p_uniforms, RID p
 
 					RID texture_id = uniform.get_id(j + 1);
 					Texture *texture = texture_owner.get_or_null(texture_id);
+					if (texture == nullptr) {
+						void(0);
+					}
 					ERR_FAIL_NULL_V_MSG(texture, RID(), "Texture (binding: " + itos(uniform.binding) + ", index " + itos(j) + ") is not a valid texture.");
 
 					ERR_FAIL_COND_V_MSG(!(texture->usage_flags & TEXTURE_USAGE_SAMPLING_BIT), RID(),
@@ -2579,6 +2582,9 @@ RID RenderingDevice::uniform_set_create(const Vector<Uniform> &p_uniforms, RID p
 				for (uint32_t j = 0; j < uniform.get_id_count(); j++) {
 					RID texture_id = uniform.get_id(j);
 					Texture *texture = texture_owner.get_or_null(texture_id);
+					if (texture == nullptr) {
+						void(0);
+					}
 					ERR_FAIL_NULL_V_MSG(texture, RID(), "Texture (binding: " + itos(uniform.binding) + ", index " + itos(j) + ") is not a valid texture.");
 
 					ERR_FAIL_COND_V_MSG(!(texture->usage_flags & TEXTURE_USAGE_SAMPLING_BIT), RID(),

@@ -370,6 +370,11 @@ void RendererSceneRenderRD::_render_buffers_copy_viewport_depth_texture(const Re
 void RendererSceneRenderRD::_render_buffers_copy_viewport_normals_rough_texture(const RenderDataRD* p_render_data) {
 
 	Ref<RenderSceneBuffersRD> rb = p_render_data->render_buffers;
+	ERR_FAIL_COND(rb.is_null());
+
+	if (!_render_buffers_has_normal_texture(rb)) {
+		return;
+	}
 
 	RD::get_singleton()->draw_command_begin_label("Copy viewport normal rough texture");
 
@@ -378,8 +383,9 @@ void RendererSceneRenderRD::_render_buffers_copy_viewport_normals_rough_texture(
 	for (uint32_t v = 0; v < p_render_data->scene_data->view_count; v++) {
 		RID normal_texture = _render_buffers_get_normal_texture(rb,v);
 		RID normal_rough_view_texture = rb->get_render_target_texture(RS::VIEWPORT_TEXTURE_BUFFER_NORMAL_ROUGH);
-
-		copy_effects->copy_to_rect(normal_texture, normal_rough_view_texture, Rect2i(0, 0, size.x, size.y));
+		if (normal_texture.is_valid() && normal_rough_view_texture.is_valid()) {
+			copy_effects->copy_to_rect(normal_texture, normal_rough_view_texture, Rect2i(0, 0, size.x, size.y));
+		}
 	}
 	RD::get_singleton()->draw_command_end_label();
 }

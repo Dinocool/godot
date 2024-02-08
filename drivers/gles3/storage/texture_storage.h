@@ -386,11 +386,6 @@ struct RenderTarget {
 	} overridden;
 
 	RID texture;
-	RID depth_texture;
-	RID specular_texture;
-	RID diffuse_texture;
-	RID normal_rough_texture;
-	RID sss_texture;
 
 	Color clear_color = Color(1, 1, 1, 1);
 	bool clear_requested = false;

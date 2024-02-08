@@ -3498,6 +3498,9 @@ RID RenderForwardClustered::_setup_sdfgi_render_pass_uniform_set(RID p_albedo_te
 
 bool RenderForwardClustered::_render_buffers_has_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) {
 	Ref<RenderBufferDataForwardClustered> rb_data = p_render_buffers->get_custom_data(RB_SCOPE_FORWARD_CLUSTERED);
+	if (!rb_data.is_valid()) {
+		return false;
+	}
 
 	return p_render_buffers->get_msaa_3d() == RS::VIEWPORT_MSAA_DISABLED ? rb_data->has_normal_roughness() : rb_data->has_normal_roughness_msaa();
 }
@@ -3505,15 +3508,11 @@ bool RenderForwardClustered::_render_buffers_has_normal_texture(Ref<RenderSceneB
 RID RenderForwardClustered::_render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) {
 	Ref<RenderBufferDataForwardClustered> rb_data = p_render_buffers->get_custom_data(RB_SCOPE_FORWARD_CLUSTERED);
 
-	rb_data->ensure_normal_roughness_texture();
-
 	return p_render_buffers->get_msaa_3d() == RS::VIEWPORT_MSAA_DISABLED ? rb_data->get_normal_roughness() : rb_data->get_normal_roughness_msaa();
 }
 
 RID RenderForwardClustered::_render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers, uint32_t p_layer) {
 	Ref<RenderBufferDataForwardClustered> rb_data = p_render_buffers->get_custom_data(RB_SCOPE_FORWARD_CLUSTERED);
-
-	rb_data->ensure_normal_roughness_texture();
 
 	return p_render_buffers->get_msaa_3d() == RS::VIEWPORT_MSAA_DISABLED ? rb_data->get_normal_roughness(p_layer) : rb_data->get_normal_roughness_msaa(p_layer);
 }
