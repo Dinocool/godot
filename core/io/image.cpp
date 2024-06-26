@@ -1685,6 +1685,7 @@ static void _generate_po2_mipmap(const Component *p_src, Component *p_dst, uint3
 		while (count) {
 			count--;
 			for (int j = 0; j < CC; j++) {
+				//FRED
 				average_func(dst_ptr[j], rup_ptr[j], rup_ptr[j + right_step], rdown_ptr[j], rdown_ptr[j + right_step]);
 			}
 

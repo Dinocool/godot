@@ -3359,6 +3359,12 @@ void TextureStorage::render_target_free(RID p_rid) {
 		texture_free(rt->depth_texture);
 	}
 
+	if (rt->normal_rough_texture.is_valid()) {
+		Texture *tex = get_texture(rt->normal_rough_texture);
+		tex->is_render_target = false;
+		texture_free(rt->normal_rough_texture);
+	}
+
 	render_target_owner.free(p_rid);
 }
 
