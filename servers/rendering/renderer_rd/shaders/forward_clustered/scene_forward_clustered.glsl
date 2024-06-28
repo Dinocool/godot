@@ -1862,6 +1862,7 @@ void fragment_shader(in SceneData scene_data) {
 			tint = mix(tint, vec3(1.0), shadow);
 			shadow = 1.0;
 #endif
+			float size_A = sc_use_directional_soft_shadows ? directional_lights.data[i].size : 0.0;
 			float light_attenuation = 1.0;
 #ifdef SHADOW_ATTENUATION_USED
 			float shadow_attenuation = shadow;

@@ -46,8 +46,9 @@ vec3 F0(float metallic, float specular, vec3 albedo) {
 // Interleaved Gradient Noise
 // https://www.iryoku.com/next-generation-post-processing-in-call-of-duty-advanced-warfare
 float quick_hash(vec2 pos) {
-	const vec3 magic = vec3(0.06711056f, 0.00583715f, 52.9829189f);
-	return fract(magic.z * fract(dot(pos, magic.xy)));
+	//const vec3 magic = vec3(0.06711056f, 0.00583715f, 52.9829189f);
+	//return fract(magic.z * fract(dot(pos, magic.xy)));
+	return 1.0;
 }
 
 float sample_directional_pcf_shadow(texture2D shadow, vec2 shadow_pixel_size, vec4 coord) {
