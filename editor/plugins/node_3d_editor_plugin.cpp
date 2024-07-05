@@ -1078,6 +1078,10 @@ void Node3DEditorViewport::_select_region() {
 			node = node->get_parent();
 		}
 
+		if (node == nullptr) {
+			continue;
+		}
+
 		// Replace the node by the group if grouped
 		if (node->is_class("Node3D")) {
 			Node3D *sel = Object::cast_to<Node3D>(node);
