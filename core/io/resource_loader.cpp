@@ -216,11 +216,17 @@ void ResourceLoader::LoadToken::clear() {
 	if (!local_path.is_empty()) { // Empty is used for the special case where the load task is not registered.
 		DEV_ASSERT(thread_load_tasks.has(local_path));
 		ThreadLoadTask &load_task = thread_load_tasks[local_path];
-		if (!load_task.awaited) {
+		if (load_task.task_id && !load_task.awaited) {
 			task_to_await = load_task.task_id;
+			// The task must be alive until awaited, but not findable, so let's
+			// keep it in the map so the pointer is still valid, but change the key
+			// to something invalid as a path, and with no collision risk.
+			thread_load_tasks.replace_key(local_path, itos(task_to_await));
 			load_task.awaited = true;
 		}
-		thread_load_tasks.erase(local_path);
+		if (!task_to_await) {
+			thread_load_tasks.erase(local_path);
+		}
 		local_path.clear();
 	}
 
@@ -235,6 +241,9 @@ void ResourceLoader::LoadToken::clear() {
 	// If task is unused, await it here, locally, now the token data is consistent.
 	if (task_to_await) {
 		WorkerThreadPool::get_singleton()->wait_for_task_completion(task_to_await);
+		thread_load_mutex.lock();
+		thread_load_tasks.erase(itos(task_to_await));
+		thread_load_mutex.unlock();
 	}
 }
 
@@ -319,7 +328,8 @@ void ResourceLoader::_thread_load_function(void *p_userdata) {
 	}
 	// --
 
-	Ref<Resource> res = _load(load_task.remapped_path, load_task.remapped_path != load_task.local_path ? load_task.local_path : String(), load_task.type_hint, load_task.cache_mode, &load_task.error, load_task.use_sub_threads, &load_task.progress);
+	Error load_err = OK;
+	Ref<Resource> res = _load(load_task.remapped_path, load_task.remapped_path != load_task.local_path ? load_task.local_path : String(), load_task.type_hint, load_task.cache_mode, &load_err, load_task.use_sub_threads, &load_task.progress);
 	if (MessageQueue::get_singleton() != MessageQueue::get_main_singleton()) {
 		MessageQueue::get_singleton()->flush();
 	}
@@ -328,7 +338,8 @@ void ResourceLoader::_thread_load_function(void *p_userdata) {
 
 	load_task.resource = res;
 
-	load_task.progress = 1.0; //it was fully loaded at this point, so force progress to 1.0
+	load_task.progress = 1.0; // It was fully loaded at this point, so force progress to 1.0.
+	load_task.error = load_err;
 	if (load_task.error != OK) {
 		load_task.status = THREAD_LOAD_FAILED;
 	} else {
@@ -410,28 +421,27 @@ static String _validate_local_path(const String &p_path) {
 }
 
 Error ResourceLoader::load_threaded_request(const String &p_path, const String &p_type_hint, bool p_use_sub_threads, ResourceFormatLoader::CacheMode p_cache_mode) {
-	thread_load_mutex.lock();
-	if (user_load_tokens.has(p_path)) {
-		print_verbose("load_threaded_request(): Another threaded load for resource path '" + p_path + "' has been initiated. Not an error.");
-		user_load_tokens[p_path]->reference(); // Additional request.
-		thread_load_mutex.unlock();
-		return OK;
-	}
-	user_load_tokens[p_path] = nullptr;
-	thread_load_mutex.unlock();
+	Ref<ResourceLoader::LoadToken> token = _load_start(p_path, p_type_hint, p_use_sub_threads ? LOAD_THREAD_DISTRIBUTE : LOAD_THREAD_SPAWN_SINGLE, p_cache_mode, true);
+	return token.is_valid() ? OK : FAILED;
+}
 
-	Ref<ResourceLoader::LoadToken> token = _load_start(p_path, p_type_hint, p_use_sub_threads ? LOAD_THREAD_DISTRIBUTE : LOAD_THREAD_SPAWN_SINGLE, p_cache_mode);
-	if (token.is_valid()) {
-		thread_load_mutex.lock();
-		token->user_path = p_path;
-		token->reference(); // First request.
-		user_load_tokens[p_path] = token.ptr();
-		print_lt("REQUEST: user load tokens: " + itos(user_load_tokens.size()));
-		thread_load_mutex.unlock();
-		return OK;
+ResourceLoader::LoadToken *ResourceLoader::_load_threaded_request_reuse_user_token(const String &p_path) {
+	HashMap<String, LoadToken *>::Iterator E = user_load_tokens.find(p_path);
+	if (E) {
+		print_verbose("load_threaded_request(): Another threaded load for resource path '" + p_path + "' has been initiated. Not an error.");
+		LoadToken *token = E->value;
+		token->reference(); // Additional request.
+		return token;
 	} else {
-		return FAILED;
+		return nullptr;
 	}
+}
+
+void ResourceLoader::_load_threaded_request_setup_user_token(LoadToken *p_token, const String &p_path) {
+	p_token->user_path = p_path;
+	p_token->reference(); // First request.
+	user_load_tokens[p_path] = p_token;
+	print_lt("REQUEST: user load tokens: " + itos(user_load_tokens.size()));
 }
 
 Ref<Resource> ResourceLoader::load(const String &p_path, const String &p_type_hint, ResourceFormatLoader::CacheMode p_cache_mode, Error *r_error) {
@@ -451,7 +461,7 @@ Ref<Resource> ResourceLoader::load(const String &p_path, const String &p_type_hi
 	return res;
 }
 
-Ref<ResourceLoader::LoadToken> ResourceLoader::_load_start(const String &p_path, const String &p_type_hint, LoadThreadMode p_thread_mode, ResourceFormatLoader::CacheMode p_cache_mode) {
+Ref<ResourceLoader::LoadToken> ResourceLoader::_load_start(const String &p_path, const String &p_type_hint, LoadThreadMode p_thread_mode, ResourceFormatLoader::CacheMode p_cache_mode, bool p_for_user) {
 	String local_path = _validate_local_path(p_path);
 
 	bool ignoring_cache = p_cache_mode == ResourceFormatLoader::CACHE_MODE_IGNORE || p_cache_mode == ResourceFormatLoader::CACHE_MODE_IGNORE_DEEP;
@@ -462,6 +472,13 @@ Ref<ResourceLoader::LoadToken> ResourceLoader::_load_start(const String &p_path,
 	bool run_on_current_thread = false;
 	{
 		MutexLock thread_load_lock(thread_load_mutex);
+
+		if (p_for_user) {
+			LoadToken *existing_token = _load_threaded_request_reuse_user_token(p_path);
+			if (existing_token) {
+				return Ref<LoadToken>(existing_token);
+			}
+		}
 
 		if (!ignoring_cache && thread_load_tasks.has(local_path)) {
 			load_token = Ref<LoadToken>(thread_load_tasks[local_path].load_token);
@@ -476,6 +493,9 @@ Ref<ResourceLoader::LoadToken> ResourceLoader::_load_start(const String &p_path,
 
 		load_token.instantiate();
 		load_token->local_path = local_path;
+		if (p_for_user) {
+			_load_threaded_request_setup_user_token(load_token.ptr(), p_path);
+		}
 
 		//create load task
 		{
@@ -494,6 +514,7 @@ Ref<ResourceLoader::LoadToken> ResourceLoader::_load_start(const String &p_path,
 					load_task.resource = existing;
 					load_task.status = THREAD_LOAD_LOADED;
 					load_task.progress = 1.0;
+					DEV_ASSERT(!thread_load_tasks.has(local_path));
 					thread_load_tasks[local_path] = load_task;
 					return load_token;
 				}
@@ -518,7 +539,7 @@ Ref<ResourceLoader::LoadToken> ResourceLoader::_load_start(const String &p_path,
 		} else {
 			load_task_ptr->task_id = WorkerThreadPool::get_singleton()->add_native_task(&ResourceLoader::_thread_load_function, load_task_ptr);
 		}
-	}
+	} // MutexLock(thread_load_mutex).
 
 	if (run_on_current_thread) {
 		_thread_load_function(load_task_ptr);
@@ -614,13 +635,6 @@ Ref<Resource> ResourceLoader::load_threaded_get(const String &p_path, Error *r_e
 		}
 
 		LoadToken *load_token = user_load_tokens[p_path];
-		if (!load_token) {
-			// This happens if requested from one thread and rapidly querying from another.
-			if (r_error) {
-				*r_error = ERR_BUSY;
-			}
-			return Ref<Resource>();
-		}
 
 		// Support userland requesting on the main thread before the load is reported to be complete.
 		if (Thread::is_main_thread() && !load_token->local_path.is_empty()) {
