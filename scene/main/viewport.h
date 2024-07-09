@@ -102,6 +102,7 @@ public:
 	virtual Ref<Image> get_image() const override;
 
 	virtual void set_buffer_mode(BufferMode p_buffer_mode);
+	virtual void update_buffer_mode(BufferMode p_buffer_mode);
 	virtual BufferMode get_buffer_mode() const;
 
 	ViewportTexture();

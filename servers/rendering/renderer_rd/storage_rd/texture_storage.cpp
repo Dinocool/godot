@@ -1089,6 +1089,10 @@ void TextureStorage::texture_3d_initialize(RID p_texture, Image::Format p_format
 
 void TextureStorage::texture_proxy_initialize(RID p_texture, RID p_base) {
 	Texture *tex = texture_owner.get_or_null(p_base);
+	float test = 1.0;
+	if (tex == nullptr) {
+		test = 2.0;
+	}
 	ERR_FAIL_NULL(tex);
 	Texture proxy_tex = *tex;
 
@@ -1174,9 +1178,6 @@ void TextureStorage::texture_3d_update(RID p_texture, const Vector<Ref<Image>> &
 
 void TextureStorage::texture_proxy_update(RID p_texture, RID p_proxy_to) {
 	Texture *tex = texture_owner.get_or_null(p_texture);
-	if (tex == nullptr) {
-		void(0);
-	}
 	ERR_FAIL_NULL(tex);
 	ERR_FAIL_COND(!tex->is_proxy);
 	Texture *proxy_to = texture_owner.get_or_null(p_proxy_to);

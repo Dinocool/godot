@@ -183,15 +183,14 @@ void ViewportTexture::_setup_local_to_scene(const Node *p_loc_scene) {
 
 	vp->viewport_textures.insert(this);
 
-	set_buffer_mode(buffer_mode);
-
 	ERR_FAIL_NULL(RenderingServer::get_singleton());
 	if (proxy_ph.is_valid()) {
-		RS::get_singleton()->texture_proxy_update(proxy, buffer_rid);
+		update_buffer_mode(buffer_mode);
 		RS::get_singleton()->free(proxy_ph);
 		proxy_ph = RID();
 	} else {
 		ERR_FAIL_COND(proxy.is_valid()); // Should be invalid.
+		set_buffer_mode(buffer_mode);
 		proxy = RS::get_singleton()->texture_proxy_create(buffer_rid);
 	}
 	vp_changed = false;
@@ -202,13 +201,7 @@ void ViewportTexture::_setup_local_to_scene(const Node *p_loc_scene) {
 void ViewportTexture::set_buffer_mode(BufferMode p_buffer_mode) {
 	buffer_mode = p_buffer_mode;
 
-	if (!vp)
-		return;
-
 	switch (buffer_mode) {
-		case BUFFER_COLOR:
-			buffer_rid = vp->color_texture_rid;
-			break;
 		case BUFFER_DEPTH:
 			buffer_rid = vp->depth_texture_rid;
 			break;
@@ -224,7 +217,18 @@ void ViewportTexture::set_buffer_mode(BufferMode p_buffer_mode) {
 		case BUFFER_SUBSURFACE:
 			buffer_rid = vp->subsurface_texture_rid;
 			break;
+		default:
+			buffer_rid = vp->color_texture_rid;
+			break;
 	}
+}
+
+void ViewportTexture::update_buffer_mode(BufferMode p_buffer_mode) {
+
+	if (!vp)
+		return;
+
+	set_buffer_mode(p_buffer_mode);
 
 	RS::get_singleton()->texture_proxy_update(proxy, buffer_rid);
 }
@@ -234,7 +238,7 @@ ViewportTexture::BufferMode ViewportTexture::get_buffer_mode() const {
 }
 
 void ViewportTexture::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("set_buffer_mode", "p_buffer_mode"), &ViewportTexture::set_buffer_mode);
+	ClassDB::bind_method(D_METHOD("set_buffer_mode", "p_buffer_mode"), &ViewportTexture::update_buffer_mode);
 	ClassDB::bind_method(D_METHOD("get_buffer_mode"), &ViewportTexture::get_buffer_mode);
 	ClassDB::bind_method(D_METHOD("set_viewport_path_in_scene", "path"), &ViewportTexture::set_viewport_path_in_scene);
 	ClassDB::bind_method(D_METHOD("get_viewport_path_in_scene"), &ViewportTexture::get_viewport_path_in_scene);
@@ -251,7 +255,7 @@ void ViewportTexture::_bind_methods() {
 }
 
 ViewportTexture::ViewportTexture() {
-	set_buffer_mode(BUFFER_COLOR);
+	update_buffer_mode(BUFFER_COLOR);
 	set_local_to_scene(true);
 }
 
@@ -5073,14 +5077,14 @@ Viewport::Viewport() {
 	color_texture->vp = const_cast<Viewport *>(this);
 	viewport_textures.insert(color_texture.ptr());
 	color_texture->proxy = RS::get_singleton()->texture_proxy_create(color_texture_rid);
-	color_texture->set_buffer_mode(ViewportTexture::BUFFER_COLOR);
+	color_texture->update_buffer_mode(ViewportTexture::BUFFER_COLOR);
 
 	depth_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_DEPTH));
 	depth_texture.instantiate();
 	depth_texture->vp = const_cast<Viewport *>(this);
 	viewport_textures.insert(depth_texture.ptr());
 	depth_texture->proxy = RS::get_singleton()->texture_proxy_create(depth_texture_rid);
-	depth_texture->set_buffer_mode(ViewportTexture::BUFFER_DEPTH);
+	depth_texture->update_buffer_mode(ViewportTexture::BUFFER_DEPTH);
 
 	diffuse_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_DIFFUSE));
 	specular_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_SPECULAR));
@@ -5089,7 +5093,7 @@ Viewport::Viewport() {
 	normal_rough_texture->vp = const_cast<Viewport *>(this);
 	viewport_textures.insert(normal_rough_texture.ptr());
 	normal_rough_texture->proxy = RS::get_singleton()->texture_proxy_create(normal_rough_texture_rid);
-	normal_rough_texture->set_buffer_mode(ViewportTexture::BUFFER_NORMAL_ROUGH);
+	normal_rough_texture->update_buffer_mode(ViewportTexture::BUFFER_NORMAL_ROUGH);
 
 	subsurface_texture_rid = RenderingServer::get_singleton()->viewport_get_texture(viewport, RS::ViewportTextureBuffer(ViewportTexture::BUFFER_SUBSURFACE));
 
