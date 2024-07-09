@@ -59,8 +59,9 @@ void WorkerThreadPool::_process_task(Task *p_task) {
 	CallQueue *call_queue_backup = MessageQueue::get_singleton() != MessageQueue::get_main_singleton() ? MessageQueue::get_singleton() : nullptr;
 
 	{
-		// Tasks must start with this unset. They are free to set-and-forget otherwise.
+		// Tasks must start with these at default values. They are free to set-and-forget otherwise.
 		set_current_thread_safe_for_nodes(false);
+		MessageQueue::set_thread_singleton_override(nullptr);
 		// Since the WorkerThreadPool is started before the script server,
 		// its pre-created threads can't have ScriptServer::thread_enter() called on them early.
 		// Therefore, we do it late at the first opportunity, so in case the task
