@@ -319,7 +319,8 @@ Ref<Resource> ResourceLoader::_load(const String &p_path, const String &p_origin
 	ERR_FAIL_V_MSG(Ref<Resource>(), vformat("No loader found for resource: %s (expected type: %s)", p_path, p_type_hint));
 }
 
-void ResourceLoader::_thread_load_function(void *p_userdata) {
+// This implementation must allow re-entrancy for a task that started awaiting in a deeper stack frame.
+void ResourceLoader::_run_load_task(void *p_userdata) {
 	ThreadLoadTask &load_task = *(ThreadLoadTask *)p_userdata;
 
 	thread_load_mutex.lock();
@@ -555,14 +556,20 @@ Ref<ResourceLoader::LoadToken> ResourceLoader::_load_start(const String &p_path,
 		run_on_current_thread = ignoring_cache || p_thread_mode == LOAD_THREAD_FROM_CURRENT;
 
 		if (run_on_current_thread) {
-			load_task_ptr->thread_id = Thread::get_caller_id();
+			// The current thread may happen to be a thread from the pool.
+			WorkerThreadPool::TaskID tid = WorkerThreadPool::get_singleton()->get_caller_task_id();
+			if (tid != WorkerThreadPool::INVALID_TASK_ID) {
+				load_task_ptr->task_id = tid;
+			} else {
+				load_task_ptr->thread_id = Thread::get_caller_id();
+			}
 		} else {
-			load_task_ptr->task_id = WorkerThreadPool::get_singleton()->add_native_task(&ResourceLoader::_thread_load_function, load_task_ptr);
+			load_task_ptr->task_id = WorkerThreadPool::get_singleton()->add_native_task(&ResourceLoader::_run_load_task, load_task_ptr);
 		}
 	} // MutexLock(thread_load_mutex).
 
 	if (run_on_current_thread) {
-		_thread_load_function(load_task_ptr);
+		_run_load_task(load_task_ptr);
 		if (ignoring_cache) {
 			load_token->res_if_unregistered = load_task_ptr->resource;
 		}
@@ -737,12 +744,10 @@ Ref<Resource> ResourceLoader::_load_complete_inner(LoadToken &p_load_token, Erro
 						// resource loading that means that the task to wait for can be restarted here to break the
 						// cycle, with as much recursion into this process as needed.
 						// When the stack is eventually unrolled, the original load will have been notified to go on.
-						// CACHE_MODE_IGNORE is needed because, otherwise, the new request would just see there's
-						// an ongoing load for that resource and wait for it again. This value forces a new load.
-						Ref<ResourceLoader::LoadToken> token = _load_start(load_task.local_path, load_task.type_hint, LOAD_THREAD_DISTRIBUTE, ResourceFormatLoader::CACHE_MODE_IGNORE);
-						Ref<Resource> resource = _load_complete(*token.ptr(), &wtp_task_err);
+						_run_load_task(&load_task);
+						Ref<Resource> resource = load_task.resource;
 						if (r_error) {
-							*r_error = wtp_task_err;
+							*r_error = load_task.error;
 						}
 						thread_load_mutex.lock();
 						return resource;
