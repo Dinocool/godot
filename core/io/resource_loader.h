@@ -174,7 +174,6 @@ private:
 		ConditionVariable *cond_var = nullptr; // In not in the worker pool or already awaiting, this is used as a secondary awaiting mechanism.
 		LoadToken *load_token = nullptr;
 		String local_path;
-		String remapped_path;
 		String type_hint;
 		float progress = 0.0f;
 		float max_reported_progress = 0.0f;
@@ -183,7 +182,6 @@ private:
 		ResourceFormatLoader::CacheMode cache_mode = ResourceFormatLoader::CACHE_MODE_REUSE;
 		Error error = OK;
 		Ref<Resource> resource;
-		bool xl_remapped = false;
 		bool use_sub_threads = false;
 		HashSet<String> sub_tasks;
 	};
