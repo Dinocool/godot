@@ -13,6 +13,8 @@ denoise = "#define MODE_DENOISE";
 
 #VERSION_DEFINES
 
+#extension GL_EXT_samplerless_texture_functions : enable
+
 // One 2D local group focusing in one layer at a time, though all
 // in parallel (no barriers) makes more sense than a 3D local group
 // as this can take more advantage of the cache for each group.
@@ -74,6 +76,7 @@ layout(set = 1, binding = 3) uniform DenoiseParams {
 	float albedo_bandwidth;
 	float normal_bandwidth;
 
+	int half_search_window;
 	float filter_strength;
 }
 denoise_params;
@@ -152,7 +155,7 @@ uint trace_ray(vec3 p_from, vec3 p_to, bool p_any_hit, out float r_distance, out
 
 	uint iters = 0;
 	while (all(greaterThanEqual(icell, ivec3(0))) && all(lessThan(icell, ivec3(bake_params.grid_size))) && (iters < 1000)) {
-		uvec2 cell_data = texelFetch(usampler3D(grid, linear_sampler), icell, 0).xy;
+		uvec2 cell_data = texelFetch(grid, icell, 0).xy;
 		uint triangle_count = cell_data.x;
 		if (triangle_count > 0) {
 			uint hit = RAY_MISS;
@@ -585,15 +588,20 @@ void main() {
 			light_for_texture += light;
 
 #ifdef USE_SH_LIGHTMAPS
+			// These coefficients include the factored out SH evaluation, diffuse convolution, and final application, as well as the BRDF 1/PI and the spherical monte carlo factor.
+			// LO: 1/(2*sqrtPI) * 1/(2*sqrtPI) * PI * PI * 1/PI = 0.25
+			// L1: sqrt(3/(4*pi)) * sqrt(3/(4*pi)) * (PI*2/3) * (2 * PI) * 1/PI = 1.0
+			// Note: This only works because we aren't scaling, rotating, or combing harmonics, we are just directing applying them in the shader.
+
 			float c[4] = float[](
-					0.282095, //l0
-					0.488603 * light_dir.y, //l1n1
-					0.488603 * light_dir.z, //l1n0
-					0.488603 * light_dir.x //l1p1
+					0.25, //l0
+					light_dir.y, //l1n1
+					light_dir.z, //l1n0
+					light_dir.x //l1p1
 			);
 
 			for (uint j = 0; j < 4; j++) {
-				sh_accum[j].rgb += light * c[j] * 8.0;
+				sh_accum[j].rgb += light * c[j] * bake_params.exposure_normalization;
 			}
 #endif
 		}
@@ -643,15 +651,20 @@ void main() {
 		vec3 light = trace_indirect_light(position, ray_dir, noise);
 
 #ifdef USE_SH_LIGHTMAPS
+		// These coefficients include the factored out SH evaluation, diffuse convolution, and final application, as well as the BRDF 1/PI and the spherical monte carlo factor.
+		// LO: 1/(2*sqrtPI) * 1/(2*sqrtPI) * PI * PI * 1/PI = 0.25
+		// L1: sqrt(3/(4*pi)) * sqrt(3/(4*pi)) * (PI*2/3) * (2 * PI) * 1/PI = 1.0
+		// Note: This only works because we aren't scaling, rotating, or combing harmonics, we are just directing applying them in the shader.
+
 		float c[4] = float[](
-				0.282095, //l0
-				0.488603 * ray_dir.y, //l1n1
-				0.488603 * ray_dir.z, //l1n0
-				0.488603 * ray_dir.x //l1p1
+				0.25, //l0
+				ray_dir.y, //l1n1
+				ray_dir.z, //l1n0
+				ray_dir.x //l1p1
 		);
 
 		for (uint j = 0; j < 4; j++) {
-			sh_accum[j].rgb += light * c[j] * 8.0;
+			sh_accum[j].rgb += light * c[j];
 		}
 #else
 		light_accum += light;
@@ -847,10 +860,10 @@ void main() {
 
 	// Half the size of the patch window around each pixel that is weighted to compute the denoised pixel.
 	// A value of 1 represents a 3x3 window, a value of 2 a 5x5 window, etc.
-	const int HALF_PATCH_WINDOW = 4;
+	const int HALF_PATCH_WINDOW = 3;
 
 	// Half the size of the search window around each pixel that is denoised and weighted to compute the denoised pixel.
-	const int HALF_SEARCH_WINDOW = 10;
+	const int HALF_SEARCH_WINDOW = denoise_params.half_search_window;
 
 	// For all of the following sigma values, smaller values will give less weight to pixels that have a bigger distance
 	// in the feature being evaluated. Therefore, smaller values are likely to cause more noise to appear, but will also

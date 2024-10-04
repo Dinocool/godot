@@ -32,6 +32,7 @@
 #define AUDIO_STREAM_PLAYER_3D_H
 
 #include "scene/3d/node_3d.h"
+#include "servers/audio_server.h"
 
 class Area3D;
 struct AudioFrame;
@@ -93,6 +94,8 @@ private:
 
 	uint32_t area_mask = 1;
 
+	AudioServer::PlaybackType playback_type = AudioServer::PlaybackType::PLAYBACK_TYPE_DEFAULT;
+
 	bool emission_angle_enabled = false;
 	float emission_angle = 45.0;
 	float emission_angle_filter_attenuation_db = -12.0;
@@ -120,6 +123,11 @@ protected:
 	bool _set(const StringName &p_name, const Variant &p_value);
 	bool _get(const StringName &p_name, Variant &r_ret) const;
 	void _get_property_list(List<PropertyInfo> *p_list) const;
+
+#ifndef DISABLE_DEPRECATED
+	bool _is_autoplay_enabled_bind_compat_86907();
+	static void _bind_compatibility_methods();
+#endif // DISABLE_DEPRECATED
 
 public:
 	void set_stream(Ref<AudioStream> p_stream);
@@ -150,7 +158,7 @@ public:
 	int get_max_polyphony() const;
 
 	void set_autoplay(bool p_enable);
-	bool is_autoplay_enabled();
+	bool is_autoplay_enabled() const;
 
 	void set_max_distance(float p_metres);
 	float get_max_distance() const;
@@ -187,6 +195,9 @@ public:
 
 	bool has_stream_playback();
 	Ref<AudioStreamPlayback> get_stream_playback();
+
+	AudioServer::PlaybackType get_playback_type() const;
+	void set_playback_type(AudioServer::PlaybackType p_playback_type);
 
 	AudioStreamPlayer3D();
 	~AudioStreamPlayer3D();

@@ -352,7 +352,7 @@ void vertex_shader(vec3 vertex_input,
 	}
 
 #ifdef OVERRIDE_POSITION
-	vec4 position;
+	vec4 position = vec4(1.0);
 #endif
 
 #ifdef USE_MULTIVIEW
@@ -487,8 +487,8 @@ void vertex_shader(vec3 vertex_input,
 
 #ifdef MODE_RENDER_DEPTH
 	if (scene_data.pancake_shadows) {
-		if (gl_Position.z <= 0.00001) {
-			gl_Position.z = 0.00001;
+		if (gl_Position.z >= 0.9999) {
+			gl_Position.z = 0.9999;
 		}
 	}
 #endif
@@ -656,6 +656,7 @@ layout(constant_id = 9) const uint sc_directional_penumbra_shadow_samples = 4;
 
 layout(constant_id = 10) const bool sc_decal_use_mipmaps = true;
 layout(constant_id = 11) const bool sc_projector_use_mipmaps = true;
+layout(constant_id = 12) const bool sc_use_depth_fog = false;
 
 // not used in clustered renderer but we share some code with the mobile renderer that requires this.
 const float sc_luminance_multiplier = 1.0;
@@ -848,7 +849,15 @@ vec4 fog_process(vec3 vertex) {
 		}
 	}
 
-	float fog_amount = 1.0 - exp(min(0.0, -length(vertex) * scene_data_block.data.fog_density));
+	float fog_amount = 0.0;
+
+	if (sc_use_depth_fog) {
+		float fog_z = smoothstep(scene_data_block.data.fog_depth_begin, scene_data_block.data.fog_depth_end, length(vertex));
+		float fog_quad_amount = pow(fog_z, scene_data_block.data.fog_depth_curve) * scene_data_block.data.fog_density;
+		fog_amount = fog_quad_amount;
+	} else {
+		fog_amount = 1 - exp(min(0.0, -length(vertex) * scene_data_block.data.fog_density));
+	}
 
 	if (abs(scene_data_block.data.fog_height_density) >= 0.0001) {
 		float y = (scene_data_block.data.inv_view_matrix * vec4(vertex, 1.0)).y;
@@ -905,6 +914,9 @@ vec3 encode24(vec3 v) {
 void fragment_shader(in SceneData scene_data) {
 	uint instance_index = instance_index_interp;
 
+#ifdef PREMUL_ALPHA_USED
+	float premul_alpha = 1.0;
+#endif // PREMUL_ALPHA_USED
 	//lay out everything, whatever is unused is optimized away anyway
 	vec3 vertex = vertex_interp;
 #ifdef USE_MULTIVIEW
@@ -1013,6 +1025,18 @@ void fragment_shader(in SceneData scene_data) {
 	inv_view_matrix[1][3] = 0.0;
 	inv_view_matrix[2][3] = 0.0;
 #endif
+
+#ifdef LIGHT_VERTEX_USED
+	vec3 light_vertex = vertex;
+#endif //LIGHT_VERTEX_USED
+
+	mat3 model_normal_matrix;
+	if (bool(instances.data[instance_index].flags & INSTANCE_FLAGS_NON_UNIFORM_SCALE)) {
+		model_normal_matrix = transpose(inverse(mat3(read_model_matrix)));
+	} else {
+		model_normal_matrix = mat3(read_model_matrix);
+	}
+
 	mat4 read_view_matrix = scene_data.view_matrix;
 	vec2 read_viewport_size = scene_data.viewport_size;
 	{
@@ -1022,6 +1046,15 @@ void fragment_shader(in SceneData scene_data) {
 #ifdef LIGHT_TRANSMITTANCE_USED
 	transmittance_color.a *= sss_strength;
 #endif
+
+#ifdef LIGHT_VERTEX_USED
+	vertex = light_vertex;
+#ifdef USE_MULTIVIEW
+	view = -normalize(vertex - eye_offset);
+#else
+	view = -normalize(vertex);
+#endif //USE_MULTIVIEW
+#endif //LIGHT_VERTEX_USED
 
 #ifndef USE_SHADOW_TO_OPACITY
 
@@ -1421,16 +1454,10 @@ void fragment_shader(in SceneData scene_data) {
 			vec3 n = normalize(lightmaps.data[ofs].normal_xform * normal);
 			float en = lightmaps.data[ofs].exposure_normalization;
 
-			ambient_light += lm_light_l0 * 0.282095f * en;
-			ambient_light += lm_light_l1n1 * 0.32573 * n.y * en;
-			ambient_light += lm_light_l1_0 * 0.32573 * n.z * en;
-			ambient_light += lm_light_l1p1 * 0.32573 * n.x * en;
-			if (metallic > 0.01) { // since the more direct bounced light is lost, we can kind of fake it with this trick
-				vec3 r = reflect(normalize(-vertex), normal);
-				specular_light += lm_light_l1n1 * 0.32573 * r.y * en;
-				specular_light += lm_light_l1_0 * 0.32573 * r.z * en;
-				specular_light += lm_light_l1p1 * 0.32573 * r.x * en;
-			}
+			ambient_light += lm_light_l0 * en;
+			ambient_light += lm_light_l1n1 * n.y * en;
+			ambient_light += lm_light_l1_0 * n.z * en;
+			ambient_light += lm_light_l1p1 * n.x * en;
 
 		} else {
 			ambient_light += textureLod(sampler2DArray(lightmap_textures[ofs], SAMPLER_LINEAR_CLAMP), uvw, 0.0).rgb * lightmaps.data[ofs].exposure_normalization;
@@ -1760,7 +1787,7 @@ void fragment_shader(in SceneData scene_data) {
 
 #ifdef LIGHT_TRANSMITTANCE_USED
 			float transmittance_z = transmittance_depth;
-
+#ifndef SHADOWS_DISABLED
 			if (directional_lights.data[i].shadow_opacity > 0.001) {
 				float depth_z = -vertex.z;
 
@@ -1807,7 +1834,8 @@ void fragment_shader(in SceneData scene_data) {
 					transmittance_z = z - shadow_z;
 				}
 			}
-#endif
+#endif // !SHADOWS_DISABLED
+#endif // LIGHT_TRANSMITTANCE_USED
 
 			float shadow = 1.0;
 #ifndef SHADOWS_DISABLED
@@ -2026,24 +2054,16 @@ void fragment_shader(in SceneData scene_data) {
 	}
 
 #ifdef USE_SHADOW_TO_OPACITY
+#ifndef MODE_RENDER_DEPTH
 	alpha = min(alpha, clamp(length(ambient_light), 0.0, 1.0));
 
 #if defined(ALPHA_SCISSOR_USED)
-	if (alpha < alpha_scissor) {
+	if (alpha < alpha_scissor_threshold) {
 		discard;
 	}
-#else
-#ifdef MODE_RENDER_DEPTH
-#ifdef USE_OPAQUE_PREPASS
-
-	if (alpha < scene_data.opaque_prepass_threshold) {
-		discard;
-	}
-
-#endif // USE_OPAQUE_PREPASS
-#endif // MODE_RENDER_DEPTH
 #endif // ALPHA_SCISSOR_USED
 
+#endif // !MODE_RENDER_DEPTH
 #endif // USE_SHADOW_TO_OPACITY
 
 #endif //!defined(MODE_RENDER_DEPTH) && !defined(MODE_UNSHADED)
@@ -2257,6 +2277,10 @@ void fragment_shader(in SceneData scene_data) {
 
 	motion_vector = prev_position_uv - position_uv;
 #endif
+
+#if defined(PREMUL_ALPHA_USED) && !defined(MODE_RENDER_DEPTH)
+	frag_color.rgb *= premul_alpha;
+#endif //PREMUL_ALPHA_USED
 }
 
 void main() {
