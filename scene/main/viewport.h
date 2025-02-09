@@ -53,6 +53,14 @@ class Window;
 class World2D;
 
 class ViewportTexture : public Texture2D {
+public:
+	enum BufferMode {
+		BUFFER_COLOR,
+		BUFFER_DEPTH,
+		BUFFER_NORMAL_ROUGH
+	};
+
+private:
 	GDCLASS(ViewportTexture, Texture2D);
 
 	NodePath path;
@@ -67,6 +75,9 @@ class ViewportTexture : public Texture2D {
 
 	mutable RID proxy_ph;
 	mutable RID proxy;
+
+	BufferMode buffer_mode;
+	RID buffer_rid;
 
 protected:
 	static void _bind_methods();
@@ -87,6 +98,9 @@ public:
 	virtual bool has_alpha() const override;
 
 	virtual Ref<Image> get_image() const override;
+
+	virtual void set_buffer_mode(BufferMode p_buffer_mode);
+	virtual BufferMode get_buffer_mode() const;
 
 	ViewportTexture();
 	~ViewportTexture();
@@ -297,7 +311,12 @@ private:
 
 	void _update_global_transform();
 
-	RID texture_rid;
+	RID color_texture_rid;
+	Ref<ViewportTexture> color_texture;
+	RID depth_texture_rid;
+	Ref<ViewportTexture> depth_texture;
+	RID normal_rough_texture_rid;
+	Ref<ViewportTexture> normal_rough_texture;
 
 	DebugDraw debug_draw = DEBUG_DRAW_DISABLED;
 
@@ -319,7 +338,6 @@ private:
 	float mesh_lod_threshold = 1.0;
 	bool use_occlusion_culling = false;
 
-	Ref<ViewportTexture> default_texture;
 	HashSet<ViewportTexture *> viewport_textures;
 
 	void _update_viewport_path();
@@ -541,7 +559,7 @@ public:
 	void set_use_hdr_2d(bool p_enable);
 	bool is_using_hdr_2d() const;
 
-	Ref<ViewportTexture> get_texture() const;
+	Ref<ViewportTexture> get_texture(ViewportTexture::BufferMode p_buffer) const;
 
 	void set_positional_shadow_atlas_size(int p_size);
 	int get_positional_shadow_atlas_size() const;
@@ -895,5 +913,6 @@ VARIANT_ENUM_CAST(Viewport::RenderInfo);
 VARIANT_ENUM_CAST(Viewport::RenderInfoType);
 VARIANT_ENUM_CAST(Viewport::DefaultCanvasItemTextureFilter);
 VARIANT_ENUM_CAST(Viewport::DefaultCanvasItemTextureRepeat);
+VARIANT_ENUM_CAST(ViewportTexture::BufferMode);
 
 #endif // VIEWPORT_H

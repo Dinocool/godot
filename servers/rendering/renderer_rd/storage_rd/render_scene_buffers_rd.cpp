@@ -762,3 +762,18 @@ RD::DataFormat RenderSceneBuffersRD::get_vrs_format() {
 uint32_t RenderSceneBuffersRD::get_vrs_usage_bits() {
 	return RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | RD::TEXTURE_USAGE_VRS_ATTACHMENT_BIT | RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_STORAGE_BIT;
 }
+
+RID RenderSceneBuffersRD::get_render_target_texture(RS::ViewportTextureBuffer p_texture_buffer) {
+	if (render_target.is_null()) {
+		// not applicable when there is no render target (likely this is for a reflection probe)
+		return RID();
+	}
+
+	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
+	RID texture = texture_storage->render_target_get_rd_texture(render_target, p_texture_buffer);
+	if (texture.is_valid()) {
+		return texture;
+	} else {
+		return RID();
+	}
+}

@@ -2611,7 +2611,7 @@ Rect2i TextureStorage::render_target_get_render_region(RID p_render_target) cons
 	return rt->render_region;
 }
 
-RID TextureStorage::render_target_get_texture(RID p_render_target) {
+RID TextureStorage::render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer) {
 	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
 	ERR_FAIL_NULL_V(rt, RID());
 

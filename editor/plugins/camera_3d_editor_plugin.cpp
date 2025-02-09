@@ -89,9 +89,9 @@ Camera3DPreview::Camera3DPreview(Camera3D *p_camera) :
 	add_child(sub_viewport);
 
 	TextureRect *display = get_texture_display();
-	display->set_texture(sub_viewport->get_texture());
+	display->set_texture(sub_viewport->get_texture(ViewportTexture::BUFFER_COLOR));
 	sub_viewport->connect("size_changed", callable_mp((CanvasItem *)display, &CanvasItem::queue_redraw));
-	sub_viewport->get_texture()->connect_changed(callable_mp((TexturePreview *)this, &Camera3DPreview::_update_texture_display_ratio));
+	sub_viewport->get_texture(ViewportTexture::BUFFER_COLOR)->connect_changed(callable_mp((TexturePreview *)this, &Camera3DPreview::_update_texture_display_ratio));
 
 	ProjectSettings::get_singleton()->connect("settings_changed", callable_mp(this, &Camera3DPreview::_update_sub_viewport_size));
 	_update_sub_viewport_size();

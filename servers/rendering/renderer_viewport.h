@@ -243,7 +243,7 @@ public:
 	void viewport_set_clear_mode(RID p_viewport, RS::ViewportClearMode p_clear_mode);
 
 	RID viewport_get_render_target(RID p_viewport) const;
-	RID viewport_get_texture(RID p_viewport) const;
+	RID viewport_get_texture(RID p_viewport, RS::ViewportTextureBuffer p_buffer) const;
 	RID viewport_get_occluder_debug_texture(RID p_viewport) const;
 
 	void viewport_set_prev_camera_data(RID p_viewport, const RendererSceneRender::CameraData *p_camera_data);

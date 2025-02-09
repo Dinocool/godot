@@ -427,7 +427,7 @@ RID RendererCanvasRenderRD::_create_base_uniform_set(RID p_to_render_target, boo
 		u.binding = 6;
 		RID screen;
 		if (p_backbuffer) {
-			screen = texture_storage->render_target_get_rd_texture(p_to_render_target);
+			screen = texture_storage->render_target_get_rd_texture(p_to_render_target, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 		} else {
 			screen = texture_storage->render_target_get_rd_backbuffer(p_to_render_target);
 			if (screen.is_null()) { //unallocated backbuffer

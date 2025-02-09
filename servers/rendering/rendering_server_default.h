@@ -701,7 +701,7 @@ public:
 	FUNC1RC(ViewportUpdateMode, viewport_get_update_mode, RID)
 
 	FUNC1RC(RID, viewport_get_render_target, RID)
-	FUNC1RC(RID, viewport_get_texture, RID)
+	FUNC2RC(RID, viewport_get_texture, RID, ViewportTextureBuffer)
 
 	FUNC2(viewport_set_disable_2d, RID, bool)
 	FUNC2(viewport_set_environment_mode, RID, ViewportEnvironmentMode)
@@ -828,6 +828,9 @@ public:
 	FUNC1(environment_set_sdfgi_ray_count, EnvironmentSDFGIRayCount)
 	FUNC1(environment_set_sdfgi_frames_to_converge, EnvironmentSDFGIFramesToConverge)
 	FUNC1(environment_set_sdfgi_frames_to_update_light, EnvironmentSDFGIFramesToUpdateLight)
+
+	FUNC1RC(RID, environment_get_material_override, RID)
+	FUNC2(environment_set_material_override, RID, RID)
 
 	FUNC3R(Ref<Image>, environment_bake_panorama, RID, bool, const Size2i &)
 

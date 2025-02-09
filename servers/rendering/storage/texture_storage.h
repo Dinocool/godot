@@ -188,7 +188,7 @@ public:
 	virtual Rect2i render_target_get_render_region(RID p_render_target) const = 0;
 
 	// get textures
-	virtual RID render_target_get_texture(RID p_render_target) = 0;
+	virtual RID render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer) = 0;
 
 	// Motion vectors
 	virtual void render_target_set_velocity_target_size(RID p_render_target, const Size2i &p_target_size) = 0;

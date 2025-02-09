@@ -3247,6 +3247,14 @@ void TextureStorage::_clear_render_target(RenderTarget *rt) {
 		RD::get_singleton()->free(rt->color_multisample);
 	}
 
+	if (rt->depth.is_valid()) {
+		RD::get_singleton()->free(rt->depth);
+	}
+
+	if (rt->normal_rough.is_valid()) {
+		RD::get_singleton()->free(rt->normal_rough);
+	}
+
 	if (rt->backbuffer.is_valid()) {
 		RD::get_singleton()->free(rt->backbuffer);
 		rt->backbuffer = RID();
@@ -3262,6 +3270,18 @@ void TextureStorage::_clear_render_target(RenderTarget *rt) {
 		Texture *tex = get_texture(rt->texture);
 		tex->render_target = nullptr;
 	}
+
+	rt->depth = RID();
+	if (rt->depth_texture.is_valid()) {
+		Texture *tex = get_texture(rt->depth_texture);
+		tex->render_target = nullptr;
+	}
+
+	rt->normal_rough = RID();
+	if (rt->normal_rough_texture.is_valid()) {
+		Texture *tex = get_texture(rt->normal_rough_texture);
+		tex->render_target = nullptr;
+	}
 }
 
 void TextureStorage::_update_render_target(RenderTarget *rt) {
@@ -3272,6 +3292,24 @@ void TextureStorage::_update_render_target(RenderTarget *rt) {
 		Texture *tex = get_texture(rt->texture);
 		tex->is_render_target = true;
 		tex->path = "Render Target (Internal)";
+	}
+
+	if (rt->depth_texture.is_null()) {
+		//create a placeholder until updated
+		rt->depth_texture = texture_allocate();
+		texture_2d_placeholder_initialize(rt->depth_texture);
+
+		Texture *tex = get_texture(rt->depth_texture);
+		tex->is_render_target = true;
+	}
+
+	if (rt->normal_rough_texture.is_null()) {
+		//create a placeholder until updated
+		rt->normal_rough_texture = texture_allocate();
+		texture_2d_placeholder_initialize(rt->normal_rough_texture);
+
+		Texture *tex = get_texture(rt->normal_rough_texture);
+		tex->is_render_target = true;
 	}
 
 	_clear_render_target(rt);
@@ -3315,6 +3353,38 @@ void TextureStorage::_update_render_target(RenderTarget *rt) {
 	// TODO see if we can lazy create this once we actually use it as we may not need to create this if we have an overridden color buffer...
 	rt->color = RD::get_singleton()->texture_create(rd_color_attachment_format, rd_view);
 	ERR_FAIL_COND(rt->color.is_null());
+
+	uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT;
+	usage_bits |= RD::TEXTURE_USAGE_CAN_COPY_TO_BIT | RD::TEXTURE_USAGE_CAN_COPY_FROM_BIT | RD::TEXTURE_USAGE_STORAGE_BIT;
+	usage_bits |= RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT; // set this as color attachment because we're copying data into it, it's not actually used as a buffer
+
+	//DEPTH texture format
+	RD::TextureFormat depth_tf;
+	RD::TextureView rd_depth_view;
+	depth_tf.format = RD::DATA_FORMAT_R32_SFLOAT;
+	depth_tf.width = rt->size.width;
+	depth_tf.height = rt->size.height;
+	depth_tf.usage_bits = usage_bits;
+	depth_tf.samples = RD::TEXTURE_SAMPLES_1;
+	depth_tf.texture_type = RD::TEXTURE_TYPE_2D;
+	depth_tf.depth = 1;
+
+	rt->depth = RD::get_singleton()->texture_create(depth_tf, rd_depth_view);
+	ERR_FAIL_COND(rt->depth.is_null());
+
+	//ROUGH NORMAL texture format
+	RD::TextureFormat normal_tf;
+	RD::TextureView rd_normal_view;
+	normal_tf.format = RD::DATA_FORMAT_R8G8B8A8_UNORM;
+	normal_tf.width = rt->size.width;
+	normal_tf.height = rt->size.height;
+	normal_tf.usage_bits = usage_bits;
+	normal_tf.samples = RD::TEXTURE_SAMPLES_1;
+	normal_tf.texture_type = RD::TEXTURE_TYPE_2D;
+	normal_tf.depth = 1;
+
+	rt->normal_rough = RD::get_singleton()->texture_create(normal_tf, rd_normal_view);
+	ERR_FAIL_COND(rt->normal_rough.is_null());
 
 	if (rt->msaa != RS::VIEWPORT_MSAA_DISABLED) {
 		// Use the texture format of the color attachment for the multisample color attachment.
@@ -3374,6 +3444,68 @@ void TextureStorage::_update_render_target(RenderTarget *rt) {
 		Vector<RID> proxies = tex->proxies; //make a copy, since update may change it
 		for (int i = 0; i < proxies.size(); i++) {
 			texture_proxy_update(proxies[i], rt->texture);
+		}
+	}
+
+	{ //update depth texture
+		Texture *tex = get_texture(rt->depth_texture);
+
+		//free existing textures
+		if (RD::get_singleton()->texture_is_valid(tex->rd_texture)) {
+			RD::get_singleton()->free(tex->rd_texture);
+		}
+
+		tex->rd_texture = RID();
+		tex->rd_texture_srgb = RID();
+		tex->render_target = rt;
+
+		//create shared textures to the color buffer,
+		//so transparent can be supported
+		RD::TextureView view;
+		view.format_override = depth_tf.format;
+		tex->rd_texture = RD::get_singleton()->texture_create_shared(view, rt->depth);
+		tex->rd_view = view;
+		tex->width = rt->size.width;
+		tex->height = rt->size.height;
+		tex->width_2d = rt->size.width;
+		tex->height_2d = rt->size.height;
+		tex->rd_format = depth_tf.format;
+		tex->format = Image::FORMAT_RF;
+
+		Vector<RID> proxies = tex->proxies; //make a copy, since update may change it
+		for (int i = 0; i < proxies.size(); i++) {
+			texture_proxy_update(proxies[i], rt->depth_texture);
+		}
+	}
+
+	{ //update normal texture
+		Texture *tex = get_texture(rt->normal_rough_texture);
+
+		//free existing textures
+		if (RD::get_singleton()->texture_is_valid(tex->rd_texture)) {
+			RD::get_singleton()->free(tex->rd_texture);
+		}
+
+		tex->rd_texture = RID();
+		tex->rd_texture_srgb = RID();
+		tex->render_target = rt;
+
+		//create shared textures to the color buffer,
+		//so transparent can be supported
+		RD::TextureView view;
+		view.format_override = normal_tf.format;
+		tex->rd_texture = RD::get_singleton()->texture_create_shared(view, rt->normal_rough);
+		tex->rd_view = view;
+		tex->width = rt->size.width;
+		tex->height = rt->size.height;
+		tex->width_2d = rt->size.width;
+		tex->height_2d = rt->size.height;
+		tex->rd_format = normal_tf.format;
+		tex->format = Image::FORMAT_RGBA8;
+
+		Vector<RID> proxies = tex->proxies; //make a copy, since update may change it
+		for (int i = 0; i < proxies.size(); i++) {
+			texture_proxy_update(proxies[i], rt->normal_rough_texture);
 		}
 	}
 }
@@ -3436,6 +3568,18 @@ void TextureStorage::render_target_free(RID p_rid) {
 		texture_free(rt->texture);
 	}
 
+	if (rt->depth_texture.is_valid()) {
+		Texture *tex = get_texture(rt->depth_texture);
+		tex->is_render_target = false;
+		texture_free(rt->depth_texture);
+	}
+
+	if (rt->normal_rough_texture.is_valid()) {
+		Texture *tex = get_texture(rt->normal_rough_texture);
+		tex->is_render_target = false;
+		texture_free(rt->normal_rough_texture);
+	}
+
 	render_target_owner.free(p_rid);
 }
 
@@ -3466,10 +3610,18 @@ Size2i TextureStorage::render_target_get_size(RID p_render_target) const {
 	return rt->size;
 }
 
-RID TextureStorage::render_target_get_texture(RID p_render_target) {
+RID TextureStorage::render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer) {
 	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
 	ERR_FAIL_NULL_V(rt, RID());
 
+	switch (p_buffer) {
+		case RS::VIEWPORT_TEXTURE_BUFFER_COLOR:
+			return rt->texture;
+		case RS::VIEWPORT_TEXTURE_BUFFER_DEPTH:
+			return rt->depth_texture;
+		case RS::VIEWPORT_TEXTURE_BUFFER_NORMAL_ROUGH:
+			return rt->normal_rough_texture;
+	}
 	return rt->texture;
 }
 
@@ -3657,15 +3809,23 @@ RID TextureStorage::render_target_get_rd_framebuffer(RID p_render_target) {
 	return rt->get_framebuffer();
 }
 
-RID TextureStorage::render_target_get_rd_texture(RID p_render_target) {
+RID TextureStorage::render_target_get_rd_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer) {
 	RenderTarget *rt = render_target_owner.get_or_null(p_render_target);
 	ERR_FAIL_NULL_V(rt, RID());
 
-	if (rt->overridden.color.is_valid()) {
-		return rt->overridden.color;
-	} else {
-		return rt->color;
+	switch (p_buffer) {
+		case RS::VIEWPORT_TEXTURE_BUFFER_COLOR:
+			if (rt->overridden.color.is_valid()) {
+				return rt->overridden.color;
+			} else {
+				return rt->color;
+			}
+		case RS::VIEWPORT_TEXTURE_BUFFER_DEPTH:
+			return rt->depth;
+		case RS::VIEWPORT_TEXTURE_BUFFER_NORMAL_ROUGH:
+			return rt->normal_rough;
 	}
+	return rt->color;
 }
 
 RID TextureStorage::render_target_get_rd_texture_slice(RID p_render_target, uint32_t p_layer) {

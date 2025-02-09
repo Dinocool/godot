@@ -319,7 +319,7 @@ RID XRInterfaceExtension::get_render_target_texture(RID p_render_target) {
 	RendererRD::TextureStorage *texture_storage = RendererRD::TextureStorage::get_singleton();
 	ERR_FAIL_NULL_V_MSG(texture_storage, RID(), "Texture storage not setup");
 
-	return texture_storage->render_target_get_rd_texture(p_render_target);
+	return texture_storage->render_target_get_rd_texture(p_render_target, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 }
 
 /*

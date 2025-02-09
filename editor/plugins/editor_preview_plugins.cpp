@@ -368,7 +368,7 @@ EditorMaterialPreviewPlugin::EditorMaterialPreviewPlugin() {
 	RS::get_singleton()->viewport_set_size(viewport, 128, 128);
 	RS::get_singleton()->viewport_set_transparent_background(viewport, true);
 	RS::get_singleton()->viewport_set_active(viewport, true);
-	viewport_texture = RS::get_singleton()->viewport_get_texture(viewport);
+	viewport_texture = RS::get_singleton()->viewport_get_texture(viewport, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 
 	camera = RS::get_singleton()->camera_create();
 	RS::get_singleton()->viewport_attach_camera(viewport, camera);
@@ -792,7 +792,7 @@ EditorMeshPreviewPlugin::EditorMeshPreviewPlugin() {
 	RS::get_singleton()->viewport_set_size(viewport, 128, 128);
 	RS::get_singleton()->viewport_set_transparent_background(viewport, true);
 	RS::get_singleton()->viewport_set_active(viewport, true);
-	viewport_texture = RS::get_singleton()->viewport_get_texture(viewport);
+	viewport_texture = RS::get_singleton()->viewport_get_texture(viewport, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 
 	camera = RS::get_singleton()->camera_create();
 	RS::get_singleton()->viewport_attach_camera(viewport, camera);
@@ -906,7 +906,7 @@ EditorFontPreviewPlugin::EditorFontPreviewPlugin() {
 	RS::get_singleton()->viewport_set_update_mode(viewport, RS::VIEWPORT_UPDATE_DISABLED);
 	RS::get_singleton()->viewport_set_size(viewport, 128, 128);
 	RS::get_singleton()->viewport_set_active(viewport, true);
-	viewport_texture = RS::get_singleton()->viewport_get_texture(viewport);
+	viewport_texture = RS::get_singleton()->viewport_get_texture(viewport, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 
 	canvas = RS::get_singleton()->canvas_create();
 	canvas_item = RS::get_singleton()->canvas_item_create();

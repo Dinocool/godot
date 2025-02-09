@@ -375,7 +375,7 @@ void OpenXRCompositionLayer::_reset_fallback_material() {
 
 		material->set_flag(StandardMaterial3D::FLAG_DISABLE_DEPTH_TEST, !enable_hole_punch);
 		material->set_transparency(get_alpha_blend() ? StandardMaterial3D::TRANSPARENCY_ALPHA : StandardMaterial3D::TRANSPARENCY_DISABLED);
-		material->set_texture(StandardMaterial3D::TEXTURE_ALBEDO, layer_viewport->get_texture());
+		material->set_texture(StandardMaterial3D::TEXTURE_ALBEDO, layer_viewport->get_texture(ViewportTexture::BUFFER_COLOR));
 	} else {
 		fallback->set_surface_override_material(0, Ref<Material>());
 	}

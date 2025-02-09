@@ -47,7 +47,7 @@ void RendererCompositorRD::blit_render_targets_to_screen(DisplayServer::WindowID
 	ERR_FAIL_COND(draw_list == RD::INVALID_ID);
 
 	for (int i = 0; i < p_amount; i++) {
-		RID rd_texture = texture_storage->render_target_get_rd_texture(p_render_targets[i].render_target);
+		RID rd_texture = texture_storage->render_target_get_rd_texture(p_render_targets[i].render_target, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 		ERR_CONTINUE(rd_texture.is_null());
 
 		if (!render_target_descriptors.has(rd_texture) || !RD::get_singleton()->uniform_set_is_valid(render_target_descriptors[rd_texture])) {

@@ -354,6 +354,8 @@ private:
 		Size2i size;
 		uint32_t view_count;
 		RID color;
+		RID depth;
+		RID normal_rough;
 		Vector<RID> color_slices;
 		RID color_multisample; // Needed when 2D MSAA is enabled.
 
@@ -399,6 +401,7 @@ private:
 		struct RTOverridden {
 			RID color;
 			RID depth;
+			RID normal_rough;
 			RID velocity;
 
 			// In a multiview scenario, which is the most likely where we
@@ -434,6 +437,8 @@ private:
 
 		//texture generated for this owner (nor RD).
 		RID texture;
+		RID depth_texture;
+		RID normal_rough_texture;
 		bool was_used;
 
 		//clear request
@@ -797,13 +802,13 @@ public:
 	virtual void render_target_set_render_region(RID p_render_target, const Rect2i &p_render_region) override;
 	virtual Rect2i render_target_get_render_region(RID p_render_target) const override;
 
-	virtual RID render_target_get_texture(RID p_render_target) override;
+	virtual RID render_target_get_texture(RID p_render_target, RS::ViewportTextureBuffer) override;
 
 	virtual void render_target_set_velocity_target_size(RID p_render_target, const Size2i &p_target_size) override {}
 	virtual Size2i render_target_get_velocity_target_size(RID p_render_target) const override { return Size2i(0, 0); }
 
 	RID render_target_get_rd_framebuffer(RID p_render_target);
-	RID render_target_get_rd_texture(RID p_render_target);
+	RID render_target_get_rd_texture(RID p_render_target, RS::ViewportTextureBuffer p_buffer);
 	RID render_target_get_rd_texture_slice(RID p_render_target, uint32_t p_layer);
 	RID render_target_get_rd_texture_msaa(RID p_render_target);
 	RID render_target_get_rd_backbuffer(RID p_render_target);

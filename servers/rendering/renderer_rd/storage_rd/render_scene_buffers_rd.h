@@ -271,6 +271,7 @@ public:
 	bool has_depth_texture();
 	RID get_depth_texture();
 	RID get_depth_texture(const uint32_t p_layer);
+	RID get_render_target_texture(RS::ViewportTextureBuffer p_texture_buffer);
 
 	RID get_depth_msaa() const {
 		return get_texture(RB_SCOPE_BUFFERS, RB_TEX_DEPTH_MSAA);

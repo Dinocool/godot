@@ -993,7 +993,14 @@ public:
 	virtual void viewport_set_clear_mode(RID p_viewport, ViewportClearMode p_clear_mode) = 0;
 
 	virtual RID viewport_get_render_target(RID p_viewport) const = 0;
-	virtual RID viewport_get_texture(RID p_viewport) const = 0;
+
+	enum ViewportTextureBuffer {
+		VIEWPORT_TEXTURE_BUFFER_COLOR,
+		VIEWPORT_TEXTURE_BUFFER_DEPTH,
+		VIEWPORT_TEXTURE_BUFFER_NORMAL_ROUGH
+	};
+
+	virtual RID viewport_get_texture(RID p_viewport, ViewportTextureBuffer p_buffer) const = 0;
 
 	enum ViewportEnvironmentMode {
 		VIEWPORT_ENVIRONMENT_DISABLED,
@@ -1363,6 +1370,9 @@ public:
 
 	virtual void sub_surface_scattering_set_quality(SubSurfaceScatteringQuality p_quality) = 0;
 	virtual void sub_surface_scattering_set_scale(float p_scale, float p_depth_scale) = 0;
+
+	virtual RID environment_get_material_override(RID p_env) const = 0;
+	virtual void environment_set_material_override(RID p_env, RID p_material) = 0;
 
 	/* CAMERA EFFECTS */
 
@@ -1975,6 +1985,8 @@ VARIANT_ENUM_CAST(RenderingServer::BakeChannels);
 #ifndef DISABLE_DEPRECATED
 VARIANT_ENUM_CAST(RenderingServer::Features);
 #endif
+
+VARIANT_ENUM_CAST(RenderingServer::ViewportTextureBuffer);
 
 // Alias to make it easier to use.
 #define RS RenderingServer

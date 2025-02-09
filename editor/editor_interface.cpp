@@ -151,7 +151,7 @@ Vector<Ref<Texture2D>> EditorInterface::make_mesh_previews(const Vector<Ref<Mesh
 	RS::get_singleton()->viewport_set_size(viewport, size, size);
 	RS::get_singleton()->viewport_set_transparent_background(viewport, true);
 	RS::get_singleton()->viewport_set_active(viewport, true);
-	RID viewport_texture = RS::get_singleton()->viewport_get_texture(viewport);
+	RID viewport_texture = RS::get_singleton()->viewport_get_texture(viewport, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 
 	RID camera = RS::get_singleton()->camera_create();
 	RS::get_singleton()->viewport_attach_camera(viewport, camera);
@@ -307,7 +307,7 @@ void EditorInterface::make_scene_preview(const String &p_path, Node *p_scene, in
 	Main::iteration();
 
 	// Get the texture.
-	Ref<Texture2D> texture = sub_viewport_node->get_texture();
+	Ref<Texture2D> texture = sub_viewport_node->get_texture(ViewportTexture::BUFFER_COLOR);
 	ERR_FAIL_COND_MSG(texture.is_null(), "Failed to get texture from sub_viewport_node.");
 
 	// Remove the initial scene node.

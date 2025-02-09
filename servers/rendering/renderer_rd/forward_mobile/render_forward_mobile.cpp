@@ -247,7 +247,7 @@ RID RenderForwardMobile::RenderBufferDataForwardMobile::get_color_fbs(Framebuffe
 			ERR_FAIL_COND_V(render_target.is_null(), RID());
 			RID target_buffer;
 			if (view_count > 1 || texture_storage->render_target_get_msaa(render_target) == RS::VIEWPORT_MSAA_DISABLED) {
-				target_buffer = texture_storage->render_target_get_rd_texture(render_target);
+				target_buffer = texture_storage->render_target_get_rd_texture(render_target, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 			} else {
 				target_buffer = texture_storage->render_target_get_rd_texture_msaa(render_target);
 				texture_storage->render_target_set_msaa_needs_resolve(render_target, true); // Make sure this gets resolved.
@@ -1106,7 +1106,7 @@ void RenderForwardMobile::_render_scene(RenderDataRD *p_render_data, const Color
 			if (p_render_data->scene_data->view_count > 1) {
 				WARN_PRINT_ONCE("Canvas background is not supported in multiview!");
 			} else {
-				RID texture = RendererRD::TextureStorage::get_singleton()->render_target_get_rd_texture(rb->get_render_target());
+				RID texture = RendererRD::TextureStorage::get_singleton()->render_target_get_rd_texture(rb->get_render_target(), RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 				bool convert_to_linear = !RendererRD::TextureStorage::get_singleton()->render_target_is_using_hdr(rb->get_render_target());
 
 				copy_effects->copy_to_drawlist(draw_list, fb_format, texture, convert_to_linear);
@@ -3262,4 +3262,12 @@ RenderForwardMobile::~RenderForwardMobile() {
 		RD::get_singleton()->free(scene_state.lightmap_capture_buffer);
 		memdelete_arr(scene_state.lightmap_captures);
 	}
+}
+
+bool RenderForwardMobile::_render_buffers_has_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers) {
+	return false;
+}
+
+RID RenderForwardMobile::_render_buffers_get_normal_texture(Ref<RenderSceneBuffersRD> p_render_buffers, uint32_t p_layer) {
+	return RID();
 }

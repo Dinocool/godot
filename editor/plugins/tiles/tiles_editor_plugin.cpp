@@ -132,7 +132,7 @@ void TilesEditorUtils::_thread() {
 
 				pattern_preview_done.wait();
 
-				Ref<Image> image = viewport->get_texture()->get_image();
+				Ref<Image> image = viewport->get_texture(ViewportTexture::BUFFER_COLOR)->get_image();
 
 				// Find the index for the given pattern. TODO: optimize.
 				item.callback.call(item.pattern, ImageTexture::create_from_image(image));

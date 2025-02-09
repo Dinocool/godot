@@ -139,9 +139,9 @@ void SubViewportContainer::_notification(int p_what) {
 				}
 
 				if (stretch) {
-					draw_texture_rect(c->get_texture(), Rect2(Vector2(), get_size()));
+					draw_texture_rect(c->get_texture(ViewportTexture::BUFFER_COLOR), Rect2(Vector2(), get_size()));
 				} else {
-					draw_texture_rect(c->get_texture(), Rect2(Vector2(), c->get_size()));
+					draw_texture_rect(c->get_texture(ViewportTexture::BUFFER_COLOR), Rect2(Vector2(), c->get_size()));
 				}
 			}
 		} break;

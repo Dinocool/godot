@@ -1285,7 +1285,7 @@ void AnimationPlayerEditor::forward_force_draw_over_viewport(Control *p_overlay)
 
 			if (onion.captures_valid[capture_idx]) {
 				RS::get_singleton()->canvas_item_add_texture_rect_region(
-						ci, dst_rect, RS::get_singleton()->viewport_get_texture(onion.captures[capture_idx]), src_rect, Color(1, 1, 1, alpha));
+						ci, dst_rect, RS::get_singleton()->viewport_get_texture(onion.captures[capture_idx], RS::VIEWPORT_TEXTURE_BUFFER_COLOR), src_rect, Color(1, 1, 1, alpha));
 			}
 
 			capture_idx++;
@@ -1299,7 +1299,7 @@ void AnimationPlayerEditor::forward_force_draw_over_viewport(Control *p_overlay)
 
 			if (onion.captures_valid[capture_idx]) {
 				RS::get_singleton()->canvas_item_add_texture_rect_region(
-						ci, dst_rect, RS::get_singleton()->viewport_get_texture(onion.captures[capture_idx]), src_rect, Color(1, 1, 1, alpha));
+						ci, dst_rect, RS::get_singleton()->viewport_get_texture(onion.captures[capture_idx], RS::VIEWPORT_TEXTURE_BUFFER_COLOR), src_rect, Color(1, 1, 1, alpha));
 			}
 
 			capture_idx++;
@@ -1670,7 +1670,7 @@ void AnimationPlayerEditor::_allocate_onion_layers() {
 
 	// Reset the capture canvas item to the current root viewport texture (defensive).
 	RS::get_singleton()->canvas_item_clear(onion.capture.canvas_item);
-	RS::get_singleton()->canvas_item_add_texture_rect(onion.capture.canvas_item, Rect2(Point2(), Point2(capture_size.x, -capture_size.y)), get_tree()->get_root()->get_texture()->get_rid());
+	RS::get_singleton()->canvas_item_add_texture_rect(onion.capture.canvas_item, Rect2(Point2(), Point2(capture_size.x, -capture_size.y)), get_tree()->get_root()->get_texture(ViewportTexture::BUFFER_COLOR)->get_rid());
 
 	onion.capture_size = capture_size;
 }
@@ -1786,7 +1786,7 @@ void AnimationPlayerEditor::_prepare_onion_layers_2_prolog() {
 	RS::get_singleton()->canvas_item_set_material(onion.capture.canvas_item, onion.capture.material->get_rid());
 	onion.capture.material->set_shader_parameter("bkg_color", GLOBAL_GET("rendering/environment/defaults/default_clear_color"));
 	onion.capture.material->set_shader_parameter("differences_only", onion.differences_only);
-	onion.capture.material->set_shader_parameter("present", onion.differences_only ? RS::get_singleton()->viewport_get_texture(present_rid) : RID());
+	onion.capture.material->set_shader_parameter("present", onion.differences_only ? RS::get_singleton()->viewport_get_texture(present_rid, RS::VIEWPORT_TEXTURE_BUFFER_COLOR) : RID());
 	onion.capture.material->set_shader_parameter("dir_color", onion.force_white_modulate ? Color(1, 1, 1) : Color(EDITOR_GET("editors/animation/onion_layers_past_color")));
 
 	uint32_t p_capture_idx = 0;

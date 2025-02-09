@@ -1897,7 +1897,7 @@ void ColorPicker::_pick_button_pressed_legacy() {
 
 	Rect2i screen_rect;
 	if (picker_window->is_embedded()) {
-		Ref<ImageTexture> tx = ImageTexture::create_from_image(picker_window->get_embedder()->get_texture()->get_image());
+		Ref<ImageTexture> tx = ImageTexture::create_from_image(picker_window->get_embedder()->get_texture(ViewportTexture::BUFFER_COLOR)->get_image());
 		screen_rect = picker_window->get_embedder()->get_visible_rect();
 		picker_window->set_position(Point2i());
 		picker_texture_rect->set_texture(tx);
@@ -1929,7 +1929,7 @@ void ColorPicker::_pick_button_pressed_legacy() {
 				continue;
 			}
 
-			Ref<Image> img = w->get_texture()->get_image();
+			Ref<Image> img = w->get_texture(ViewportTexture::BUFFER_COLOR)->get_image();
 			if (img.is_null() || img->is_empty()) {
 				continue;
 			}

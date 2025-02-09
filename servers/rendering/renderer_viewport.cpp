@@ -1145,11 +1145,11 @@ RID RendererViewport::viewport_get_render_target(RID p_viewport) const {
 	return viewport->render_target;
 }
 
-RID RendererViewport::viewport_get_texture(RID p_viewport) const {
+RID RendererViewport::viewport_get_texture(RID p_viewport, RS::ViewportTextureBuffer p_buffer) const {
 	const Viewport *viewport = viewport_owner.get_or_null(p_viewport);
 	ERR_FAIL_NULL_V(viewport, RID());
 
-	return RSG::texture_storage->render_target_get_texture(viewport->render_target);
+	return RSG::texture_storage->render_target_get_texture(viewport->render_target, p_buffer);
 }
 
 RID RendererViewport::viewport_get_occluder_debug_texture(RID p_viewport) const {

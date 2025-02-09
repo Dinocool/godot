@@ -184,7 +184,7 @@ void MovieWriter::add_frame() {
 #endif
 
 	RID main_vp_rid = RenderingServer::get_singleton()->viewport_find_from_screen_attachment(DisplayServer::MAIN_WINDOW_ID);
-	RID main_vp_texture = RenderingServer::get_singleton()->viewport_get_texture(main_vp_rid);
+	RID main_vp_texture = RenderingServer::get_singleton()->viewport_get_texture(main_vp_rid, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 	Ref<Image> vp_tex = RenderingServer::get_singleton()->texture_2d_get(main_vp_texture);
 	if (RenderingServer::get_singleton()->viewport_is_using_hdr_2d(main_vp_rid)) {
 		vp_tex->convert(Image::FORMAT_RGBA8);

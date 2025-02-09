@@ -400,6 +400,9 @@ void RendererSceneRenderRD::_render_buffers_copy_depth_texture(const RenderDataR
 	for (uint32_t v = 0; v < p_render_data->scene_data->view_count; v++) {
 		RID depth_texture = rb->get_depth_texture(v);
 		RID depth_back_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BACK_DEPTH, v, 0);
+		RID depth_view_texture = rb->get_render_target_texture(RS::VIEWPORT_TEXTURE_BUFFER_DEPTH);
+
+		copy_effects->copy_to_rect(depth_texture, depth_view_texture, Rect2i(0, 0, size.x, size.y));
 
 		if (can_use_storage) {
 			copy_effects->copy_to_rect(depth_texture, depth_back_texture, Rect2i(0, 0, size.x, size.y));
@@ -409,6 +412,50 @@ void RendererSceneRenderRD::_render_buffers_copy_depth_texture(const RenderDataR
 		}
 	}
 
+	RD::get_singleton()->draw_command_end_label();
+}
+
+void RendererSceneRenderRD::_render_buffers_copy_viewport_depth_texture(const RenderDataRD *p_render_data) {
+	Ref<RenderSceneBuffersRD> rb = p_render_data->render_buffers;
+	ERR_FAIL_COND(rb.is_null());
+
+	if (!rb->has_depth_texture()) {
+		// We're likely rendering reflection probes where we can't use our backbuffers.
+		return;
+	}
+
+	RD::get_singleton()->draw_command_begin_label("Copy viewport depth texture");
+
+	Size2i size = rb->get_internal_size();
+	for (uint32_t v = 0; v < p_render_data->scene_data->view_count; v++) {
+		RID depth_texture = rb->get_depth_texture(v);
+		RID depth_view_texture = rb->get_render_target_texture(RS::VIEWPORT_TEXTURE_BUFFER_DEPTH);
+
+		copy_effects->copy_to_rect(depth_texture, depth_view_texture, Rect2i(0, 0, size.x, size.y));
+	}
+
+	RD::get_singleton()->draw_command_end_label();
+}
+
+void RendererSceneRenderRD::_render_buffers_copy_viewport_normals_rough_texture(const RenderDataRD *p_render_data) {
+	Ref<RenderSceneBuffersRD> rb = p_render_data->render_buffers;
+	ERR_FAIL_COND(rb.is_null());
+
+	if (!_render_buffers_has_normal_texture(rb)) {
+		return;
+	}
+
+	RD::get_singleton()->draw_command_begin_label("Copy viewport normal rough texture");
+
+	Size2i size = rb->get_internal_size();
+
+	for (uint32_t v = 0; v < p_render_data->scene_data->view_count; v++) {
+		RID normal_texture = _render_buffers_get_normal_texture(rb, v);
+		RID normal_rough_view_texture = rb->get_render_target_texture(RS::VIEWPORT_TEXTURE_BUFFER_NORMAL_ROUGH);
+		if (normal_texture.is_valid() && normal_rough_view_texture.is_valid()) {
+			copy_effects->copy_to_rect(normal_texture, normal_rough_view_texture, Rect2i(0, 0, size.x, size.y));
+		}
+	}
 	RD::get_singleton()->draw_command_end_label();
 }
 
@@ -691,7 +738,7 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 
 		if (dest_is_msaa_2d) {
 			// We can't upscale directly into our MSAA buffer so we need to do a copy
-			RID source_texture = texture_storage->render_target_get_rd_texture(render_target);
+			RID source_texture = texture_storage->render_target_get_rd_texture(render_target, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 			RID dest_fb = FramebufferCacheRD::get_singleton()->get_cache(texture_storage->render_target_get_rd_texture_msaa(render_target));
 			copy_effects->copy_to_fb_rect(source_texture, dest_fb, Rect2i(Point2i(), rb->get_target_size()));
 

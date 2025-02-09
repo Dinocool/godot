@@ -317,6 +317,9 @@ public:
 	virtual bool environment_get_use_1d_color_correction(RID p_env) const = 0;
 	virtual RID environment_get_color_correction(RID p_env) const = 0;
 
+	virtual RID environment_get_material_override(RID p_env) const = 0;
+	virtual void environment_set_material_override(RID p_env, RID p_material) = 0;	
+
 	virtual Ref<Image> environment_bake_panorama(RID p_env, bool p_bake_irradiance, const Size2i &p_size) = 0;
 
 	virtual bool is_environment(RID p_environment) const = 0;
