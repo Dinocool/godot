@@ -216,14 +216,14 @@ float shadowmask = 1.0;
 
 #ifdef USE_LIGHTMAP
 		uint shadowmask_mode = LIGHTMAP_SHADOWMASK_MODE_NONE;
-
+		uint instance_index = instance_index_interp;
 		if (bool(instances.data[instance_index].flags & INSTANCE_FLAGS_USE_LIGHTMAP)) {
 			const uint ofs = instances.data[instance_index].gi_offset & 0xFFFF;
 			shadowmask_mode = lightmaps.data[ofs].flags;
 
 			if (shadowmask_mode != LIGHTMAP_SHADOWMASK_MODE_NONE) {
 				const uint slice = instances.data[instance_index].gi_offset >> 16;
-				const vec2 scaled_uv = uv2 * instances.data[instance_index].lightmap_uv_scale.zw + instances.data[instance_index].lightmap_uv_scale.xy;
+				const vec2 scaled_uv = uv2_interp * instances.data[instance_index].lightmap_uv_scale.zw + instances.data[instance_index].lightmap_uv_scale.xy;
 				const vec3 uvw = vec3(scaled_uv, float(slice));
 
 				if (sc_use_lightmap_bicubic_filter()) {
