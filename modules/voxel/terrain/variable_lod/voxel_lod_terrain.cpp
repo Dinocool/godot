@@ -298,12 +298,13 @@ void VoxelLodTerrain::set_stream(Ref<VoxelStream> p_stream) {
 	if (p_stream.is_valid()) {
 		if (Engine::get_singleton()->is_editor_hint()) {
 			Ref<Script> stream_script = p_stream->get_script();
+			/*
 			if (stream_script.is_valid()) {
 				// Safety check. It's too easy to break threads by making a script reload.
 				// You can turn it back on, but be careful.
 				_update_data->settings.run_stream_in_editor = false;
 				notify_property_list_changed();
-			}
+			}*/
 		}
 	}
 #endif
@@ -329,12 +330,14 @@ void VoxelLodTerrain::set_generator(Ref<VoxelGenerator> p_generator) {
 	if (p_generator.is_valid()) {
 		if (Engine::get_singleton()->is_editor_hint()) {
 			Ref<Script> generator_script = p_generator->get_script();
+			/*
 			if (generator_script.is_valid()) {
 				// Safety check. It's too easy to break threads by making a script reload.
 				// You can turn it back on, but be careful.
 				_update_data->settings.run_stream_in_editor = false;
 				notify_property_list_changed();
 			}
+			*/
 		}
 	}
 #endif
