@@ -169,6 +169,8 @@ private:
 	void update_layer_scenes(int layer_id);
 	void create_render_blocks(Vector3i grid_position, int lod_index, Array surface_arrays);
 
+	static void remove_scaling(Transform3D& transform);
+
 #ifdef TOOLS_ENABLED
 	void process_gizmos();
 #endif

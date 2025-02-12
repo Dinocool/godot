@@ -19,9 +19,9 @@ namespace zylann::voxel {
 namespace {
 
 // This cap is for sanity, to prevent potential crashing.
-const float MAX_DENSITY = 10.f;
+const float MAX_DENSITY = 10000.f;
 // We expose a slider going below max density as it should not often be needed, but we allow greater if really necessary
-const char *DENSITY_HINT_STRING = "0.0, 1.0, 0.01, or_greater";
+const char *DENSITY_HINT_STRING = "0.0, 10000.0, 0.01, or_greater";
 
 } // namespace
 
@@ -112,7 +112,7 @@ void VoxelInstanceGenerator::generate_transforms(
 				// I had to use `uint64` and clamp it because floats can't contain `0xffffffff` accurately. Instead
 				// it results in `0x100000000`, one unit above.
 				const float density = math::clamp(_density, 0.f, 1.f);
-				static constexpr float max_density = 1.f;
+				static constexpr float max_density = 100.f;
 				const uint32_t density_u32 =
 						math::min(uint64_t(double(0xffffffff) * density / max_density), uint64_t(0xffffffff));
 				const int size = vertices.size();
@@ -120,7 +120,9 @@ void VoxelInstanceGenerator::generate_transforms(
 				for (int i = 0; i < size; ++i) {
 					// TODO We could actually generate indexes and pick those,
 					// rather than iterating them all and rejecting
-					if (pcg0.rand() >= density_u32) {
+					
+					uint32_t rand = pcg0.rand();
+					if (rand >= density_u32) {
 						continue;
 					}
 					// Ignore vertices located on the positive faces of the block. They are usually shared with the

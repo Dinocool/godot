@@ -693,11 +693,15 @@ void VoxelInstancer::regenerate_layer(uint16_t layer_id, bool regenerate_blocks)
 	if (item->get_generator().is_null()) {
 		return;
 	}
-
+	
 	const Transform3D parent_transform = get_global_transform();
 
 	const VoxelLodTerrain *parent_vlt = Object::cast_to<VoxelLodTerrain>(_parent);
 	const VoxelTerrain *parent_vt = Object::cast_to<VoxelTerrain>(_parent);
+
+	Array args;
+	args.push_back(regenerate_blocks);
+	print_line(String("Regenerating Lines {0}").format(args));
 
 	if (regenerate_blocks) {
 		// Create blocks
@@ -1647,6 +1651,20 @@ SaveBlockDataTask *VoxelInstancer::save_block(
 	return task;
 }
 
+void VoxelInstancer::remove_scaling(Transform3D& transform) {
+	Vector3 scale_factors = transform.basis.get_scale();
+
+	// Avoid division by zero
+	Vector3 inverse_scale(
+		scale_factors.x != 0.0 ? 1.0 / scale_factors.x : 1.0,
+		scale_factors.y != 0.0 ? 1.0 / scale_factors.y : 1.0,
+		scale_factors.z != 0.0 ? 1.0 / scale_factors.z : 1.0
+	);
+
+	// Remove scaling
+	transform.scale(inverse_scale);
+}
+
 void VoxelInstancer::remove_floating_multimesh_instances(
 		Block &block,
 		const Transform3D &parent_transform,
@@ -1665,8 +1683,7 @@ void VoxelInstancer::remove_floating_multimesh_instances(
 	const int initial_instance_count = zylann::godot::get_visible_instance_count(**multimesh);
 	int instance_count = initial_instance_count;
 
-	const Transform3D block_global_transform =
-			Transform3D(parent_transform.basis, parent_transform.xform(block.grid_position << block_size_po2));
+	const Transform3D block_global_transform = Transform3D(parent_transform.basis, parent_transform.xform(block.grid_position << block_size_po2));
 
 	// Let's check all instances one by one
 	// Note: the fact we have to query VisualServer in and out is pretty bad though.
@@ -1675,6 +1692,7 @@ void VoxelInstancer::remove_floating_multimesh_instances(
 	for (int instance_index = 0; instance_index < instance_count; ++instance_index) {
 		// TODO Optimize: This is terrible in MT mode! Think about keeping a local copy...
 		const Transform3D mm_transform = multimesh->get_instance_transform(instance_index);
+		//mm_transform.scale(block_global_transform.basis.get_scale_global());
 		const Vector3i voxel_pos(math::floor_to_int(mm_transform.origin + block_global_transform.origin));
 
 		if (!p_voxel_box.contains(voxel_pos)) {
@@ -1684,7 +1702,7 @@ void VoxelInstancer::remove_floating_multimesh_instances(
 		// TODO Optimize: use a transaction instead of random single queries
 		// 1-voxel cheap check without interpolation
 		const float sdf = voxel_tool.get_voxel_f(voxel_pos);
-		if (sdf < -0.0001f) {
+		if (sdf < 0.1f) {
 			// Still enough ground
 			continue;
 		}
@@ -1758,7 +1776,7 @@ void VoxelInstancer::remove_floating_scene_instances(
 
 	const Transform3D block_global_transform =
 			Transform3D(parent_transform.basis, parent_transform.xform(block.grid_position << block_size_po2));
-
+	
 	// Let's check all instances one by one
 	// Note: the fact we have to query VisualServer in and out is pretty bad though.
 	// - We probably have to sync with its thread in MT mode
@@ -1822,7 +1840,8 @@ void VoxelInstancer::on_area_edited(Box3i p_voxel_box) {
 	VoxelTool &voxel_tool = **maybe_voxel_tool;
 	voxel_tool.set_channel(VoxelBuffer::CHANNEL_SDF);
 
-	const Transform3D parent_transform = get_global_transform();
+	const Transform3D parent_transform = get_transform();
+
 	const int base_block_size_po2 = _parent_mesh_block_size_po2;
 
 	for (unsigned int lod_index = 0; lod_index < _lods.size(); ++lod_index) {
