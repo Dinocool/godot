@@ -28,6 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
+#pragma once
+
 /**************************************************************************/
 /*                                                                        */
 /* Portions of this code were derived from MoltenVK.                      */
@@ -47,9 +49,6 @@
 /* implied. See the License for the specific language governing           */
 /* permissions and limitations under the License.                         */
 /**************************************************************************/
-
-#ifndef METAL_DEVICE_PROPERTIES_H
-#define METAL_DEVICE_PROPERTIES_H
 
 #import "servers/rendering/rendering_device.h"
 
@@ -71,7 +70,8 @@ typedef NS_OPTIONS(NSUInteger, SampleCount) {
 };
 
 struct API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0)) MetalFeatures {
-	uint32_t mslVersion = 0;
+	uint32_t mslVersionMajor = 0;
+	uint32_t mslVersionMinor = 0;
 	MTLGPUFamily highestFamily = MTLGPUFamilyApple4;
 	bool supportsBCTextureCompression = false;
 	bool supportsDepth24Stencil8 = false;
@@ -125,6 +125,7 @@ struct MetalLimits {
 	uint32_t maxVertexInputBindingStride;
 	uint32_t maxDrawIndexedIndexValue;
 	uint32_t maxShaderVaryings;
+	uint32_t maxThreadGroupMemoryAllocation;
 
 	double temporalScalerInputContentMinScale;
 	double temporalScalerInputContentMaxScale;
@@ -152,5 +153,3 @@ public:
 private:
 	static const SampleCount sample_count[RenderingDevice::TextureSamples::TEXTURE_SAMPLES_MAX];
 };
-
-#endif // METAL_DEVICE_PROPERTIES_H

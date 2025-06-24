@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef VISUAL_SHADER_EDITOR_PLUGIN_H
-#define VISUAL_SHADER_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/editor_properties.h"
 #include "editor/plugins/editor_plugin.h"
@@ -176,10 +175,8 @@ public:
 	Ref<Script> get_node_script(int p_node_id) const;
 	void update_theme();
 	bool is_node_has_parameter_instances_relatively(VisualShader::Type p_type, int p_node) const;
-	VisualShader::Type get_shader_type() const;
 
 	VisualShaderGraphPlugin();
-	~VisualShaderGraphPlugin();
 };
 
 class VisualShaderEditedProperty : public RefCounted {
@@ -194,13 +191,13 @@ protected:
 public:
 	void set_edited_property(const Variant &p_variant);
 	Variant get_edited_property() const;
-
-	VisualShaderEditedProperty() {}
 };
 
 class VisualShaderEditor : public ShaderEditor {
 	GDCLASS(VisualShaderEditor, ShaderEditor);
 	friend class VisualShaderGraphPlugin;
+
+	Ref<ConfigFile> vs_editor_cache; // Keeps the graph offsets and zoom levels for each VisualShader that has been edited.
 
 	PopupPanel *property_editor_popup = nullptr;
 	EditorProperty *property_editor = nullptr;
@@ -215,11 +212,15 @@ class VisualShaderEditor : public ShaderEditor {
 	String param_filter_name;
 	EditorProperty *current_prop = nullptr;
 	VBoxContainer *shader_preview_vbox = nullptr;
+	Button *site_search = nullptr;
+	Button *toggle_files_button = nullptr;
+	Control *toggle_files_list = nullptr;
 	GraphEdit *graph = nullptr;
 	Button *add_node = nullptr;
 	MenuButton *varying_button = nullptr;
 	Button *code_preview_button = nullptr;
 	Button *shader_preview_button = nullptr;
+	Control *toolbar = nullptr;
 
 	int last_to_node = -1;
 	int last_to_port = -1;
@@ -295,6 +296,7 @@ class VisualShaderEditor : public ShaderEditor {
 	};
 
 	int mode = MODE_FLAGS_SPATIAL_CANVASITEM;
+	VisualShader::Type current_type = VisualShader::Type::TYPE_VERTEX; // The type of the currently edited VisualShader.
 
 	enum TypeFlags {
 		TYPE_FLAGS_VERTEX = 1,
@@ -328,17 +330,13 @@ class VisualShaderEditor : public ShaderEditor {
 		PASTE_PARAMS_TO_MATERIAL,
 	};
 
-#ifdef MINGW_ENABLED
-#undef DELETE
-#endif
-
 	enum NodeMenuOptions {
 		ADD,
 		SEPARATOR, // ignore
 		CUT,
 		COPY,
 		PASTE,
-		DELETE,
+		DELETE_, // Conflict with WinAPI.
 		DUPLICATE,
 		CLEAR_COPY_BUFFER,
 		SEPARATOR2, // ignore
@@ -384,6 +382,11 @@ class VisualShaderEditor : public ShaderEditor {
 
 	void _update_nodes();
 	void _update_graph();
+
+	void _restore_editor_state();
+
+	String _get_cache_id_string() const;
+	String _get_cache_key(const String &p_prop_name) const;
 
 	struct AddOption {
 		String name;
@@ -450,6 +453,8 @@ class VisualShaderEditor : public ShaderEditor {
 
 	void _show_shader_preview();
 
+	void _toggle_files_pressed();
+
 	Vector<int> nodes_link_to_frame_buffer; // Contains the nodes that are requested to be linked to a frame. This is used to perform one Undo/Redo operation for dragging nodes.
 	int frame_node_id_to_link_to = -1;
 
@@ -461,15 +466,17 @@ class VisualShaderEditor : public ShaderEditor {
 	};
 	List<DragOp> drag_buffer;
 
+	Timer *panning_debounce_timer = nullptr;
+	bool shader_fully_loaded = false;
+
 	bool drag_dirty = false;
 	void _node_dragged(const Vector2 &p_from, const Vector2 &p_to, int p_node);
 	void _nodes_dragged();
-	bool updating = false;
 
 	void _connection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 	void _disconnection_request(const String &p_from, int p_from_index, const String &p_to, int p_to_index);
 
-	void _scroll_changed(const Vector2 &p_scroll);
+	void _scroll_offset_changed(const Vector2 &p_scroll);
 	void _node_selected(Object *p_node);
 
 	void _delete_nodes(int p_type, const List<int> &p_nodes);
@@ -558,7 +565,7 @@ class VisualShaderEditor : public ShaderEditor {
 	Vector<Ref<VisualShaderNodePlugin>> plugins;
 	Ref<VisualShaderGraphPlugin> graph_plugin;
 
-	void _mode_selected(int p_id);
+	void _type_selected(int p_id);
 	void _custom_mode_toggled(bool p_enabled);
 
 	void _input_select_item(Ref<VisualShaderNodeInput> p_input, const String &p_name);
@@ -566,8 +573,6 @@ class VisualShaderEditor : public ShaderEditor {
 	void _varying_select_item(Ref<VisualShaderNodeVarying> p_varying, const String &p_name);
 
 	void _float_constant_selected(int p_which);
-
-	VisualShader::Type get_current_shader_type() const;
 
 	void _add_input_port(int p_node, int p_port, int p_port_type, const String &p_name);
 	void _remove_input_port(int p_node, int p_port);
@@ -637,6 +642,8 @@ class VisualShaderEditor : public ShaderEditor {
 	void _param_selected();
 	void _param_unselected();
 
+	void _help_open();
+
 protected:
 	void _notification(int p_what);
 	static void _bind_methods();
@@ -648,6 +655,13 @@ public:
 	virtual void save_external_data(const String &p_str = "") override;
 	virtual void validate_script() override;
 
+	void save_editor_layout();
+
+	void set_current_shader_type(VisualShader::Type p_type);
+	VisualShader::Type get_current_shader_type() const;
+
+	virtual Control *get_top_bar() override;
+
 	void add_plugin(const Ref<VisualShaderNodePlugin> &p_plugin);
 	void remove_plugin(const Ref<VisualShaderNodePlugin> &p_plugin);
 
@@ -655,11 +669,13 @@ public:
 
 	void clear_custom_types();
 	void add_custom_type(const String &p_name, const String &p_type, const Ref<Script> &p_script, const String &p_description, int p_return_icon_type, const String &p_category, bool p_highend);
+	void set_toggle_list_control(Control *p_control);
 
 	Dictionary get_custom_node_data(Ref<VisualShaderNodeCustom> &p_custom_node);
 	void update_custom_type(const Ref<Resource> &p_resource);
 
 	virtual Size2 get_minimum_size() const override;
+	void update_toggle_files_button();
 
 	Ref<VisualShader> get_visual_shader() const { return visual_shader; }
 
@@ -720,5 +736,3 @@ public:
 	virtual bool handles(const Ref<Resource> &p_resource) const override;
 	virtual Ref<Resource> convert(const Ref<Resource> &p_resource) const override;
 };
-
-#endif // VISUAL_SHADER_EDITOR_PLUGIN_H

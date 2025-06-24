@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef ANIMATION_PLAYER_EDITOR_PLUGIN_H
-#define ANIMATION_PLAYER_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/animation_track_editor.h"
 #include "editor/plugins/animation_library_editor.h"
@@ -113,6 +112,7 @@ class AnimationPlayerEditor : public VBoxContainer {
 	Ref<Texture2D> reset_icon;
 	Ref<ImageTexture> autoplay_reset_icon;
 
+	bool finishing = false;
 	bool last_active = false;
 	float timeline_position = 0;
 
@@ -205,6 +205,7 @@ class AnimationPlayerEditor : public VBoxContainer {
 	void _update_animation_blend();
 
 	void _list_changed();
+	void _animation_finished(const String &p_name);
 	void _current_animation_changed(const String &p_name);
 	void _update_animation();
 	void _update_player();
@@ -266,6 +267,7 @@ public:
 	AnimationTrackEditor *get_track_editor() { return track_editor; }
 	Dictionary get_state() const;
 	void set_state(const Dictionary &p_state);
+	void clear();
 
 	void ensure_visibility();
 
@@ -298,6 +300,7 @@ protected:
 public:
 	virtual Dictionary get_state() const override { return anim_editor->get_state(); }
 	virtual void set_state(const Dictionary &p_state) override { anim_editor->set_state(p_state); }
+	virtual void clear() override { anim_editor->clear(); }
 
 	virtual String get_plugin_name() const override { return "Anim"; }
 	bool has_main_screen() const override { return false; }
@@ -363,5 +366,3 @@ public:
 
 	AnimationMarkerKeyEditEditorPlugin();
 };
-
-#endif // ANIMATION_PLAYER_EDITOR_PLUGIN_H

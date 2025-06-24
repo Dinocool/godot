@@ -21,13 +21,15 @@
 # Donte <donte5405@outlook.com>, 2024.
 # Mineis Meee <simsfashion694@gmail.com>, 2024.
 # Suvijak Nopparatcharoensuk <guy.suvijak@hotmail.com>, 2025.
+# J Iamsamang <nodtem66@gmail.com>, 2025.
+# Tan <nazapizzaemail.com@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine editor interface\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-01-29 20:50+0000\n"
-"Last-Translator: Suvijak Nopparatcharoensuk <guy.suvijak@hotmail.com>\n"
+"PO-Revision-Date: 2025-06-04 16:52+0000\n"
+"Last-Translator: Tan <nazapizzaemail.com@gmail.com>\n"
 "Language-Team: Thai <https://hosted.weblate.org/projects/godot-engine/godot/"
 "th/>\n"
 "Language: th\n"
@@ -35,10 +37,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.10-dev\n"
-
-msgid "Main Thread"
-msgstr "เธรดหลัก"
+"X-Generator: Weblate 5.12-dev\n"
 
 msgid "Unset"
 msgstr "ยกเลิกการตั้งค่า"
@@ -194,7 +193,7 @@ msgid "released"
 msgstr "ปล่อย"
 
 msgid "Screen %s at (%s) with %s touch points"
-msgstr "การสั่งงานหน้าจอ %s ที่ตำแหน่ง (s) ด้วยการแตะ %s จุด"
+msgstr "การสั่งงานหน้าจอ %s ที่ตำแหน่ง (%s) ด้วยการแตะ %s จุด"
 
 msgid ""
 "Screen dragged with %s touch points at position (%s) with velocity of (%s)"
@@ -386,6 +385,9 @@ msgstr "แสดงที่ซ่อนอยู่"
 msgid "Swap Input Direction"
 msgstr "สลับทิศทางอินพุต"
 
+msgid "Start Unicode Character Input"
+msgstr "เริ่มป้อนตัวอักขระแบบ Unicode"
+
 msgid "Invalid input %d (not passed) in expression"
 msgstr "อินพุต %d (ไม่ส่งผ่าน) ใน expression ไม่ถูกต้อง"
 
@@ -486,6 +488,15 @@ msgstr "ชื่อ:"
 msgid "Type:"
 msgstr "ชนิด:"
 
+msgid "Add Metadata Property for \"%s\""
+msgstr "เพิ่มข้อมูลเมตาเพิ่มเติมสำหรับ \"%s\""
+
+msgid "Metadata name can't be empty."
+msgstr "ชื่อไม่สามารถปล่อยว่างได้"
+
+msgid "Names starting with _ are reserved for editor-only metadata."
+msgstr "ชื่อที่ขึ้นต้นด้วย _ สงวนไว้ใช้กับ metadata ของ editor"
+
 msgid "Time:"
 msgstr "เวลา:"
 
@@ -572,9 +583,6 @@ msgstr "ความยาว Animation (เฟรม)"
 
 msgid "Animation length (seconds)"
 msgstr "ความยาว Animation (วินาที)"
-
-msgid "Add Track"
-msgstr "เพิ่ม Track"
 
 msgid "Animation Looping"
 msgstr "การวนซ้ำ Animation"
@@ -696,6 +704,9 @@ msgstr "ค่าต่ำสุด/สูงสุดของการวน�
 msgid "Duplicate Key(s)"
 msgstr "สร้างคีย์ซ้ำอีกอัน"
 
+msgid "Add RESET Value(s)"
+msgstr "เพิ่มค่าเริ่มต้น"
+
 msgid "Delete Key(s)"
 msgstr "ลบคีย์"
 
@@ -737,6 +748,9 @@ msgstr "แก้ไขช่วงของแอนิเมชัน"
 
 msgid "Rearrange Tracks"
 msgstr "จัดเรียงแทร็ก"
+
+msgid "Add Track"
+msgstr "เพิ่ม Track"
 
 msgid ""
 "Audio tracks can only point to nodes of type:\n"
@@ -930,6 +944,9 @@ msgstr "เลือกแทร็กที่จะคัดลอก"
 msgid "Select All/None"
 msgstr "เลือกทั้งหมด/ไม่เลือก"
 
+msgid "Copy Selection"
+msgstr "คัดลอกที่เลือก"
+
 msgid "Close"
 msgstr "ปิด"
 
@@ -971,9 +988,6 @@ msgstr "เฉพาะที่กำลังเลือก"
 
 msgid "Hide"
 msgstr "ซ่อน"
-
-msgid "Toggle Scripts Panel"
-msgstr "เปิด/ปิดแผงสคริปต์"
 
 msgid "Zoom In"
 msgstr "ขยาย"
@@ -1024,6 +1038,9 @@ msgstr "เลือกเมท็อด"
 
 msgid "No method found matching given filters."
 msgstr "ไม่พบวิธีการที่ตรงกับตัวกรองที่กำหนด"
+
+msgid "Type"
+msgstr "ประเภท"
 
 msgid "Remove"
 msgstr "ลบ"
@@ -1113,11 +1130,17 @@ msgstr "คลาสนี้ถูกทำเครื่องหมายว
 msgid "This class is marked as experimental."
 msgstr "คลาสนี้ถูกทำเครื่องหมายว่าเป็นคลาสทดลอง"
 
+msgid "Favorites"
+msgstr "ที่ชื่นชอบ"
+
 msgid "Favorites:"
 msgstr "ที่ชื่นชอบ:"
 
 msgid "Recent:"
 msgstr "ล่าสุด:"
+
+msgid "Search"
+msgstr "ค้นหา"
 
 msgid "Search:"
 msgstr "ค้นหา:"
@@ -1125,20 +1148,47 @@ msgstr "ค้นหา:"
 msgid "Matches:"
 msgstr "พบ:"
 
+msgid "Description"
+msgstr "รายละเอียด"
+
 msgid "Description:"
 msgstr "รายละเอียด:"
 
-msgid "Remote %s:"
-msgstr "ควบคุม %s:"
+msgid "Project Founders"
+msgstr "ผู้ริเริ่มโครงการ"
+
+msgid "Lead Developer"
+msgstr "ผู้พัฒนาหลัก"
+
+msgid "Developers"
+msgstr "ผู้พัฒนา"
+
+msgid "Patrons"
+msgstr "ผู้สนับสนุน"
+
+msgid "Platinum Sponsors"
+msgstr "ผู้สนับสนุนระดับทองคำขาว"
+
+msgid "Gold Sponsors"
+msgstr "ผู้สนับสนุนระดับทอง"
+
+msgid "Silver Sponsors"
+msgstr "ผู้บริจาคระดับเงิน"
+
+msgid "Diamond Members"
+msgstr "สมาชิกระดับเพชร"
+
+msgid "Titanium Members"
+msgstr "สมาชิกระดับไททาเนียม"
+
+msgid "Set %s"
+msgstr "ตั้ง %s"
 
 msgid "Debugger"
 msgstr "ตัวดีบัก"
 
 msgid "Debug"
 msgstr "ดีบัก"
-
-msgid "Save Branch as Scene"
-msgstr "บันทึกกิ่งเป็นฉาก"
 
 msgid "Copy Node Path"
 msgstr "คัดลอกตำแหน่งโหนด"
@@ -1200,6 +1250,9 @@ msgstr "เฟรม %"
 msgid "Physics Frame %"
 msgstr "% ของเฟรมฟิสิกส์"
 
+msgid "Time"
+msgstr "เวลา"
+
 msgid "Inclusive"
 msgstr "รวม"
 
@@ -1226,9 +1279,6 @@ msgstr "เฟรมที่:"
 msgid "Name"
 msgstr "ชื่อ"
 
-msgid "Time"
-msgstr "เวลา"
-
 msgid "Calls"
 msgstr "จำนวนครั้ง"
 
@@ -1237,6 +1287,9 @@ msgstr "ซีพียู"
 
 msgid "GPU"
 msgstr "จีพียู"
+
+msgid "Main Thread"
+msgstr "เธรดหลัก"
 
 msgid "Execution resumed."
 msgstr "การดำเนินการเริ่มต้นอีกครั้ง"
@@ -1306,9 +1359,6 @@ msgstr "ส่งออกรายการเป็นไฟล์ CSV"
 
 msgid "Resource Path"
 msgstr "ตำแหน่งรีซอร์ส"
-
-msgid "Type"
-msgstr "ประเภท"
 
 msgid "Format"
 msgstr "รูปแบบ"
@@ -1420,44 +1470,17 @@ msgstr "รีซอร์สที่ไม่มีเจ้าของที
 msgid "Using slashes in folder names will create subfolders recursively."
 msgstr "การใช้เครื่องหมายทับในชื่อโฟลเดอร์จะสร้างโฟลเดอร์ย่อยขึ้นมาซ้ำๆ"
 
+msgid "Godot Engine contributors"
+msgstr "ผู้ช่วยพัฒนา Godot Engine"
+
 msgid "Double-click to open in browser."
 msgstr "ดับเบิลคลิกเพื่อเปิดในเบราว์เซอร์"
 
 msgid "Thanks from the Godot community!"
 msgstr "ขอขอบคุณจากชุมชนผู้ใช้ Godot!"
 
-msgid "Godot Engine contributors"
-msgstr "ผู้ช่วยพัฒนา Godot Engine"
-
-msgid "Project Founders"
-msgstr "ผู้ริเริ่มโครงการ"
-
-msgid "Lead Developer"
-msgstr "ผู้พัฒนาหลัก"
-
-msgid "Developers"
-msgstr "ผู้พัฒนา"
-
 msgid "Authors"
 msgstr "ทีมงาน"
-
-msgid "Patrons"
-msgstr "ผู้สนับสนุน"
-
-msgid "Platinum Sponsors"
-msgstr "ผู้สนับสนุนระดับทองคำขาว"
-
-msgid "Gold Sponsors"
-msgstr "ผู้สนับสนุนระดับทอง"
-
-msgid "Silver Sponsors"
-msgstr "ผู้บริจาคระดับเงิน"
-
-msgid "Diamond Members"
-msgstr "สมาชิกระดับเพชร"
-
-msgid "Titanium Members"
-msgstr "สมาชิกระดับไททาเนียม"
 
 msgid "Donors"
 msgstr "ผู้บริจาค"
@@ -1573,6 +1596,9 @@ msgstr "ปิดเสียง"
 msgid "Bypass"
 msgstr "ข้าม"
 
+msgid "Volume"
+msgstr "ระดับเสียง"
+
 msgid "Reset Volume"
 msgstr "รีเซ็ตระดับเสียง"
 
@@ -1678,23 +1704,11 @@ msgstr "เส้นทางไฟล์ %s ไม่ถูกต้อง: ไ
 msgid "Path:"
 msgstr "ตำแหน่ง:"
 
-msgid "Set path or press \"%s\" to create a script."
-msgstr "ตั้งค่าเส้นทางหรือกด \"%s\" เพื่อสร้างสคริปต์"
-
 msgid "Node Name:"
 msgstr "ชื่อโนด:"
 
 msgid "3D Engine"
 msgstr "เอ็นจิ้น 3D"
-
-msgid "2D Physics"
-msgstr "ฟิสิกส์ 2 มิติ"
-
-msgid "3D Physics"
-msgstr "ฟิสิกส์ 3 มิติ"
-
-msgid "Navigation"
-msgstr "ตัวนำทาง"
 
 msgid "RenderingDevice"
 msgstr "ตัวเรนเดอร์"
@@ -1719,9 +1733,6 @@ msgstr "การเรนเดอร์ฟอนต์ฟิลด์ระย
 
 msgid "3D Nodes as well as RenderingServer access to 3D features."
 msgstr "3D Nodes รวมถึงการเข้าถึงฟีเจอร์ 3D ของ RenderingServer"
-
-msgid "2D Physics nodes and PhysicsServer2D."
-msgstr "โหนดฟิสิกส์ 2D และ PhysicsServer2D"
 
 msgid ""
 "TrueType, OpenType, Type 1, and WOFF1 font format support using FreeType "
@@ -1748,9 +1759,6 @@ msgstr ""
 
 msgid "Text Rendering and Font Options:"
 msgstr "ตัวเลือกการแสดงผลข้อความและแบบอักษร:"
-
-msgid "This will scan all files in the current project to detect used classes."
-msgstr "การดำเนินการนี้จะสแกนไฟล์ทั้งหมดในโปรเจ็กต์ปัจจุบันเพื่อตรวจหาคลาสที่ใช้"
 
 msgid "File '%s' format is invalid, import aborted."
 msgstr "นามสกุลของไฟล์ '%s' ผิดพลาด ยกเลิกการนำเข้า"
@@ -1967,9 +1975,6 @@ msgstr "สืบทอด:"
 msgid "Inherited by:"
 msgstr "สืบทอดโดย:"
 
-msgid "Description"
-msgstr "รายละเอียด"
-
 msgid "Online Tutorials"
 msgstr "บทสอนออนไลน์"
 
@@ -2032,9 +2037,6 @@ msgstr "สัญญาณ"
 msgid "File"
 msgstr "ไฟล์"
 
-msgid "%d matches."
-msgstr "%d ตรงกัน"
-
 msgid "Search Help"
 msgstr "ค้นหาความช่วยเหลือ"
 
@@ -2068,23 +2070,26 @@ msgstr "คุณสมบัติธีมเท่านั้น"
 msgid "Member Type"
 msgstr "ชนิดสมาชิก"
 
+msgid "On"
+msgstr "เปิด"
+
 msgid "Move Up"
 msgstr "เลื่อนขึ้น"
 
 msgid "Move Down"
 msgstr "เลื่อนลง"
 
+msgid "Move"
+msgstr "ย้าย"
+
 msgid "Resize Array"
 msgstr "ปรับขนาดอาร์เรย์"
 
+msgid "Size"
+msgstr "ขนาด"
+
 msgid "New Size:"
 msgstr "ขนาดใหม่:"
-
-msgid "Set %s"
-msgstr "ตั้ง %s"
-
-msgid "Favorites"
-msgstr "ที่ชื่นชอบ"
 
 msgid "Creating Mesh Previews"
 msgstr "กำลังสร้างภาพตัวอย่าง Mesh"
@@ -2110,9 +2115,6 @@ msgstr "ภาษา:"
 msgid "Clear Output"
 msgstr "เคลียร์เอาต์พุต"
 
-msgid "Copy Selection"
-msgstr "คัดลอกที่เลือก"
-
 msgid "Unnamed Project"
 msgstr "โปรเจกต์ไม่มีชื่อ"
 
@@ -2136,14 +2138,8 @@ msgstr "บันทึกฉาก"
 msgid "Analyzing"
 msgstr "กำลังวิเคราะห์"
 
-msgid "Creating Thumbnail"
-msgstr "กำลังสร้างรูปตัวอย่าง"
-
 msgid "Save scene before running..."
 msgstr "บันทึกฉากก่อนที่จะรัน..."
-
-msgid "Save All Scenes"
-msgstr "บันทึกฉากทั้งหมด"
 
 msgid "Can't overwrite scene that is still open!"
 msgstr "ไม่สามารถเขียนทับฉากที่กำลังเปิดอยู่ได้!"
@@ -2202,16 +2198,6 @@ msgstr "เลิกทำระยะไกล: %s"
 
 msgid "Can't reload a scene that was never saved."
 msgstr "ฉากยังไม่ได้บันทึก ไม่สามารถโหลดใหม่ได้"
-
-msgid "Reload Saved Scene"
-msgstr "โหลดฉากที่บันทึก"
-
-msgid ""
-"The current scene has unsaved changes.\n"
-"Reload the saved scene anyway? This action cannot be undone."
-msgstr ""
-"ฉากนี้ยังมีการแก้ไขที่ไม่ได้บันทึก\n"
-"โหลดฉากที่บันทึกไว้ซ้ำใช่ไหม? การดำเนินการนี้ไม่สามารถยกเลิกได้"
 
 msgid "Save & Quit"
 msgstr "บันทึกและปิด"
@@ -2280,9 +2266,6 @@ msgstr "โหมดไร้สิ่งรบกวน"
 msgid "Scene"
 msgstr "ฉาก"
 
-msgid "Operations with scene files."
-msgstr "การจัดการกับไฟล์ฉาก"
-
 msgid "Copy Text"
 msgstr "คัดลอกข้อความ"
 
@@ -2304,6 +2287,9 @@ msgstr "เปิดไฟล์ล่าสุด"
 msgid "Save Scene"
 msgstr "บันทึกฉาก"
 
+msgid "Save All Scenes"
+msgstr "บันทึกฉากทั้งหมด"
+
 msgid "Quick Open..."
 msgstr "เปิดด่วน..."
 
@@ -2315,6 +2301,9 @@ msgstr "เปิดสคริปต์ด่วน..."
 
 msgid "MeshLibrary..."
 msgstr "ไลบรารี Mesh..."
+
+msgid "Reload Saved Scene"
+msgstr "โหลดฉากที่บันทึก"
 
 msgid "Close Scene"
 msgstr "ปิดฉาก"
@@ -2333,6 +2322,9 @@ msgstr "การตั้งค่าโปรเจกต์..."
 
 msgid "Project Settings"
 msgstr "การตั้งค่าโปรเจกต์"
+
+msgid "Find in Files..."
+msgstr "ค้นหาในไฟล์..."
 
 msgid "Version Control"
 msgstr "เวอร์ชันคอนโทรล"
@@ -2457,8 +2449,8 @@ msgstr "คำเตือน!"
 msgid "Edit Text:"
 msgstr "แก้ไขข้อความ:"
 
-msgid "On"
-msgstr "เปิด"
+msgid "Locale"
+msgstr "ภูมิภาค"
 
 msgid "No name provided."
 msgstr "ไม่ได้ระบุชื่อ"
@@ -2509,11 +2501,11 @@ msgstr "ค่าใหม่:"
 msgid "Size:"
 msgstr "ขนาด:"
 
-msgid "Remove Item"
-msgstr "ลบไอเทม"
-
 msgid "Add Key/Value Pair"
 msgstr "เพิ่มคู่ของคีย์/ค่า"
+
+msgid "Remove Translation"
+msgstr "ลบการแปลง"
 
 msgid ""
 "The selected resource (%s) does not match any type expected for this property "
@@ -2528,9 +2520,6 @@ msgstr "ไม่ใช้ร่วมกับวัตถุอื่น"
 
 msgid "Save As..."
 msgstr "บันทึกเป็น..."
-
-msgid "New %s"
-msgstr "%s ใหม่"
 
 msgid "New Script..."
 msgstr "สคริปต์ใหม่..."
@@ -2585,11 +2574,20 @@ msgstr "ไม่สามารถเปิดไฟล์ที่จะอ่
 msgid "Packing"
 msgstr "กำลังรวบรวม"
 
+msgid "Invalid Identifier:"
+msgstr "ระบุไม่ถูกต้อง:"
+
 msgid "Custom debug template not found."
 msgstr "ไม่พบเทมเพลตการดีบักแบบกำหนดเอง"
 
 msgid "Custom release template not found."
 msgstr "ไม่พบเทมเพลตการเผยแพร่ที่กำหนดเอง"
+
+msgid "Select device from the list"
+msgstr "เลือกอุปกรณ์จากรายชื่อ"
+
+msgid "Run"
+msgstr "เริ่ม"
 
 msgid "On 32-bit exports the embedded PCK cannot be bigger than 4 GiB."
 msgstr "การส่งออกแบบ 32 bit PCK แบบฝังตัวไม่สามารถใหญ่ได้เกิน 4 GiB"
@@ -2826,9 +2824,6 @@ msgstr "ทำซ้ำ..."
 msgid "Rename..."
 msgstr "เปลี่ยนชื่อ..."
 
-msgid "Re-Scan Filesystem"
-msgstr "สแกนไฟล์ใหม่"
-
 msgid ""
 "Scanning Files,\n"
 "Please Wait..."
@@ -2877,9 +2872,6 @@ msgstr "ลบออกจากกลุ่ม"
 
 msgid "Expand Bottom Panel"
 msgstr "ขยายแผงด้านล่าง"
-
-msgid "Move"
-msgstr "ย้าย"
 
 msgid "Select Current Folder"
 msgstr "เลือกโฟลเดอร์ปัจจุบัน"
@@ -2962,6 +2954,9 @@ msgstr "ไฟล์:"
 msgid "No sub-resources found."
 msgstr "ไม่พบทรัพยากรย่อย"
 
+msgid " (recently opened)"
+msgstr " (เปิดเมื่อเร็วๆ นี้)"
+
 msgid "Play the project."
 msgstr "เล่นโปรเจกต์"
 
@@ -3001,6 +2996,9 @@ msgid ""
 msgstr ""
 "กด %s ค้างเพื่อปัดเศษเป็นจำนวนเต็ม\n"
 "กด Shift ค้างเพื่อเพิ่มความแม่นยำของการเปลี่ยนแปลง"
+
+msgid "Remove Item"
+msgstr "ลบไอเทม"
 
 msgid "(unknown)"
 msgstr "(ไม่ทราบ)"
@@ -3070,6 +3068,9 @@ msgstr "ผิดพลาดขณะรันสคริปต์หลัง
 msgid "Saving..."
 msgstr "กำลังบันทึก..."
 
+msgid "Animation"
+msgstr "แอนิเมชัน"
+
 msgid "Status"
 msgstr "สถานะ"
 
@@ -3115,6 +3116,9 @@ msgstr "สร้างรีซอร์สใหม่ในหน่วยค
 msgid "Load an existing resource from disk and edit it."
 msgstr "โหลดรีซอร์สที่มีอยู่แล้วในดิสก์และทำการปรับแต่ง"
 
+msgid "Load Resource"
+msgstr "โหลดรีซอร์ส"
+
 msgid "Save the currently edited resource."
 msgstr "บันทึกรีซอร์สที่กำลังปรับแต่ง"
 
@@ -3123,9 +3127,6 @@ msgstr "คัดลอกรีซอร์ส"
 
 msgid "History of recently edited objects."
 msgstr "ประวัติการปรับแต่งออบเจกต์"
-
-msgid "Remove Translation"
-msgstr "ลบการแปลง"
 
 msgid "Change Resource Remap Language"
 msgstr "เปลี่ยนภาษาที่ใช้แทนที่ไฟล์"
@@ -3150,9 +3151,6 @@ msgstr "ทรัพยากร:"
 
 msgid "Remaps by Locale:"
 msgstr "แทนที่ตามภูมิภาค:"
-
-msgid "Locale"
-msgstr "ภูมิภาค"
 
 msgid "Set %s on %d nodes"
 msgstr "ตั้ง %s บน %d โหนด"
@@ -3388,9 +3386,6 @@ msgstr "ปรับอัตราส่วนเวลาทุกแอนิ
 msgid "Animation Tools"
 msgstr "เครื่องมือแอนิเมชัน"
 
-msgid "Animation"
-msgstr "แอนิเมชัน"
-
 msgid "Edit Transitions..."
 msgstr "แก้ไขทรานสิชัน"
 
@@ -3492,9 +3487,6 @@ msgstr "การเปลี่ยนผ่าน (ทรานสิชั่�
 
 msgid "Play Mode:"
 msgstr "โหมดการเล่น:"
-
-msgid "Delete Selected"
-msgstr "ลบสิ่งที่เลือก"
 
 msgid "Version:"
 msgstr "รุ่น:"
@@ -3715,6 +3707,9 @@ msgstr "เลื่อน CanvasItem \"%s\" ไปยัง (%d, %d)"
 msgid "Scaling:"
 msgstr "ขนาด:"
 
+msgid "Alt+RMB: Show list of all nodes at position clicked, including locked."
+msgstr "Alt+RMB: แสดงรายการโหนดทั้งหมดที่ตำแหน่งคลิก รวมถึงโหนดที่ถูกล็อก"
+
 msgid "Lock Selected"
 msgstr "ล็อกที่เลือก"
 
@@ -3735,9 +3730,6 @@ msgstr "ล้างเส้นไกด์"
 
 msgid "Select Mode"
 msgstr "โหมดเลือก"
-
-msgid "Alt+RMB: Show list of all nodes at position clicked, including locked."
-msgstr "Alt+RMB: แสดงรายการโหนดทั้งหมดที่ตำแหน่งคลิก รวมถึงโหนดที่ถูกล็อก"
 
 msgid "Move Mode"
 msgstr "โหมดเคลื่อนย้าย"
@@ -3765,6 +3757,9 @@ msgstr "เปิด/ปิดสแนปเส้นกริด"
 
 msgid "Use Grid Snap"
 msgstr "ใช้สแนปเส้นกริด"
+
+msgid "Grid Snap"
+msgstr "สแนปเส้นกริด"
 
 msgid "Snapping Options"
 msgstr "ตัวเลือกการสแนป"
@@ -3895,9 +3890,6 @@ msgstr "กำลังเพิ่ม %s..."
 
 msgid "Create Node"
 msgstr "สร้างโหนด"
-
-msgid "Change Default Type"
-msgstr "เปลี่ยนชนิดเริ่มต้น"
 
 msgid "Set Handle"
 msgstr "ปรับขนาดรูปร่าง"
@@ -4049,6 +4041,9 @@ msgstr "แก้ไขปลั๊กอิน"
 
 msgid "Installed Plugins:"
 msgstr "ปลั๊กอินที่ติดตั้งแล้ว:"
+
+msgid "Variation"
+msgstr "รูปแบบ"
 
 msgid "Change AudioStreamPlayer3D Emission Angle"
 msgstr "แก้ไของศาการเปล่งเสียงของ AudioStreamPlayer3D"
@@ -4245,12 +4240,6 @@ msgstr "จำนวน:"
 
 msgid "Populate"
 msgstr "สร้าง"
-
-msgid "Please Confirm..."
-msgstr "กรุณายืนยัน..."
-
-msgid "Create Navigation Polygon"
-msgstr "สร้างรูปทรงนำทาง"
 
 msgid "Transform Aborted."
 msgstr "ยกเลิกการเคลื่อนย้าย"
@@ -4575,9 +4564,6 @@ msgstr "จุดพื้นผิว"
 msgid "Surface Points+Normal (Directed)"
 msgstr "จุดพื้นผิว+เส้นบอกทิศ"
 
-msgid "Volume"
-msgstr "ระดับเสียง"
-
 msgid "Emission Source:"
 msgstr "แหล่งปะทุ:"
 
@@ -4616,6 +4602,9 @@ msgstr "ลบจุด"
 
 msgid "Close Curve"
 msgstr "ปิดเส้นโค้ง"
+
+msgid "Please Confirm..."
+msgstr "กรุณายืนยัน..."
 
 msgid "Mirror Handle Angles"
 msgstr "มุมตัวสะท้อน"
@@ -4815,9 +4804,6 @@ msgstr "คลิปบอร์ดไม่มีรีซอร์ส!"
 msgid "Paste Resource"
 msgstr "วางรีซอร์ส"
 
-msgid "Load Resource"
-msgstr "โหลดรีซอร์ส"
-
 msgid "Can't open '%s'. The file could have been moved or deleted."
 msgstr "ไม่สามารถเปิด '%s' เนื่องจากไฟล์ถูกย้ายหรือถูกลบ"
 
@@ -4902,12 +4888,6 @@ msgstr "ปิดทั้งหมด"
 msgid "Close Docs"
 msgstr "ปิดคู่มือ"
 
-msgid "Run"
-msgstr "เริ่ม"
-
-msgid "Search"
-msgstr "ค้นหา"
-
 msgid "Search the reference documentation."
 msgstr "ค้นหาคู่มืออ้างอิง"
 
@@ -4954,11 +4934,11 @@ msgstr "ไม่มีวิธีการเชื่อมต่อ '% s' �
 msgid "[Ignore]"
 msgstr "[ละเว้น]"
 
-msgid "Go to Function"
-msgstr "ไปยังฟังก์ชัน"
-
 msgid "Pick Color"
 msgstr "เลือกสี"
+
+msgid "Go to Function"
+msgstr "ไปยังฟังก์ชัน"
 
 msgid "Line"
 msgstr "บรรทัด"
@@ -5007,9 +4987,6 @@ msgstr "แปลงการเยื้องเป็นแท็บ"
 
 msgid "Auto Indent"
 msgstr "ย่อหน้าอัตโนมัติ"
-
-msgid "Find in Files..."
-msgstr "ค้นหาในไฟล์..."
 
 msgid "Contextual Help"
 msgstr "ค้นหาคำที่เลือกในคู่มือ"
@@ -5182,9 +5159,6 @@ msgstr "รีเซ็ตการซูม"
 msgid "Select Frames"
 msgstr "เลือกเฟรม"
 
-msgid "Size"
-msgstr "ขนาด"
-
 msgid "Auto Slice"
 msgstr "แบ่งอัตโนมัติ"
 
@@ -5208,9 +5182,6 @@ msgstr "โหมดสแนป:"
 
 msgid "Pixel Snap"
 msgstr "สแแนปพิกเซล"
-
-msgid "Grid Snap"
-msgstr "สแนปเส้นกริด"
 
 msgid "Step:"
 msgstr "ขนาด:"
@@ -5308,6 +5279,9 @@ msgstr "การเรนเดอร์"
 msgid "Physics"
 msgstr "ฟิสิกส์"
 
+msgid "Navigation"
+msgstr "ตัวนำทาง"
+
 msgid "Yes"
 msgstr "ใช่"
 
@@ -5328,6 +5302,9 @@ msgstr "ยกเลิกการแก้ไขทั้งหมด"
 
 msgid "Commit Changes"
 msgstr "การเปลี่ยนแปลง commit"
+
+msgid "Remote"
+msgstr "ระยะไกล"
 
 msgid "Remote Name"
 msgstr "ชื่อรีโมท"
@@ -5858,6 +5835,17 @@ msgstr "เปลี่ยนโหมดเวอร์ชวลเชดเด
 msgid "Bake VoxelGI"
 msgstr "คำณวณ VoxelGI"
 
+msgid "You don't have any projects yet."
+msgstr "คุณยังไม่มีโปรเจ็กต์ใดๆ"
+
+msgid ""
+"Get started by creating a new one,\n"
+"importing one that exists, or by downloading a project template from the "
+"Asset Library!"
+msgstr ""
+"เริ่มต้นด้วยการสร้างโปรเจกต์ใหม่,\n"
+"นำเข้าที่มีอยู่แล้ว, หรือดาวน์โหลดเทมเพล็ตโปรเจกต์จาก Asset Library!"
+
 msgid "Are you sure to run %d projects at once?"
 msgstr "ยืนยันการรันโปรเจกต์ %d โปรเจกต์ทีเดียว?"
 
@@ -5873,8 +5861,8 @@ msgid ""
 "Warning: You won't be able to open the project with previous versions of the "
 "engine anymore."
 msgstr ""
-"โปรเจกต์ที่เลือก \"%s\" ไม่ได้ระบุเวอร์ชั่น Godot ที่ซัพพอร์ตเอาไว้ในไฟล์การตั้งค่า (\"project."
-"godot\")\n"
+"โปรเจกต์ที่เลือก \"%s\" ไม่ได้ระบุเวอร์ชั่น Godot ที่ซัพพอร์ตเอาไว้ในไฟล์การตั้งค่า "
+"(\"project.godot\")\n"
 "\n"
 "ตำแหน่งโปรเจกต์: %s\n"
 "\n"
@@ -5909,17 +5897,6 @@ msgstr "กรองโปรเจ็กต์"
 
 msgid "Tags"
 msgstr "แท็ก"
-
-msgid "You don't have any projects yet."
-msgstr "คุณยังไม่มีโปรเจ็กต์ใดๆ"
-
-msgid ""
-"Get started by creating a new one,\n"
-"importing one that exists, or by downloading a project template from the "
-"Asset Library!"
-msgstr ""
-"เริ่มต้นด้วยการสร้างโปรเจกต์ใหม่,\n"
-"นำเข้าที่มีอยู่แล้ว, หรือดาวน์โหลดเทมเพล็ตโปรเจกต์จาก Asset Library!"
 
 msgid "Create New Project"
 msgstr "สร้างโปรเจกต์ใหม่"
@@ -6242,9 +6219,6 @@ msgstr "แนบสคริปต์ใหม่หรือที่มีอ
 msgid "Detach the script from the selected node."
 msgstr "ถอดสคริปต์ออกจากโหนดที่เลือก"
 
-msgid "Remote"
-msgstr "ระยะไกล"
-
 msgid ""
 "If selected, the Remote scene tree dock will cause the project to stutter "
 "every time it updates.\n"
@@ -6414,6 +6388,9 @@ msgstr "ตั้งค่า"
 msgid "Delete Property?"
 msgstr "ลบคุณสมบัติ?"
 
+msgid "Create Navigation Polygon"
+msgstr "สร้างรูปทรงนำทาง"
+
 msgid "A NavigationMesh resource must be set or created for this node to work."
 msgstr "ต้องมี NavigationMesh เพื่อให้โหนดนี้ทำงานได้"
 
@@ -6422,9 +6399,6 @@ msgstr "public key ผิดพลาดสำหรับ APK expansion"
 
 msgid "Invalid package name:"
 msgstr "ชื่อแพ็คเกจผิดพลาด:"
-
-msgid "Select device from the list"
-msgstr "เลือกอุปกรณ์จากรายชื่อ"
 
 msgid ""
 "Android build template not installed in the project. Install it from the "
@@ -6478,9 +6452,6 @@ msgstr "กำลังย้ายเอาต์พุต"
 
 msgid "Aligning APK..."
 msgstr "จัดเรียง APK..."
-
-msgid "Invalid Identifier:"
-msgstr "ระบุไม่ถูกต้อง:"
 
 msgid "Run in Browser"
 msgstr "รันในเบราเซอร์"
@@ -6627,9 +6598,6 @@ msgid ""
 msgstr ""
 "คำแนะนำจะไม่แสดงเนื่องจากตัวกรองเมาส์ของตัวควบคุมถูกตั้งค่าเป็น \"ละเว้น\" "
 "ในการแก้ปัญหานี้ให้ตั้งค่าตัวกรองเมาส์เป็น \"หยุด\" หรือ \"ผ่าน\""
-
-msgid "If \"Exp Edit\" is enabled, \"Min Value\" must be greater than 0."
-msgstr "ถ้า \"Exp Edit\" เปิดใช้งาน \"Min Value\" จะต้องมากกว่า 0"
 
 msgid ""
 "ScrollContainer is intended to work with a single child control.\n"
@@ -6843,9 +6811,6 @@ msgstr ""
 
 msgid "Expected a boolean expression."
 msgstr "ต้องการนิพจน์ Boolean"
-
-msgid "Cases must be defined before default case."
-msgstr "Default Case ต้องประกาศหลังสุดเสมอ"
 
 msgid "Default case must be defined only once."
 msgstr "บล็อก Default Case มีได้อันเดียวเท่านั้น"

@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef TEXTURE_STORAGE_GLES3_H
-#define TEXTURE_STORAGE_GLES3_H
+#pragma once
 
 #ifdef GLES3_ENABLED
 
@@ -348,6 +347,7 @@ struct RenderTarget {
 	GLuint backbuffer_fbo = 0;
 	GLuint backbuffer = 0;
 	GLuint backbuffer_depth = 0;
+	bool depth_has_stencil = true;
 
 	bool hdr = false; // For Compatibility this effects both 2D and 3D rendering!
 	GLuint color_internal_format = GL_RGBA8;
@@ -376,6 +376,7 @@ struct RenderTarget {
 
 	struct RTOverridden {
 		bool is_overridden = false;
+		bool depth_has_stencil = false;
 		RID color;
 		RID depth;
 		RID velocity;
@@ -386,6 +387,7 @@ struct RenderTarget {
 			GLuint depth;
 			Size2i size;
 			Vector<GLuint> allocated_textures;
+			bool depth_has_stencil;
 		};
 		RBMap<uint32_t, FBOCacheEntry> fbo_cache;
 	} overridden;
@@ -730,5 +732,3 @@ inline String TextureStorage::get_framebuffer_error(GLenum p_status) {
 } // namespace GLES3
 
 #endif // GLES3_ENABLED
-
-#endif // TEXTURE_STORAGE_GLES3_H

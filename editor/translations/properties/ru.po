@@ -177,13 +177,25 @@
 # Mikhail <mikhail.khadzhaev832@gmail.com>, 2024.
 # Olesya_Gerasimenko <gammaray@basealt.ru>, 2024.
 # Mister Ky <afanasievsergiy3524@gmail.com>, 2025.
+# Igor Shapilov <shatiger@yandex.ru>, 2025.
+# Aleksandr <sasha7onoff@gmail.com>, 2025.
+# Deniil <danpko@ya.ru>, 2025.
+# Ma Ver <naksmmaks3@gmail.com>, 2025.
+# Нурлан <pro100ychelovechek335@gmail.com>, 2025.
+# VluDs404 <tokinvladi@mail.ru>, 2025.
+# JekSun97 <jeksun2022@gmail.com>, 2025.
+# xsSplater <xssplater@gmail.com>, 2025.
+# ScoLite albertovich <kirilllevchik@yandex.ru>, 2025.
+# PROGRAMMER12 <vladislavkalinkin@icloud.com>, 2025.
+# Огненный рыцарь <demon776854@gmail.com>, 2025.
+# EasyBoy <astahove97@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: Godot Engine properties\n"
 "Report-Msgid-Bugs-To: https://github.com/godotengine/godot\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2025-02-08 02:28+0000\n"
-"Last-Translator: Mister Ky <afanasievsergiy3524@gmail.com>\n"
+"PO-Revision-Date: 2025-06-05 16:43+0000\n"
+"Last-Translator: EasyBoy <astahove97@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/godot-engine/"
 "godot-properties/ru/>\n"
 "Language: ru\n"
@@ -192,7 +204,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.12-dev\n"
 
 msgid "Application"
 msgstr "Приложение"
@@ -250,6 +262,9 @@ msgstr "Автоподтверждение выхода"
 
 msgid "Quit on Go Back"
 msgstr "Выход при возврате"
+
+msgid "General"
+msgstr "Основное"
 
 msgid "Display"
 msgstr "Дисплей"
@@ -332,9 +347,6 @@ msgstr "Шины"
 msgid "Default Bus Layout"
 msgstr "Макет шины по умолчанию"
 
-msgid "General"
-msgstr "Основное"
-
 msgid "Default Playback Type"
 msgstr "Тип воспроизведения по умолчанию"
 
@@ -367,6 +379,12 @@ msgstr "Скорость кадров"
 
 msgid "Android"
 msgstr "Android"
+
+msgid "Enable Frame Pacing"
+msgstr "Включить синхронизацию кадров"
+
+msgid "Swappy Mode"
+msgstr "Режим cмены"
 
 msgid "Physics"
 msgstr "Физика"
@@ -578,6 +596,39 @@ msgstr "Включить жесты панорамирования и масшт
 msgid "Rotary Input Scroll Axis"
 msgstr "Ось прокрутки поворотного ввода"
 
+msgid "Navigation"
+msgstr "Навигация"
+
+msgid "Avoidance"
+msgstr "Уклонение"
+
+msgid "Thread Model"
+msgstr "Модель потоков"
+
+msgid "Avoidance Use Multiple Threads"
+msgstr "Уклонение: использовать несколько потоков"
+
+msgid "Avoidance Use High Priority Threads"
+msgstr "Уклонение: использовать потоки с высоким приоритетом"
+
+msgid "Pathfinding"
+msgstr "Поиск пути"
+
+msgid "Max Threads"
+msgstr "Макс. кол-во потоков"
+
+msgid "Baking"
+msgstr "Запекание"
+
+msgid "Use Crash Prevention Checks"
+msgstr "Использовать проверки для предотвращения сбоев"
+
+msgid "Baking Use Multiple Threads"
+msgstr "Запекание: использовать несколько потоков"
+
+msgid "Baking Use High Priority Threads"
+msgstr "Запекание: использовать потоки с высоким приоритетом"
+
 msgid "Low Processor Usage Mode"
 msgstr "Режим низкой нагрузки процессора"
 
@@ -589,6 +640,9 @@ msgstr "Дельта-сглаживание"
 
 msgid "Print Error Messages"
 msgstr "Печатать сообщения об ошибках"
+
+msgid "Print to stdout"
+msgstr "Вывод в консоль"
 
 msgid "Physics Ticks per Second"
 msgstr "Такты физики в секунду"
@@ -881,9 +935,6 @@ msgstr "Потоки"
 msgid "Worker Pool"
 msgstr "Пул рабочих потоков"
 
-msgid "Max Threads"
-msgstr "Макс. кол-во потоков"
-
 msgid "Low Priority Thread Ratio"
 msgstr "Коэффициент потоков с низким приоритетом"
 
@@ -974,14 +1025,14 @@ msgstr "Время ожидания запроса"
 msgid "Sync Breakpoints"
 msgstr "Синхронизация точек останова"
 
-msgid "Default Feature Profile"
-msgstr "Профиль возможностей по умолчанию"
-
 msgid "Label"
 msgstr "Подпись"
 
 msgid "Read Only"
 msgstr "Только чтение"
+
+msgid "Draw Label"
+msgstr "Нарисовать табличку"
 
 msgid "Draw Background"
 msgstr "Нарисуйте фон"
@@ -1003,6 +1054,12 @@ msgstr "Удаляемый"
 
 msgid "Selectable"
 msgstr "Доступно для выбора"
+
+msgid "Use Folding"
+msgstr "Сворачивание кода"
+
+msgid "Name Split Ratio"
+msgstr "Коэффициент разделения имени"
 
 msgid "Distraction Free Mode"
 msgstr "Режим без отвлечения"
@@ -1037,6 +1094,9 @@ msgstr "Использовать потоки"
 msgid "Localize Settings"
 msgstr "Локализация"
 
+msgid "Dock Tab Style"
+msgstr "Стиль вкладки док-станции"
+
 msgid "UI Layout Direction"
 msgstr "Направление макета интерфейса"
 
@@ -1052,6 +1112,9 @@ msgstr "Сторона редактора"
 msgid "Project Manager Screen"
 msgstr "Экран менеджера проекта"
 
+msgid "Connection"
+msgstr "Подключение"
+
 msgid "Use Embedded Menu"
 msgstr "Использовать встроенное меню"
 
@@ -1060,6 +1123,12 @@ msgstr "Использовать нативные файловые диалог�
 
 msgid "Expand to Title"
 msgstr "Развернуть до заголовка"
+
+msgid "Main Font Size"
+msgstr "Размер основного шрифта"
+
+msgid "Code Font Size"
+msgstr "Размер шрифта кода"
 
 msgid "Code Font Contextual Ligatures"
 msgstr "Лигатуры в шрифте кода"
@@ -1070,11 +1139,20 @@ msgstr "Настройки OpenType в шрифте кода"
 msgid "Code Font Custom Variations"
 msgstr "Пользовательские варианты шрифта кода"
 
+msgid "Font Antialiasing"
+msgstr "Сглаживание шрифта"
+
+msgid "Font Hinting"
+msgstr "Хинтинг шрифта"
+
 msgid "Font Subpixel Positioning"
 msgstr "Субпиксельное позиционирование шрифта"
 
 msgid "Font Disable Embedded Bitmaps"
 msgstr "Отключение встроенных растровых представлений шрифта"
+
+msgid "Font Allow MSDF"
+msgstr "Разрешить шрифт MSDF"
 
 msgid "Main Font"
 msgstr "Основной шрифт"
@@ -1100,6 +1178,9 @@ msgstr "Навигация по истории дополнительными к
 msgid "Save Each Scene on Quit"
 msgstr "Сохранять каждую сцену при выходе"
 
+msgid "Save on Focus Loss"
+msgstr "Отключить снятие выделения при потере фокуса"
+
 msgid "Accept Dialog Cancel OK Buttons"
 msgstr "Кнопки «ОК» и «Отмена» диалога подтверждения"
 
@@ -1116,6 +1197,12 @@ msgid "Unfocused Low Processor Mode Sleep (µsec)"
 msgstr ""
 "Задержка в режиме низкой нагрузки процессора без фокуса на окне редактора "
 "(мкс)"
+
+msgid "Import Resources When Unfocused"
+msgstr "Импорт ресурсов, когда они не в фокусе"
+
+msgid "V-Sync Mode"
+msgstr "Режим V-Sync"
 
 msgid "Update Continuously"
 msgstr "Непрерывное обновление"
@@ -1135,11 +1222,23 @@ msgstr "Панели"
 msgid "Scene Tree"
 msgstr "Дерево сцены"
 
+msgid "Ask Before Revoking Unique Name"
+msgstr "Спрашивать перед отменой уникального имени"
+
 msgid "Inspector"
 msgstr "Инспектор"
 
+msgid "Max Array Dictionary Items per Page"
+msgstr "Максимальное количество элементов словаря массива на страницу"
+
 msgid "Show Low Level OpenType Features"
 msgstr "Показать низкоуровневые возможности OpenType"
+
+msgid "Float Drag Speed"
+msgstr "Скорость прокручивания"
+
+msgid "Nested Color Mode"
+msgstr "Режим цветa"
 
 msgid "Delimitate All Container and Resources"
 msgstr "Разграничивать все контейнеры и ресурсы"
@@ -1168,11 +1267,38 @@ msgstr "Открывать ресурсы в текущем экземпляре
 msgid "Resources to Open in New Inspector"
 msgstr "Ресурсы для открытия в новом экземпляре инспектора"
 
+msgid "Default Color Picker Mode"
+msgstr "Режим выбора цвета по умолчанию"
+
+msgid "Default Color Picker Shape"
+msgstr "Форма палитры цветов по умолчанию"
+
 msgid "Theme"
 msgstr "Тема"
 
+msgid "Follow System Theme"
+msgstr "Следовать теме системы"
+
+msgid "Preset"
+msgstr "Пресет"
+
+msgid "Spacing Preset"
+msgstr "Пресет интервала"
+
 msgid "Icon and Font Color"
 msgstr "Цвет значков и шрифтов"
+
+msgid "Base Color"
+msgstr "Базовый цвет"
+
+msgid "Accent Color"
+msgstr "Цвет акцента"
+
+msgid "Use System Accent Color"
+msgstr "Использовать системный акцентный цвет"
+
+msgid "Contrast"
+msgstr "Контраст"
 
 msgid "Draw Extra Borders"
 msgstr "Рисовать дополнительные границы"
@@ -1204,9 +1330,6 @@ msgstr "Сенсорный экран"
 msgid "Scale Gizmo Handles"
 msgstr "Масштаб маркеров гизмо"
 
-msgid "Increase Scrollbar Touch Area"
-msgstr "Увеличить сенсорную область полосы прокрутки"
-
 msgid "Scene Tabs"
 msgstr "Вкладки сцен"
 
@@ -1225,11 +1348,35 @@ msgstr "Показать кнопку скрипта"
 msgid "Restore Scenes on Load"
 msgstr "Восстанавливать сцены при загрузке"
 
+msgid "Multi Window"
+msgstr "Множественное окно"
+
+msgid "Restore Windows on Load"
+msgstr "Восстанавливать окна при загрузке"
+
+msgid "Maximize Window"
+msgstr "Развернуть окно"
+
 msgid "FileSystem"
 msgstr "Файловая система"
 
 msgid "External Programs"
 msgstr "Внешние программы"
+
+msgid "Raster Image Editor"
+msgstr "Редактор растровых изображений"
+
+msgid "Vector Image Editor"
+msgstr "Векторный редактор изображений"
+
+msgid "Audio Editor"
+msgstr "Аудио редактор"
+
+msgid "3D Model Editor"
+msgstr "Редактор 3D моделей"
+
+msgid "Terminal Emulator"
+msgstr "Эмулятор терминала"
 
 msgid "Terminal Emulator Flags"
 msgstr "Флаги эмулятора терминала"
@@ -1239,6 +1386,9 @@ msgstr "Каталоги"
 
 msgid "Autoscan Project Path"
 msgstr "Путь автосканирования проектов"
+
+msgid "Default Project Path"
+msgstr "Путь проекта по умолчанию"
 
 msgid "On Save"
 msgstr "При сохранении"
@@ -1271,8 +1421,20 @@ msgstr "Режим отображения"
 msgid "Thumbnail Size"
 msgstr "Размер миниатюр"
 
+msgid "Quick Open Dialog"
+msgstr "Файловое диалоговое окно"
+
 msgid "Max Results"
 msgstr "Макс. кол-во результатов"
+
+msgid "Show Search Highlight"
+msgstr "Показать выделение поиска"
+
+msgid "Enable Fuzzy Matching"
+msgstr "Включить приближенное соответствие строк"
+
+msgid "Max Fuzzy Misses"
+msgstr "Макс. кол-во сообщений в очереди"
 
 msgid "Include Addons"
 msgstr "Включать дополнения"
@@ -1346,8 +1508,8 @@ msgstr "Интенсивность оттенка для фона подресу
 msgid "Text Editor"
 msgstr "Текстовый редактор"
 
-msgid "Line Spacing"
-msgstr "Межстрочный интервал"
+msgid "Color Theme"
+msgstr "Цветовая тема"
 
 msgid "Appearance"
 msgstr "Внешний вид"
@@ -1409,6 +1571,9 @@ msgstr "Строки"
 msgid "Code Folding"
 msgstr "Сворачивание кода"
 
+msgid "Word Wrap"
+msgstr "Перенос слов"
+
 msgid "Autowrap Mode"
 msgstr "Режим автопереноса"
 
@@ -1421,11 +1586,14 @@ msgstr "Рисовать табуляцию"
 msgid "Draw Spaces"
 msgstr "Рисовать пробелы"
 
+msgid "Line Spacing"
+msgstr "Межстрочный интервал"
+
 msgid "Behavior"
 msgstr "Поведение"
 
-msgid "Navigation"
-msgstr "Навигация"
+msgid "Empty Selection Clipboard"
+msgstr "Очистить буфер обмена выбора"
 
 msgid "Move Caret on Right Click"
 msgstr "Перемещать курсор по нажатию ПКМ"
@@ -1493,6 +1661,12 @@ msgstr "Автоматически перезагружать и анализи�
 msgid "Open Dominant Script on Scene Change"
 msgstr "Открывать основной скрипт при смене сцены"
 
+msgid "Documentation"
+msgstr "Документация"
+
+msgid "Enable Tooltips"
+msgstr "Включить подсказки"
+
 msgid "Script List"
 msgstr "Список скриптов"
 
@@ -1535,6 +1709,9 @@ msgstr "Завершение"
 msgid "Idle Parse Delay"
 msgstr "Задержка перед анализом синтаксиса"
 
+msgid "Idle Parse Delay With Errors Found"
+msgstr "Задержка перед анализом синтаксиса с ошибками"
+
 msgid "Auto Brace Complete"
 msgstr "Автозакрытие скобок"
 
@@ -1573,6 +1750,12 @@ msgstr "Справка"
 
 msgid "Show Help Index"
 msgstr "Показывать справочный указатель"
+
+msgid "Help Font Size"
+msgstr "Размер шрифта"
+
+msgid "Class Reference Examples"
+msgstr "Примеры референсов на классы"
 
 msgid "Sort Functions Alphabetically"
 msgstr "Сортировать функции по алфавиту"
@@ -1664,6 +1847,12 @@ msgstr "CSG"
 msgid "GridMap Grid"
 msgstr "Сетка GridMap"
 
+msgid "Spring Bone Collision"
+msgstr "Коллизия пружинной кости"
+
+msgid "Spring Bone Inside Collision"
+msgstr "Пружинная кость внутри коллизии"
+
 msgid "Gizmo Settings"
 msgstr "Параметры гизмо"
 
@@ -1675,6 +1864,12 @@ msgstr "Форма кости"
 
 msgid "Path 3D Tilt Disk Size"
 msgstr "Размер диска наклона пути 3D"
+
+msgid "Primary Grid Steps"
+msgstr "Первичные шаги сетки"
+
+msgid "Grid Size"
+msgstr "Размер сетки"
 
 msgid "Grid Division Level Max"
 msgstr "Максимальный уровень деления сетки"
@@ -1741,6 +1936,9 @@ msgstr "Чувствительность свободного обзора"
 
 msgid "Freelook Inertia"
 msgstr "Инерция свободного обзора"
+
+msgid "Freelook Activation Modifier"
+msgstr "Активация Freelook Редактировать"
 
 msgid "Freelook Speed Zoom Link"
 msgstr "Связь скорости свободного обзора со значением масштабирования"
@@ -1862,9 +2060,6 @@ msgstr "Восстанавливать шейдеры при загрузке"
 msgid "Visual Editors"
 msgstr "Визуальные редакторы"
 
-msgid "Color Theme"
-msgstr "Цветовая тема"
-
 msgid "Minimap Opacity"
 msgstr "Непрозрачность миникарты"
 
@@ -1892,8 +2087,17 @@ msgstr "SCP"
 msgid "Window Placement"
 msgstr "Размещение окон"
 
+msgid "Rect"
+msgstr "Прямоугольник"
+
 msgid "Rect Custom Position"
 msgstr "Пользовательская позиция прямоугольника"
+
+msgid "Screen"
+msgstr "Экран"
+
+msgid "Game Embed Mode"
+msgstr "Режим встраивания игры"
 
 msgid "Auto Save"
 msgstr "Автосохранение"
@@ -1901,8 +2105,14 @@ msgstr "Автосохранение"
 msgid "Save Before Running"
 msgstr "Сохранять перед запуском"
 
+msgid "Bottom Panel"
+msgstr "Нижняя панель"
+
 msgid "Output"
 msgstr "Вывод"
+
+msgid "Font Size"
+msgstr "Размер шрифта"
 
 msgid "Always Clear Output on Play"
 msgstr "Всегда очищать панель вывода при запуске"
@@ -1919,6 +2129,9 @@ msgstr "Linux/*BSD"
 msgid "Prefer Wayland"
 msgstr "Предпочитать Wayland"
 
+msgid "Network Mode"
+msgstr "Сетевой режим"
+
 msgid "HTTP Proxy"
 msgstr "HTTP-прокси"
 
@@ -1928,17 +2141,29 @@ msgstr "Хост"
 msgid "Editor TLS Certificates"
 msgstr "TLS-сертификаты для редактора"
 
+msgid "Enable TLS V 1"
+msgstr "Включить TLS V 1"
+
 msgid "Remote Host"
 msgstr "Удалённый хост"
 
 msgid "Debugger"
 msgstr "Отладчик"
 
+msgid "Auto Switch to Remote Scene Tree"
+msgstr "Автоматическое переключение на удаленное дерево сцен"
+
+msgid "Auto Switch to Stack Trace"
+msgstr "Автоматическое переключение на трассировку стека"
+
 msgid "Profiler Frame History Size"
 msgstr "Размер истории кадров профайлера"
 
 msgid "Profiler Frame Max Functions"
 msgstr "Максимум функций для кадра в профайлере"
+
+msgid "Profiler Target FPS"
+msgstr "Целевая частота кадров профайлера"
 
 msgid "Remote Scene Tree Refresh Interval"
 msgstr "Интервал обновления удалённого дерева сцены"
@@ -1972,6 +2197,12 @@ msgstr "Менеджер проектов"
 
 msgid "Sorting Order"
 msgstr "Порядок сортировки"
+
+msgid "Directory Naming Convention"
+msgstr "Соглашение об именовании каталогов"
+
+msgid "Default Renderer"
+msgstr "Рендерер по умолчанию"
 
 msgid "Highlighting"
 msgstr "Подсветка"
@@ -2069,6 +2300,9 @@ msgstr "Цвет переменной-члена"
 msgid "Mark Color"
 msgstr "Цвет отметки"
 
+msgid "Warning Color"
+msgstr "Цвет предупреждения"
+
 msgid "Bookmark Color"
 msgstr "Цвет закладки"
 
@@ -2150,6 +2384,117 @@ msgstr "Пользовательский шаблон"
 msgid "Release"
 msgstr "Релиз"
 
+msgid "Architectures"
+msgstr "Архитектуры"
+
+msgid "App Store Team ID"
+msgstr "App Store Team ID"
+
+msgid "Export Method Debug"
+msgstr "Метод экспорта для отладки"
+
+msgid "Code Sign Identity Debug"
+msgstr "Профиль подписания кода для отладки"
+
+msgid "Code Sign Identity Release"
+msgstr "Профиль подписания кода для релиза"
+
+msgid "Provisioning Profile UUID Debug"
+msgstr "UUID профиля предоставления для отладки"
+
+msgid "Provisioning Profile UUID Release"
+msgstr "UUID профиля предоставления для релиза"
+
+msgid "Export Method Release"
+msgstr "Метод экспорта для релиза"
+
+msgid "Bundle Identifier"
+msgstr "Идентификатор комплекта"
+
+msgid "Signature"
+msgstr "Подпись"
+
+msgid "Short Version"
+msgstr "Краткая версия"
+
+msgid "Additional Plist Content"
+msgstr "Дополнительное содержимое plist"
+
+msgid "Icon Interpolation"
+msgstr "Интерполяция для значка"
+
+msgid "Export Project Only"
+msgstr "Экспортировать только проект"
+
+msgid "Delete Old Export Files Unconditionally"
+msgstr "Удалять старые файлы экспорта в безусловном порядке"
+
+msgid "Plugins"
+msgstr "Модули"
+
+msgid "Entitlements"
+msgstr "Права"
+
+msgid "Increased Memory Limit"
+msgstr "Увеличенный лимит памяти"
+
+msgid "Push Notifications"
+msgstr "Push-уведомления"
+
+msgid "Capabilities"
+msgstr "Возможности"
+
+msgid "Access Wi-Fi"
+msgstr "Доступ к Wi-Fi"
+
+msgid "Performance Gaming Tier"
+msgstr "Игровой уровень производительности"
+
+msgid "Performance A 12"
+msgstr "Производительность A 12"
+
+msgid "Enabled"
+msgstr "Включено"
+
+msgid "User Data"
+msgstr "Пользовательские данные"
+
+msgid "Accessible From Files App"
+msgstr "Доступно из приложения Files"
+
+msgid "Accessible From iTunes Sharing"
+msgstr "Доступно из iTunes Sharing"
+
+msgid "Privacy"
+msgstr "Конфиденциальность"
+
+msgid "Camera Usage Description"
+msgstr "Описание использования камеры"
+
+msgid "Camera Usage Description Localized"
+msgstr "Локализованное описание использования камеры"
+
+msgid "Microphone Usage Description"
+msgstr "Описание использования микрофона"
+
+msgid "Microphone Usage Description Localized"
+msgstr "Локализованное описание использования микрофона"
+
+msgid "Photolibrary Usage Description"
+msgstr "Описание использования фотобиблиотеки"
+
+msgid "Photolibrary Usage Description Localized"
+msgstr "Локализованное описание использования фотобиблиотеки"
+
+msgid "Tracking Enabled"
+msgstr "Отслеживание включено"
+
+msgid "Tracking Domains"
+msgstr "Домены отслеживания"
+
+msgid "Icons"
+msgstr "Значки"
+
 msgid "Export Console Wrapper"
 msgstr "Экспортировать оболочку консоли"
 
@@ -2230,6 +2575,9 @@ msgstr "Сбросить все позы костей после импорта"
 
 msgid "Keep Global Rest on Leftovers"
 msgstr "Сохранить глобальный покой на остатках"
+
+msgid "Original Skeleton Name"
+msgstr "Оригинальное имя скелета"
 
 msgid "Fix Silhouette"
 msgstr "Исправить силуэт"
@@ -2384,9 +2732,6 @@ msgstr "Расстояние упрощения"
 msgid "Save to File"
 msgstr "Сохранить в файл"
 
-msgid "Enabled"
-msgstr "Включено"
-
 msgid "Shadow Meshes"
 msgstr "Сетки теней"
 
@@ -2468,6 +2813,9 @@ msgstr "Масштаб корня"
 msgid "Import as Skeleton Bones"
 msgstr "Импортировать как кости скелета"
 
+msgid "Use Node Type Suffixes"
+msgstr "Использовать суффиксы типа узла"
+
 msgid "Meshes"
 msgstr "Сетки"
 
@@ -2537,8 +2885,8 @@ msgstr "Хинтинг"
 msgid "Subpixel Positioning"
 msgstr "Субпиксельное позиционирование"
 
-msgid "Oversampling"
-msgstr "Передискретизация"
+msgid "Keep Rounding Remainders"
+msgstr "Продолжить округлять остатки"
 
 msgid "Metadata Overrides"
 msgstr "Переопределения метаданных"
@@ -2642,6 +2990,12 @@ msgstr "Расстановка"
 msgid "Layout"
 msgstr "Макет"
 
+msgid "Base Scale"
+msgstr "Базовый масштаб"
+
+msgid "Saturation"
+msgstr "Насыщенность"
+
 msgid "Normal Map"
 msgstr "Карта нормалей"
 
@@ -2739,6 +3093,9 @@ msgstr "Индекс текущей группы"
 msgid "Current Bone Idx"
 msgstr "Индекс текущей кости"
 
+msgid "Particles Emission Shape"
+msgstr "Форма излучения частиц"
+
 msgid "ID"
 msgstr "Идентификатор"
 
@@ -2818,9 +3175,6 @@ msgstr "Имя модуля"
 
 msgid "Autoload on Startup"
 msgstr "Автозагрузка системы управления версиями при запуске"
-
-msgid "Use Favorites Root Selection"
-msgstr "Использовать закладки выбора корневого узла"
 
 msgid "Flush stdout on Print"
 msgstr "Сбрасывать буфер выходного потока при печати каждой строки"
@@ -2924,9 +3278,6 @@ msgstr "Разрешено"
 msgid "Threads"
 msgstr "Потоки"
 
-msgid "Thread Model"
-msgstr "Модель потоков"
-
 msgid "Display Server"
 msgstr "Сервер отображения"
 
@@ -2935,9 +3286,6 @@ msgstr "Портативный"
 
 msgid "Orientation"
 msgstr "Ориентация"
-
-msgid "V-Sync Mode"
-msgstr "Режим V-Sync"
 
 msgid "Output Latency"
 msgstr "Выходная задержка"
@@ -3001,6 +3349,12 @@ msgstr "Типы отладочных сообщений"
 
 msgid "Hand Tracking"
 msgstr "Отслеживание положения и ориентации рук"
+
+msgid "Hand Tracking Unobstructed Data Source"
+msgstr "Беспрепятственный источник данных отслеживания рук"
+
+msgid "Hand Tracking Controller Data Source"
+msgstr "Источник данных контроллера отслеживания рук"
 
 msgid "Hand Interaction Profile"
 msgstr "Профиль взаимодействия рук"
@@ -3191,6 +3545,12 @@ msgstr "Края свободны"
 msgid "Obstacles"
 msgstr "Препятствия"
 
+msgid "Pipeline"
+msgstr "Конвейер"
+
+msgid "Compilations Canvas"
+msgstr "Холст компиляций"
+
 msgid "Compilations Draw"
 msgstr "Розыгрыш компиляций"
 
@@ -3326,9 +3686,6 @@ msgstr "Маркеры комментариев"
 msgid "Critical Color"
 msgstr "Цвет критического оповещения"
 
-msgid "Warning Color"
-msgstr "Цвет предупреждения"
-
 msgid "Notice Color"
 msgstr "Цвет уведомления"
 
@@ -3346,6 +3703,9 @@ msgstr "Макс. размер стека вызовов"
 
 msgid "Exclude Addons"
 msgstr "Исключить дополнения"
+
+msgid "Renamed in Godot 4 Hint"
+msgstr "Переименовано в Godot 4 Hint"
 
 msgid "Language Server"
 msgstr "Языковой сервер"
@@ -3442,6 +3802,9 @@ msgstr "Формат изображения"
 
 msgid "Root Node Mode"
 msgstr "Режим корневого узла"
+
+msgid "Visibility Mode"
+msgstr "Режим видимости"
 
 msgid "Json"
 msgstr "JSON"
@@ -3611,8 +3974,20 @@ msgstr "Дочерние элементы"
 msgid "Light"
 msgstr "Свет"
 
+msgid "Visible"
+msgstr "Видимый"
+
+msgid "glTF to Godot Expression"
+msgstr "glTF к выражению Godot"
+
+msgid "Godot to glTF Expression"
+msgstr "Godot к выражению glTF"
+
 msgid "Node Paths"
 msgstr "Пути к узлам"
+
+msgid "Object Model Type"
+msgstr "Тип модели объекта"
 
 msgid "Json Pointers"
 msgstr "Json Указатели"
@@ -3707,6 +4082,51 @@ msgstr "Jolt Physics 3D"
 msgid "Simulation"
 msgstr "Симуляция"
 
+msgid "Use Enhanced Internal Edge Removal"
+msgstr "Использовать расширенное удаление внутренних сторон"
+
+msgid "Generate All Kinematic Contacts"
+msgstr "Генерировать все кинематические контакты"
+
+msgid "Baumgarte Stabilization Factor"
+msgstr "Коэффициент стабилизации Баумгарта"
+
+msgid "Bounce Velocity Threshold"
+msgstr "Порог скорости отскока"
+
+msgid "Continuous CD Movement Threshold"
+msgstr "Порог продолжительного движения CD"
+
+msgid "Body Pair Contact Cache Enabled"
+msgstr "Кэш контакта пары тел включен"
+
+msgid "Body Pair Contact Cache Distance Threshold"
+msgstr "Порог расстояния кэша контакта пары тел"
+
+msgid "Body Pair Contact Cache Angle Threshold"
+msgstr "Порог угла кэша контакта пары тел"
+
+msgid "Queries"
+msgstr "Запросы"
+
+msgid "Enable Ray Cast Face Index"
+msgstr "Включить индекс лица Ray Cast"
+
+msgid "Collisions"
+msgstr "Столкновения"
+
+msgid "World Boundary Shape Size"
+msgstr "Размер формы границы мира"
+
+msgid "Max Linear Velocity"
+msgstr "Максимальная линейная скорость"
+
+msgid "Max Angular Velocity"
+msgstr "Максимальная угловая скорость"
+
+msgid "Max Body Pairs"
+msgstr "Макс. количество пар тел"
+
 msgid "Lightmapping"
 msgstr "Карты освещения"
 
@@ -3796,9 +4216,6 @@ msgstr "Vulkan VRS"
 
 msgid "Min Radius"
 msgstr "Мин. радиус"
-
-msgid "Spawnable Scenes"
-msgstr "Доступные для порождения сцены"
 
 msgid "Spawn Path"
 msgstr "Путь порождения"
@@ -3938,6 +4355,15 @@ msgstr "Путь к профилю взаимодействия"
 msgid "Runtime Paths"
 msgstr "Пути среды выполнения"
 
+msgid "Is Sticky"
+msgstr "Липкий"
+
+msgid "On Haptic"
+msgstr "О тактильном ощущении"
+
+msgid "Off Haptic"
+msgstr "Выкл. Тактильный"
+
 msgid "Display Refresh Rate"
 msgstr "Частота обновления дисплея"
 
@@ -3955,6 +4381,9 @@ msgstr "Смешивание альфа"
 
 msgid "Enable Hole Punch"
 msgstr "Включить пробивание отверстий"
+
+msgid "Border Color"
+msgstr "Цвет границы"
 
 msgid "Aspect Ratio"
 msgstr "Соотношение сторон"
@@ -4077,6 +4506,15 @@ msgstr "Включённые возможности"
 msgid "Visibility State"
 msgstr "Состояние видимости"
 
+msgid "Install Exported APK"
+msgstr "Установить экспортированный APK"
+
+msgid "Java SDK Path"
+msgstr "Путь к Java SDK"
+
+msgid "Android SDK Path"
+msgstr "Путь к Android SDK"
+
 msgid "Force System User"
 msgstr "Принудительное использование пользователя системы"
 
@@ -4116,9 +4554,6 @@ msgstr "Каталог сборки Gradle"
 msgid "Android Source Template"
 msgstr "Шаблон исходных данных Android"
 
-msgid "Compress Native Libraries"
-msgstr "Сжимать нативные библиотеки"
-
 msgid "Export Format"
 msgstr "Формат экспорта"
 
@@ -4127,12 +4562,6 @@ msgstr "Мин. SDK"
 
 msgid "Target SDK"
 msgstr "Целевой SDK"
-
-msgid "Plugins"
-msgstr "Модули"
-
-msgid "Architectures"
-msgstr "Архитектуры"
 
 msgid "Keystore"
 msgstr "Хранилище ключей"
@@ -4191,8 +4620,8 @@ msgstr "Возможности XR"
 msgid "XR Mode"
 msgstr "Режим XR"
 
-msgid "Screen"
-msgstr "Экран"
+msgid "Swipe to Dismiss"
+msgstr "Проведите пальцем, чтобы закрыть"
 
 msgid "Immersive Mode"
 msgstr "Режим погружения"
@@ -4239,8 +4668,29 @@ msgstr "Пользовательские разрешения"
 msgid "iOS Deploy"
 msgstr "Развертка на iOS"
 
-msgid "Icons"
-msgstr "Значки"
+msgid "Targeted Device Family"
+msgstr "Целевое семейство устройств"
+
+msgid "Min iOS Version"
+msgstr "Мин. версия iOS"
+
+msgid "Storyboard"
+msgstr "Раскадровка"
+
+msgid "Image Scale Mode"
+msgstr "Режим масштабирования изображения"
+
+msgid "Custom Image @2x"
+msgstr "Пользовательское изображение @2x"
+
+msgid "Custom Image @3x"
+msgstr "Пользовательское изображение @3x"
+
+msgid "Use Custom BG Color"
+msgstr "Использовать пользовательский цвет фона"
+
+msgid "Custom BG Color"
+msgstr "Пользовательский цвет фона"
 
 msgid "Settings 58 X 58"
 msgstr "Настройки 58 X 58"
@@ -4272,126 +4722,6 @@ msgstr "iPad 152 X 152"
 msgid "App Store 1024 X 1024"
 msgstr "App Store 1024 X 1024"
 
-msgid "App Store Team ID"
-msgstr "App Store Team ID"
-
-msgid "Export Method Debug"
-msgstr "Метод экспорта для отладки"
-
-msgid "Code Sign Identity Debug"
-msgstr "Профиль подписания кода для отладки"
-
-msgid "Code Sign Identity Release"
-msgstr "Профиль подписания кода для релиза"
-
-msgid "Provisioning Profile UUID Debug"
-msgstr "UUID профиля предоставления для отладки"
-
-msgid "Provisioning Profile UUID Release"
-msgstr "UUID профиля предоставления для релиза"
-
-msgid "Export Method Release"
-msgstr "Метод экспорта для релиза"
-
-msgid "Targeted Device Family"
-msgstr "Целевое семейство устройств"
-
-msgid "Bundle Identifier"
-msgstr "Идентификатор комплекта"
-
-msgid "Signature"
-msgstr "Подпись"
-
-msgid "Short Version"
-msgstr "Краткая версия"
-
-msgid "Min iOS Version"
-msgstr "Мин. версия iOS"
-
-msgid "Additional Plist Content"
-msgstr "Дополнительное содержимое plist"
-
-msgid "Icon Interpolation"
-msgstr "Интерполяция для значка"
-
-msgid "Export Project Only"
-msgstr "Экспортировать только проект"
-
-msgid "Delete Old Export Files Unconditionally"
-msgstr "Удалять старые файлы экспорта в безусловном порядке"
-
-msgid "Entitlements"
-msgstr "Права"
-
-msgid "Push Notifications"
-msgstr "Push-уведомления"
-
-msgid "Capabilities"
-msgstr "Возможности"
-
-msgid "Access Wi-Fi"
-msgstr "Доступ к Wi-Fi"
-
-msgid "Performance Gaming Tier"
-msgstr "Игровой уровень производительности"
-
-msgid "Performance A 12"
-msgstr "Производительность A 12"
-
-msgid "User Data"
-msgstr "Пользовательские данные"
-
-msgid "Accessible From Files App"
-msgstr "Доступно из приложения Files"
-
-msgid "Accessible From iTunes Sharing"
-msgstr "Доступно из iTunes Sharing"
-
-msgid "Privacy"
-msgstr "Конфиденциальность"
-
-msgid "Camera Usage Description"
-msgstr "Описание использования камеры"
-
-msgid "Camera Usage Description Localized"
-msgstr "Локализованное описание использования камеры"
-
-msgid "Microphone Usage Description"
-msgstr "Описание использования микрофона"
-
-msgid "Microphone Usage Description Localized"
-msgstr "Локализованное описание использования микрофона"
-
-msgid "Photolibrary Usage Description"
-msgstr "Описание использования фотобиблиотеки"
-
-msgid "Photolibrary Usage Description Localized"
-msgstr "Локализованное описание использования фотобиблиотеки"
-
-msgid "Tracking Enabled"
-msgstr "Отслеживание включено"
-
-msgid "Tracking Domains"
-msgstr "Домены отслеживания"
-
-msgid "Storyboard"
-msgstr "Раскадровка"
-
-msgid "Image Scale Mode"
-msgstr "Режим масштабирования изображения"
-
-msgid "Custom Image @2x"
-msgstr "Пользовательское изображение @2x"
-
-msgid "Custom Image @3x"
-msgstr "Пользовательское изображение @3x"
-
-msgid "Use Custom BG Color"
-msgstr "Использовать пользовательский цвет фона"
-
-msgid "Custom BG Color"
-msgstr "Пользовательский цвет фона"
-
 msgid "Architecture"
 msgstr "Архитектура"
 
@@ -4409,6 +4739,9 @@ msgstr "Запустить скрипт"
 
 msgid "Cleanup Script"
 msgstr "Скрипт очистки"
+
+msgid "macOS"
+msgstr "macOS"
 
 msgid "Distribution Type"
 msgstr "Тип распространения"
@@ -4680,6 +5013,9 @@ msgstr "Значок 180 X 180"
 msgid "Icon 512 X 512"
 msgstr "Значок 512 X 512"
 
+msgid "osslsigncode"
+msgstr "osslsigncode"
+
 msgid "Identity Type"
 msgstr "Тип идентификации"
 
@@ -4781,9 +5117,6 @@ msgstr "Тип воспроизведения"
 
 msgid "Copy Mode"
 msgstr "Режим копирования"
-
-msgid "Rect"
-msgstr "Прямоугольник"
 
 msgid "Anchor Mode"
 msgstr "Режим якорей"
@@ -5165,9 +5498,6 @@ msgstr "Пределы гизмо"
 msgid "Multimesh"
 msgstr "Мультисетка"
 
-msgid "Pathfinding"
-msgstr "Поиск пути"
-
 msgid "Path Desired Distance"
 msgstr "Расстояние до точки пути"
 
@@ -5194,9 +5524,6 @@ msgstr "Путь упрощения"
 
 msgid "Simplify Epsilon"
 msgstr "Количество упрощения"
-
-msgid "Avoidance"
-msgstr "Уклонение"
 
 msgid "Avoidance Enabled"
 msgstr "Включить уклонение"
@@ -5311,9 +5638,6 @@ msgstr "Прокрутка"
 
 msgid "Base Offset"
 msgstr "Базовое смещение"
-
-msgid "Base Scale"
-msgstr "Базовый масштаб"
 
 msgid "Limit Begin"
 msgstr "Ограничение для начала прокрутки"
@@ -5441,8 +5765,8 @@ msgstr "Отключённый"
 msgid "One Way Collision"
 msgstr "Односторонний полигон столкновений"
 
-msgid "One Way Collision Margin"
-msgstr "Отступ одностороннего полигона столкновений"
+msgid "Margin"
+msgstr "Отступ"
 
 msgid "Debug Color"
 msgstr "Цвет формы столкновений при отладке"
@@ -5589,14 +5913,29 @@ msgstr "Сила"
 msgid "Torque"
 msgstr "Крутящий момент"
 
-msgid "Margin"
-msgstr "Отступ"
-
 msgid "Constant Linear Velocity"
 msgstr "Постоянная линейная быстрота"
 
 msgid "Constant Angular Velocity"
 msgstr "Постоянная угловая быстрота"
+
+msgid "Texture Normal"
+msgstr "Текстура нормалей"
+
+msgid "Texture Pressed"
+msgstr "Нажатие текстуры"
+
+msgid "Bitmask"
+msgstr "Битовая маска"
+
+msgid "Shape Centered"
+msgstr "Форма по центру"
+
+msgid "Shape Visible"
+msgstr "Видимая форма"
+
+msgid "Passby Press"
+msgstr "Проходящее нажатие"
 
 msgid "UV"
 msgstr "UV"
@@ -5661,6 +6000,9 @@ msgstr "Режим видимости столкновений"
 msgid "Navigation Visibility Mode"
 msgstr "Режим видимости навигации"
 
+msgid "Occlusion Enabled"
+msgstr "Включить окклюзию"
+
 msgid "Y Sort Origin"
 msgstr "Начало координат для сортировки по Y"
 
@@ -5672,30 +6014,6 @@ msgstr "Столкновения включены"
 
 msgid "Use Kinematic Bodies"
 msgstr "Использовать кинематические тела"
-
-msgid "Navigation Enabled"
-msgstr "Навигация включена"
-
-msgid "Texture Normal"
-msgstr "Текстура нормалей"
-
-msgid "Texture Pressed"
-msgstr "Нажатие текстуры"
-
-msgid "Bitmask"
-msgstr "Битовая маска"
-
-msgid "Shape Centered"
-msgstr "Форма по центру"
-
-msgid "Shape Visible"
-msgstr "Видимая форма"
-
-msgid "Passby Press"
-msgstr "Проходящее нажатие"
-
-msgid "Visibility Mode"
-msgstr "Режим видимости"
 
 msgid "Enabling"
 msgstr "Включение"
@@ -5789,6 +6107,9 @@ msgstr "Радиус кольца"
 
 msgid "Ring Inner Radius"
 msgstr "Внутренний радиус кольца"
+
+msgid "Ring Cone Angle"
+msgstr "Угол конуса кольца"
 
 msgid "Rotate Y"
 msgstr "Повернуть по Y"
@@ -5937,9 +6258,6 @@ msgstr "Цвет контура текста"
 
 msgid "Font"
 msgstr "Шрифт"
-
-msgid "Font Size"
-msgstr "Размер шрифта"
 
 msgid "Horizontal Alignment"
 msgstr "Горизонтальное выравнивание"
@@ -6103,8 +6421,41 @@ msgstr "Данные света"
 msgid "Target Node"
 msgstr "Целевой узел"
 
+msgid "Use Secondary Rotation"
+msgstr "Используйте вторичное вращение"
+
 msgid "From"
 msgstr "От"
+
+msgid "External Node"
+msgstr "Внешний узел"
+
+msgid "Symmetry Limitation"
+msgstr "Ограничение симметрии"
+
+msgid "Primary Positive Limit Angle"
+msgstr "Первичный положительный предельный угол"
+
+msgid "Primary Positive Damp Threshold"
+msgstr "Первичный положительный порог влажности"
+
+msgid "Primary Negative Limit Angle"
+msgstr "Первичный отрицательный предельный угол"
+
+msgid "Primary Negative Damp Threshold"
+msgstr "Первичный порог отрицательной влажности"
+
+msgid "Secondary Positive Limit Angle"
+msgstr "Вторичный положительный предельный угол"
+
+msgid "Secondary Positive Damp Threshold"
+msgstr "Вторичный положительный порог влажности"
+
+msgid "Secondary Negative Limit Angle"
+msgstr "Вторичная отрицательная граница угла"
+
+msgid "Secondary Negative Damp Threshold"
+msgstr "Вторичный отрицательный порог демпфирования"
 
 msgid "Surface Material Override"
 msgstr "Переопределение материала поверхности"
@@ -6139,14 +6490,14 @@ msgstr "Верхний уровень"
 msgid "Visibility"
 msgstr "Видимость"
 
-msgid "Visible"
-msgstr "Видимый"
-
 msgid "Visibility Parent"
 msgstr "Родительский элемент диапазона видимости"
 
 msgid "Bake"
 msgstr "Запекание"
+
+msgid "Debug Shape"
+msgstr "Форма для отладки"
 
 msgid "Rotation Mode"
 msgstr "Режим вращения"
@@ -6387,8 +6738,38 @@ msgstr "Вращение по Z"
 msgid "Hit Back Faces"
 msgstr "Удар по задним граням"
 
-msgid "Debug Shape"
-msgstr "Форма для отладки"
+msgid "Pinned Points"
+msgstr "Закреплённые точки"
+
+msgid "Attachments"
+msgstr "Приложения"
+
+msgid "Point Index"
+msgstr "Индекс точки"
+
+msgid "Spatial Attachment Path"
+msgstr "Путь пространственной привязки"
+
+msgid "Parent Collision Ignore"
+msgstr "Игнорировать родительские столкновения"
+
+msgid "Simulation Precision"
+msgstr "Точность симуляции"
+
+msgid "Total Mass"
+msgstr "Общая масса"
+
+msgid "Linear Stiffness"
+msgstr "Линейная жёсткость"
+
+msgid "Pressure Coefficient"
+msgstr "Коэффициент давления"
+
+msgid "Damping Coefficient"
+msgstr "Коэффициент затухания"
+
+msgid "Drag Coefficient"
+msgstr "Коэффициент сопротивления"
 
 msgid "Spring Length"
 msgstr "Длина пружины"
@@ -6431,6 +6812,9 @@ msgstr "Расстояние перемещения"
 
 msgid "Max Force"
 msgstr "Макс. сила"
+
+msgid "Blend Distance"
+msgstr "Расстояние смешивания"
 
 msgid "Origin Offset"
 msgstr "Смещение начала координат"
@@ -6504,41 +6888,11 @@ msgstr "Активный"
 msgid "Influence"
 msgstr "Влияние"
 
-msgid "Pinned Points"
-msgstr "Закреплённые точки"
-
-msgid "Attachments"
-msgstr "Приложения"
-
-msgid "Point Index"
-msgstr "Индекс точки"
-
-msgid "Spatial Attachment Path"
-msgstr "Путь пространственной привязки"
-
-msgid "Parent Collision Ignore"
-msgstr "Игнорировать родительские столкновения"
-
-msgid "Simulation Precision"
-msgstr "Точность симуляции"
-
-msgid "Total Mass"
-msgstr "Общая масса"
-
-msgid "Linear Stiffness"
-msgstr "Линейная жёсткость"
-
-msgid "Pressure Coefficient"
-msgstr "Коэффициент давления"
-
-msgid "Damping Coefficient"
-msgstr "Коэффициент затухания"
-
-msgid "Drag Coefficient"
-msgstr "Коэффициент сопротивления"
-
 msgid "Position Offset"
 msgstr "Смещение позиции"
+
+msgid "Inside"
+msgstr "Внутри"
 
 msgid "Track Physics Step"
 msgstr "Шаг отслеживания физики"
@@ -6656,6 +7010,9 @@ msgstr "Задержка"
 
 msgid "Random Delay"
 msgstr "Случайная задержка"
+
+msgid "Explicit Elapse"
+msgstr "Явный промах"
 
 msgid "Xfade Time"
 msgstr "Время плавного перехода"
@@ -7062,6 +7419,12 @@ msgstr "Выравнивание для последнего переноса"
 msgid "Reverse Fill"
 msgstr "Обратная заливка"
 
+msgid "Folded"
+msgstr "Возможно разворачивание"
+
+msgid "Title"
+msgstr "Заголовок"
+
 msgid "Show Grid"
 msgstr "Показать сетку"
 
@@ -7119,9 +7482,6 @@ msgstr "Возможно перетаскивание"
 msgid "Selected"
 msgstr "Выделено"
 
-msgid "Title"
-msgstr "Заголовок"
-
 msgid "Autoshrink Enabled"
 msgstr "Автосжатие включено"
 
@@ -7157,6 +7517,9 @@ msgstr "Макс. кол-во строк текста"
 
 msgid "Auto Height"
 msgstr "Автовысота"
+
+msgid "Wraparound Items"
+msgstr "Обтекаемые элементы"
 
 msgid "Items"
 msgstr "Элементы"
@@ -7212,11 +7575,17 @@ msgstr "Текст-заполнитель"
 msgid "Max Length"
 msgstr "Макс. длина"
 
+msgid "Keep Editing on Text Submit"
+msgstr "Продолжайте редактирование при отправке текста"
+
 msgid "Expand to Text Length"
 msgstr "Развернуть до длины текста"
 
 msgid "Context Menu Enabled"
 msgstr "Включить контекстное меню"
+
+msgid "Emoji Menu Enabled"
+msgstr "Меню эмодзи включено"
 
 msgid "Virtual Keyboard Enabled"
 msgstr "Включить виртуальную клавиатуру"
@@ -7268,9 +7637,6 @@ msgstr "Посередине графемы"
 
 msgid "Secret"
 msgstr "Секретное"
-
-msgid "Secret Character"
-msgstr "Секретный символ"
 
 msgid "Underline"
 msgstr "Подчёркивание"
@@ -7356,9 +7722,6 @@ msgstr "Допускать большее"
 msgid "Allow Lesser"
 msgstr "Допускать меньшее"
 
-msgid "Border Color"
-msgstr "Цвет границы"
-
 msgid "Border Width"
 msgstr "Ширина границы"
 
@@ -7428,6 +7791,9 @@ msgstr "Пользовательский шаг"
 msgid "Follow Focus"
 msgstr "Следовать за фокусом"
 
+msgid "Draw Focus Border"
+msgstr "Рисовать границу фокуса"
+
 msgid "Horizontal Custom Step"
 msgstr "Пользовательский шаг по горизонтали"
 
@@ -7466,6 +7832,9 @@ msgstr "Смещение разделения"
 
 msgid "Collapsed"
 msgstr "Свёрнуто"
+
+msgid "Dragging Enabled"
+msgstr "Включить перетаскивание"
 
 msgid "Dragger Visibility"
 msgstr "Видимость перетаскивателя"
@@ -7639,6 +8008,9 @@ msgstr "Включить горизонтальную прокрутку"
 
 msgid "Scroll Vertical Enabled"
 msgstr "Включить вертикальную прокрутку"
+
+msgid "Auto Tooltip"
+msgstr "Автоматическая подсказка"
 
 msgid "Audio Track"
 msgstr "Аудиотрек"
@@ -7963,6 +8335,9 @@ msgstr "Квадрант 3"
 
 msgid "Canvas Cull Mask"
 msgstr "Маска отсечения холста"
+
+msgid "Oversampling"
+msgstr "Передискретизация"
 
 msgid "Size 2D Override"
 msgstr "Переопределение размера 2D"
@@ -8760,12 +9135,6 @@ msgstr "Настройки"
 msgid "Brightness"
 msgstr "Яркость"
 
-msgid "Contrast"
-msgstr "Контраст"
-
-msgid "Saturation"
-msgstr "Насыщенность"
-
 msgid "Color Correction"
 msgstr "Цветовая коррекция"
 
@@ -8905,9 +9274,6 @@ msgstr "Перевернуть векторы бинормалей"
 
 msgid "Flip Texture"
 msgstr "Отразить текстуру"
-
-msgid "Subsurface Scattering"
-msgstr "Подповерхностное рассеяние"
 
 msgid "Skin Mode"
 msgstr "Режим кожи"
@@ -9521,9 +9887,6 @@ msgstr "Выполняемая строка"
 msgid "Can Fold"
 msgstr "Возможно сворачивание"
 
-msgid "Folded"
-msgstr "Возможно разворачивание"
-
 msgid "Can Fold Code Region"
 msgstr "Область кода с возможностью сворачивания"
 
@@ -9596,6 +9959,24 @@ msgstr "Смещение захвата"
 msgid "Updown"
 msgstr "Пользовательская текстура для стрелок «вверх» и «вниз»"
 
+msgid "Up"
+msgstr "Верх"
+
+msgid "Down"
+msgstr "Низ"
+
+msgid "Buttons Vertical Separation"
+msgstr "Вертикальное разделение кнопок"
+
+msgid "Field and Buttons Separation"
+msgstr "Разделение поля и кнопок"
+
+msgid "Buttons Width"
+msgstr "Ширина кнопок"
+
+msgid "Set Min Buttons Width From Icons"
+msgstr "Установить минимальную ширину кнопки на основе изображения"
+
 msgid "Embedded Border"
 msgstr "Встроенная граница"
 
@@ -9638,6 +10019,12 @@ msgstr "Верт. смещение кнопки закрытия"
 msgid "Buttons Separation"
 msgstr "Разделение кнопок"
 
+msgid "Load"
+msgstr "Загрузить"
+
+msgid "Save"
+msgstr "Сохранить"
+
 msgid "Parent Folder"
 msgstr "Родительская папка"
 
@@ -9652,6 +10039,9 @@ msgstr "Перезагрузить"
 
 msgid "Toggle Hidden"
 msgstr "Переключение скрытых"
+
+msgid "Toggle Filename Filter"
+msgstr "Переключить фильтр имени файла"
 
 msgid "Folder"
 msgstr "Папка"
@@ -9733,6 +10123,9 @@ msgstr "Гор. смещение порта"
 
 msgid "Hovered"
 msgstr "Наведение"
+
+msgid "Hovered Dimmed"
+msgstr "Наведение затемненное"
 
 msgid "Selected Focus"
 msgstr "Выбранные элементы, когда список элементов в фокусе"
@@ -10328,33 +10721,6 @@ msgstr "Стандартный отступ краевого соединени�
 msgid "Default Link Connection Radius"
 msgstr "Радиус соединения по каналу по умолчанию"
 
-msgid "Default Cell Height"
-msgstr "Высота ячейки по умолчанию"
-
-msgid "Default Up"
-msgstr "Ориентация «вверх» по умолчанию"
-
-msgid "Merge Rasterizer Cell Scale"
-msgstr "Масштаб ячеек растеризатора объединения"
-
-msgid "Avoidance Use Multiple Threads"
-msgstr "Уклонение: использовать несколько потоков"
-
-msgid "Avoidance Use High Priority Threads"
-msgstr "Уклонение: использовать потоки с высоким приоритетом"
-
-msgid "Baking"
-msgstr "Запекание"
-
-msgid "Use Crash Prevention Checks"
-msgstr "Использовать проверки для предотвращения сбоев"
-
-msgid "Baking Use Multiple Threads"
-msgstr "Запекание: использовать несколько потоков"
-
-msgid "Baking Use High Priority Threads"
-msgstr "Запекание: использовать потоки с высоким приоритетом"
-
 msgid "Edge Connection Color"
 msgstr "Цвет краевых соединений"
 
@@ -10382,14 +10748,8 @@ msgstr "Цвет пути агента"
 msgid "Enable Edge Connections"
 msgstr "Включить краевые соединения"
 
-msgid "Enable Edge Connections X-Ray"
-msgstr "Включить отображение («рентген») краевых соединений"
-
 msgid "Enable Edge Lines"
 msgstr "Включить краевые линии"
-
-msgid "Enable Edge Lines X-Ray"
-msgstr "Включить отображение («рентген») краевых линий"
 
 msgid "Enable Geometry Face Random Color"
 msgstr "Включить случайный цвет каждой грани геометрии"
@@ -10397,14 +10757,8 @@ msgstr "Включить случайный цвет каждой грани г�
 msgid "Enable Link Connections"
 msgstr "Включить соединения по каналу"
 
-msgid "Enable Link Connections X-Ray"
-msgstr "Включить отображение («рентген») соединений по каналу"
-
 msgid "Enable Agent Paths"
 msgstr "Включить пути агентов"
-
-msgid "Enable Agent Paths X-Ray"
-msgstr "Включить отображение («рентген») путей агентов"
 
 msgid "Agent Path Point Size"
 msgstr "Размер точки пути агента"
@@ -10435,6 +10789,27 @@ msgstr "Включить радиус препятствий"
 
 msgid "Enable Obstacles Static"
 msgstr "Включить статичные препятствия"
+
+msgid "Default Cell Height"
+msgstr "Высота ячейки по умолчанию"
+
+msgid "Default Up"
+msgstr "Ориентация «вверх» по умолчанию"
+
+msgid "Merge Rasterizer Cell Scale"
+msgstr "Масштаб ячеек растеризатора объединения"
+
+msgid "Enable Edge Connections X-Ray"
+msgstr "Включить отображение («рентген») краевых соединений"
+
+msgid "Enable Edge Lines X-Ray"
+msgstr "Включить отображение («рентген») краевых линий"
+
+msgid "Enable Link Connections X-Ray"
+msgstr "Включить отображение («рентген») соединений по каналу"
+
+msgid "Enable Agent Paths X-Ray"
+msgstr "Включить отображение («рентген») путей агентов"
 
 msgid "Inverse Mass"
 msgstr "Инвертированная масса"
@@ -10712,6 +11087,9 @@ msgstr "Атлас 16 бит"
 msgid "Shadow Atlas"
 msgstr "Атлас теней"
 
+msgid "Batching"
+msgstr "Пакетирование"
+
 msgid "Item Buffer Size"
 msgstr "Размер буфера элементов"
 
@@ -10832,6 +11210,9 @@ msgstr "Отражение экранного пространства"
 msgid "Roughness Quality"
 msgstr "Качество шероховатости"
 
+msgid "Subsurface Scattering"
+msgstr "Подповерхностное рассеяние"
+
 msgid "Subsurface Scattering Quality"
 msgstr "Качество подповерхностного рассеяния"
 
@@ -10858,6 +11239,9 @@ msgstr "Сетки примитивов"
 
 msgid "Texel Size"
 msgstr "Размер текселя"
+
+msgid "Use Bicubic Filter"
+msgstr "Использовать бикубический фильтр"
 
 msgid "Probe Ray Count"
 msgstr "Количество лучей зонда"
@@ -10945,6 +11329,9 @@ msgstr "Сила VRS"
 
 msgid "World Origin"
 msgstr "Центр мировых координат"
+
+msgid "Camera Locked to Origin"
+msgstr "Камера привязана к источнику"
 
 msgid "Primary Interface"
 msgstr "Основной интерфейс"

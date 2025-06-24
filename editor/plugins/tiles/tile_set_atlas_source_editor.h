@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef TILE_SET_ATLAS_SOURCE_EDITOR_H
-#define TILE_SET_ATLAS_SOURCE_EDITOR_H
+#pragma once
 
 #include "tile_atlas_view.h"
 #include "tile_data_editors.h"
@@ -143,7 +142,6 @@ private:
 
 	// -- Tile data editors --
 	String current_property;
-	Control *current_tile_data_editor_toolbar = nullptr;
 	HashMap<String, TileDataEditor *> tile_data_editors;
 	TileDataEditor *current_tile_data_editor = nullptr;
 	void _tile_data_editors_tree_selected();
@@ -160,7 +158,7 @@ private:
 
 	// -- Atlas view --
 	TileAtlasView *tile_atlas_view = nullptr;
-	VBoxContainer *tile_create_help = nullptr;
+	Label *help_label = nullptr;
 
 	// Dragging
 	enum DragType {
@@ -334,5 +332,3 @@ public:
 	virtual bool can_handle(Object *p_object) override;
 	virtual bool parse_property(Object *p_object, const Variant::Type p_type, const String &p_path, const PropertyHint p_hint, const String &p_hint_text, const BitField<PropertyUsageFlags> p_usage, const bool p_wide = false) override;
 };
-
-#endif // TILE_SET_ATLAS_SOURCE_EDITOR_H

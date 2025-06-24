@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef GAME_VIEW_PLUGIN_H
-#define GAME_VIEW_PLUGIN_H
+#pragma once
 
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/editor_main_screen.h"
@@ -38,7 +37,7 @@
 #include "scene/debugger/scene_debugger.h"
 #include "scene/gui/box_container.h"
 
-class EmbeddedProcess;
+class EmbeddedProcessBase;
 class VSeparator;
 class WindowWrapper;
 class ScriptEditorDebugger;
@@ -53,16 +52,32 @@ private:
 	int node_type = RuntimeNodeSelect::NODE_TYPE_NONE;
 	bool selection_visible = true;
 	int select_mode = RuntimeNodeSelect::SELECT_MODE_SINGLE;
+	bool mute_audio = false;
 	EditorDebuggerNode::CameraOverride camera_override_mode = EditorDebuggerNode::OVERRIDE_INGAME;
 
 	void _session_started(Ref<EditorDebuggerSession> p_session);
 	void _session_stopped();
 
+	void _feature_profile_changed();
+
+	struct ScreenshotCB {
+		Callable cb;
+		Rect2i rect;
+	};
+
+	int64_t scr_rq_id = 0;
+	HashMap<uint64_t, ScreenshotCB> screenshot_callbacks;
+
+	bool _msg_get_screenshot(const Array &p_args);
+
 protected:
 	static void _bind_methods();
 
 public:
-	void set_is_feature_enabled(bool p_enabled);
+	virtual bool capture(const String &p_message, const Array &p_data, int p_session) override;
+	virtual bool has_capture(const String &p_capture) const override;
+
+	bool add_screenshot_callback(const Callable &p_callaback, const Rect2i &p_rect);
 
 	void set_suspend(bool p_enabled);
 	void next_frame();
@@ -72,6 +87,8 @@ public:
 
 	void set_selection_visible(bool p_visible);
 
+	void set_debug_mute_audio(bool p_enabled);
+
 	void set_camera_override(bool p_enabled);
 	void set_camera_manipulate_mode(EditorDebuggerNode::CameraOverride p_mode);
 
@@ -80,7 +97,7 @@ public:
 
 	virtual void setup_session(int p_session_id) override;
 
-	GameViewDebugger() {}
+	GameViewDebugger();
 };
 
 class GameView : public VBoxContainer {
@@ -130,6 +147,8 @@ class GameView : public VBoxContainer {
 	Rect2i floating_window_rect;
 	int floating_window_screen = -1;
 
+	bool debug_mute_audio = false;
+
 	Button *suspend_button = nullptr;
 	Button *next_frame_button = nullptr;
 
@@ -137,6 +156,8 @@ class GameView : public VBoxContainer {
 	Button *select_mode_button[RuntimeNodeSelect::SELECT_MODE_MAX];
 
 	Button *hide_selection = nullptr;
+
+	Button *debug_mute_audio_button = nullptr;
 
 	Button *camera_override_button = nullptr;
 	MenuButton *camera_override_menu = nullptr;
@@ -148,13 +169,15 @@ class GameView : public VBoxContainer {
 	MenuButton *embed_options_menu = nullptr;
 	Label *game_size_label = nullptr;
 	Panel *panel = nullptr;
-	EmbeddedProcess *embedded_process = nullptr;
+	EmbeddedProcessBase *embedded_process = nullptr;
 	Label *state_label = nullptr;
 
 	void _sessions_changed();
 
 	void _update_debugger_buttons();
 
+	void _handle_shortcut_requested(int p_embed_action);
+	void _toggle_suspend_button();
 	void _suspend_button_toggled(bool p_pressed);
 
 	void _node_type_pressed(int p_option);
@@ -165,6 +188,8 @@ class GameView : public VBoxContainer {
 	void _play_pressed();
 	static void _instance_starting_static(int p_idx, List<String> &r_arguments);
 	void _instance_starting(int p_idx, List<String> &r_arguments);
+	static bool _instance_rq_screenshot_static(const Callable &p_callback);
+	bool _instance_rq_screenshot(const Callable &p_callback);
 	void _stop_pressed();
 	void _embedding_completed();
 	void _embedding_failed();
@@ -181,6 +206,8 @@ class GameView : public VBoxContainer {
 
 	void _hide_selection_toggled(bool p_pressed);
 
+	void _debug_mute_audio_button_pressed();
+
 	void _camera_override_button_toggled(bool p_pressed);
 	void _camera_override_menu_id_pressed(int p_id);
 
@@ -192,46 +219,48 @@ class GameView : public VBoxContainer {
 
 	void _debugger_breaked(bool p_breaked, bool p_can_debug);
 
+	void _feature_profile_changed();
+
 protected:
 	void _notification(int p_what);
 
 public:
-	void set_is_feature_enabled(bool p_enabled);
-
 	void set_state(const Dictionary &p_state);
 	Dictionary get_state() const;
 
 	void set_window_layout(Ref<ConfigFile> p_layout);
 	void get_window_layout(Ref<ConfigFile> p_layout);
 
-	GameView(Ref<GameViewDebugger> p_debugger, WindowWrapper *p_wrapper);
+	GameView(Ref<GameViewDebugger> p_debugger, EmbeddedProcessBase *p_embedded_process, WindowWrapper *p_wrapper);
 };
 
-class GameViewPlugin : public EditorPlugin {
-	GDCLASS(GameViewPlugin, EditorPlugin);
+class GameViewPluginBase : public EditorPlugin {
+	GDCLASS(GameViewPluginBase, EditorPlugin);
 
 #ifndef ANDROID_ENABLED
 	GameView *game_view = nullptr;
 	WindowWrapper *window_wrapper = nullptr;
-#endif
+#endif // ANDROID_ENABLED
 
 	Ref<GameViewDebugger> debugger;
 
 	String last_editor;
 
-	void _feature_profile_changed();
 #ifndef ANDROID_ENABLED
 	void _window_visibility_changed(bool p_visible);
-#endif
+#endif // ANDROID_ENABLED
 	void _save_last_editor(const String &p_editor);
 	void _focus_another_editor();
 	bool _is_window_wrapper_enabled() const;
 
 protected:
 	void _notification(int p_what);
+#ifndef ANDROID_ENABLED
+	void setup(Ref<GameViewDebugger> p_debugger, EmbeddedProcessBase *p_embedded_process);
+#endif
 
 public:
-	virtual String get_plugin_name() const override { return "Game"; }
+	virtual String get_plugin_name() const override { return TTRC("Game"); }
 	bool has_main_screen() const override { return true; }
 	virtual void edit(Object *p_object) override {}
 	virtual bool handles(Object *p_object) const override { return false; }
@@ -244,13 +273,13 @@ public:
 
 	virtual void set_window_layout(Ref<ConfigFile> p_layout) override;
 	virtual void get_window_layout(Ref<ConfigFile> p_layout) override;
-
-	virtual void set_state(const Dictionary &p_state) override;
-	virtual Dictionary get_state() const override;
-#endif
-
-	GameViewPlugin();
-	~GameViewPlugin();
+#endif // ANDROID_ENABLED
+	GameViewPluginBase();
 };
 
-#endif // GAME_VIEW_PLUGIN_H
+class GameViewPlugin : public GameViewPluginBase {
+	GDCLASS(GameViewPlugin, GameViewPluginBase);
+
+public:
+	GameViewPlugin();
+};

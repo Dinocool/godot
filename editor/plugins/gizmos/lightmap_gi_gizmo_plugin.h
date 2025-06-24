@@ -28,13 +28,14 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef LIGHTMAP_GI_GIZMO_PLUGIN_H
-#define LIGHTMAP_GI_GIZMO_PLUGIN_H
+#pragma once
 
 #include "editor/plugins/node_3d_editor_gizmos.h"
 
 class LightmapGIGizmoPlugin : public EditorNode3DGizmoPlugin {
 	GDCLASS(LightmapGIGizmoPlugin, EditorNode3DGizmoPlugin);
+
+	float probe_size = 0.4f;
 
 public:
 	bool has_gizmo(Node3D *p_spatial) override;
@@ -44,5 +45,3 @@ public:
 
 	LightmapGIGizmoPlugin();
 };
-
-#endif // LIGHTMAP_GI_GIZMO_PLUGIN_H

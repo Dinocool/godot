@@ -41,6 +41,7 @@
 #include "editor/gui/editor_file_dialog.h"
 #include "editor/gui/editor_validation_panel.h"
 #include "editor/inspector_dock.h"
+#include "editor/plugins/animation_tree_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h" // For onion skinning.
 #include "editor/plugins/node_3d_editor_plugin.h" // For onion skinning.
 #include "editor/scene_tree_dock.h"
@@ -79,6 +80,7 @@ void AnimationPlayerEditor::_node_removed(Node *p_node) {
 void AnimationPlayerEditor::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_PROCESS: {
+			finishing = false;
 			if (!player || is_dummy) {
 				track_editor->show_inactive_player_warning(false);
 			} else {
@@ -503,7 +505,7 @@ void AnimationPlayerEditor::_animation_rename() {
 
 	// Remove library prefix if present.
 	if (selected_name.contains_char('/')) {
-		selected_name = selected_name.get_slice("/", 1);
+		selected_name = selected_name.get_slicec('/', 1);
 	}
 
 	name_dialog->set_title(TTR("Rename Animation"));
@@ -536,7 +538,7 @@ void AnimationPlayerEditor::_animation_remove_confirmed() {
 
 	// For names of form lib_name/anim_name, remove library name prefix.
 	if (current.contains_char('/')) {
-		current = current.get_slice("/", 1);
+		current = current.get_slicec('/', 1);
 	}
 	EditorUndoRedoManager *undo_redo = EditorUndoRedoManager::get_singleton();
 	undo_redo->create_action(TTR("Remove Animation"));
@@ -625,8 +627,8 @@ void AnimationPlayerEditor::_animation_name_edited() {
 			// Extract library prefix if present.
 			String new_library_prefix = "";
 			if (current.contains_char('/')) {
-				new_library_prefix = current.get_slice("/", 0) + "/";
-				current = current.get_slice("/", 1);
+				new_library_prefix = current.get_slicec('/', 0) + "/";
+				current = current.get_slicec('/', 1);
 			}
 
 			undo_redo->create_action(TTR("Rename Animation"));
@@ -655,6 +657,8 @@ void AnimationPlayerEditor::_animation_name_edited() {
 				if (current_anim.is_valid()) {
 					new_anim->set_step(current_anim->get_step());
 				}
+			} else {
+				new_anim->set_step(EDITOR_GET("editors/animation/default_animation_step"));
 			}
 
 			String library_name;
@@ -921,6 +925,10 @@ void AnimationPlayerEditor::set_state(const Dictionary &p_state) {
 	if (p_state.has("track_editor_state")) {
 		track_editor->set_state(p_state["track_editor_state"]);
 	}
+}
+
+void AnimationPlayerEditor::clear() {
+	track_editor->clear();
 }
 
 void AnimationPlayerEditor::_animation_resource_edit() {
@@ -1203,6 +1211,9 @@ void AnimationPlayerEditor::edit(AnimationMixer *p_node, AnimationPlayer *p_play
 		if (player->is_connected(SNAME("animation_list_changed"), callable_mp(this, &AnimationPlayerEditor::_animation_libraries_updated))) {
 			player->disconnect(SNAME("animation_list_changed"), callable_mp(this, &AnimationPlayerEditor::_animation_libraries_updated));
 		}
+		if (player->is_connected(SceneStringName(animation_finished), callable_mp(this, &AnimationPlayerEditor::_animation_finished))) {
+			player->disconnect(SceneStringName(animation_finished), callable_mp(this, &AnimationPlayerEditor::_animation_finished));
+		}
 		if (player->is_connected(SNAME("current_animation_changed"), callable_mp(this, &AnimationPlayerEditor::_current_animation_changed))) {
 			player->disconnect(SNAME("current_animation_changed"), callable_mp(this, &AnimationPlayerEditor::_current_animation_changed));
 		}
@@ -1229,6 +1240,9 @@ void AnimationPlayerEditor::edit(AnimationMixer *p_node, AnimationPlayer *p_play
 	if (player) {
 		if (!player->is_connected(SNAME("animation_list_changed"), callable_mp(this, &AnimationPlayerEditor::_animation_libraries_updated))) {
 			player->connect(SNAME("animation_list_changed"), callable_mp(this, &AnimationPlayerEditor::_animation_libraries_updated), CONNECT_DEFERRED);
+		}
+		if (!player->is_connected(SceneStringName(animation_finished), callable_mp(this, &AnimationPlayerEditor::_animation_finished))) {
+			player->connect(SceneStringName(animation_finished), callable_mp(this, &AnimationPlayerEditor::_animation_finished));
 		}
 		if (!player->is_connected(SNAME("current_animation_changed"), callable_mp(this, &AnimationPlayerEditor::_current_animation_changed))) {
 			player->connect(SNAME("current_animation_changed"), callable_mp(this, &AnimationPlayerEditor::_current_animation_changed));
@@ -1340,7 +1354,7 @@ void AnimationPlayerEditor::_animation_duplicate() {
 
 	if (new_name.contains_char('/')) {
 		// Discard library prefix.
-		new_name = new_name.get_slice("/", 1);
+		new_name = new_name.get_slicec('/', 1);
 	}
 
 	_update_name_dialog_library_dropdown();
@@ -1421,9 +1435,16 @@ void AnimationPlayerEditor::_list_changed() {
 	}
 }
 
+void AnimationPlayerEditor::_animation_finished(const String &p_name) {
+	finishing = true;
+}
+
 void AnimationPlayerEditor::_current_animation_changed(const String &p_name) {
 	if (is_visible_in_tree()) {
-		if (p_name.is_empty()) {
+		if (finishing) {
+			finishing = false; // Maybe redundant since it will be false in the AnimationPlayerEditor::_process(), but for safety.
+			return;
+		} else if (p_name.is_empty()) {
 			// Means [stop].
 			frame->set_value(0);
 			track_editor->set_anim_pos(0);
@@ -1926,7 +1947,7 @@ AnimationMixer *AnimationPlayerEditor::fetch_mixer_for_library() const {
 }
 
 Node *AnimationPlayerEditor::get_cached_root_node() const {
-	return Object::cast_to<Node>(ObjectDB::get_instance(cached_root_node_id));
+	return ObjectDB::get_instance<Node>(cached_root_node_id);
 }
 
 bool AnimationPlayerEditor::_validate_tracks(const Ref<Animation> p_anim) {
@@ -1942,7 +1963,7 @@ bool AnimationPlayerEditor::_validate_tracks(const Ref<Animation> p_anim) {
 			for (int j = 0; j < key_len; j++) {
 				Quaternion q;
 				p_anim->rotation_track_get_key(i, j, &q);
-				ERR_BREAK_EDMSG(!q.is_normalized(), "AnimationPlayer: '" + player->get_name() + "', Animation: '" + player->get_current_animation() + "', 3D Rotation Track:  '" + p_anim->track_get_path(i) + "' contains unnormalized Quaternion key.");
+				ERR_BREAK_EDMSG(!q.is_normalized(), "AnimationPlayer: '" + player->get_name() + "', Animation: '" + player->get_current_animation() + "', 3D Rotation Track:  '" + String(p_anim->track_get_path(i)) + "' contains unnormalized Quaternion key.");
 			}
 		} else if (ttype == Animation::TYPE_VALUE) {
 			int key_len = p_anim->track_get_key_count(i);
@@ -1955,7 +1976,7 @@ bool AnimationPlayerEditor::_validate_tracks(const Ref<Animation> p_anim) {
 						Quaternion q = Quaternion(p_anim->track_get_key_value(i, j));
 						if (!q.is_normalized()) {
 							is_valid = false;
-							ERR_BREAK_EDMSG(true, "AnimationPlayer: '" + player->get_name() + "', Animation: '" + player->get_current_animation() + "', Value Track:  '" + p_anim->track_get_path(i) + "' contains unnormalized Quaternion key.");
+							ERR_BREAK_EDMSG(true, "AnimationPlayer: '" + player->get_name() + "', Animation: '" + player->get_current_animation() + "', Value Track:  '" + String(p_anim->track_get_path(i)) + "' contains unnormalized Quaternion key.");
 						}
 					}
 				} break;
@@ -1964,7 +1985,7 @@ bool AnimationPlayerEditor::_validate_tracks(const Ref<Animation> p_anim) {
 						Transform3D t = Transform3D(p_anim->track_get_key_value(i, j));
 						if (!t.basis.orthonormalized().is_rotation()) {
 							is_valid = false;
-							ERR_BREAK_EDMSG(true, "AnimationPlayer: '" + player->get_name() + "', Animation: '" + player->get_current_animation() + "', Value Track:  '" + p_anim->track_get_path(i) + "' contains corrupted basis (some axes are too close other axis or scaled by zero) Transform3D key.");
+							ERR_BREAK_EDMSG(true, "AnimationPlayer: '" + player->get_name() + "', Animation: '" + player->get_current_animation() + "', Value Track:  '" + String(p_anim->track_get_path(i)) + "' contains corrupted basis (some axes are too close other axis or scaled by zero) Transform3D key.");
 						}
 					}
 				} break;
@@ -2013,26 +2034,31 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	play_bw_from = memnew(Button);
 	play_bw_from->set_theme_type_variation(SceneStringName(FlatButton));
 	play_bw_from->set_tooltip_text(TTR("Play Animation Backwards"));
+	play_bw_from->set_accessibility_name(TTRC("Play Backwards"));
 	playback_container->add_child(play_bw_from);
 
 	play_bw = memnew(Button);
 	play_bw->set_theme_type_variation(SceneStringName(FlatButton));
 	play_bw->set_tooltip_text(TTR("Play Animation Backwards from End"));
+	play_bw->set_accessibility_name(TTRC("Play Backwards from End"));
 	playback_container->add_child(play_bw);
 
 	stop = memnew(Button);
 	stop->set_theme_type_variation(SceneStringName(FlatButton));
 	stop->set_tooltip_text(TTR("Pause/Stop Animation"));
+	stop->set_accessibility_name(TTRC("Pause/Stop"));
 	playback_container->add_child(stop);
 
 	play = memnew(Button);
 	play->set_theme_type_variation(SceneStringName(FlatButton));
 	play->set_tooltip_text(TTR("Play Animation from Start"));
+	play->set_accessibility_name(TTRC("Play from Start"));
 	playback_container->add_child(play);
 
 	play_from = memnew(Button);
 	play_from->set_theme_type_variation(SceneStringName(FlatButton));
 	play_from->set_tooltip_text(TTR("Play Animation"));
+	play_from->set_accessibility_name(TTRC("Play"));
 	playback_container->add_child(play_from);
 
 	frame = memnew(SpinBox);
@@ -2041,6 +2067,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	frame->set_stretch_ratio(2);
 	frame->set_step(0.0001);
 	frame->set_tooltip_text(TTR("Animation position (in seconds)."));
+	frame->set_accessibility_name(TTRC("Frame"));
 
 	hb->add_child(memnew(VSeparator));
 
@@ -2049,6 +2076,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	scale->set_h_size_flags(SIZE_EXPAND_FILL);
 	scale->set_stretch_ratio(1);
 	scale->set_tooltip_text(TTR("Scale animation playback globally for the node."));
+	scale->set_accessibility_name(TTRC("Scale"));
 	scale->hide();
 
 	delete_dialog = memnew(ConfirmationDialog);
@@ -2076,6 +2104,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 
 	animation = memnew(OptionButton);
 	hb->add_child(animation);
+	animation->set_accessibility_name(TTRC("Animation"));
 	animation->set_h_size_flags(SIZE_EXPAND_FILL);
 	animation->set_tooltip_text(TTR("Display list of animations in player."));
 	animation->set_clip_text(true);
@@ -2085,6 +2114,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	autoplay->set_theme_type_variation(SceneStringName(FlatButton));
 	hb->add_child(autoplay);
 	autoplay->set_tooltip_text(TTR("Autoplay on Load"));
+	autoplay->set_accessibility_name(TTRC("Autoplay on Load"));
 
 	hb->add_child(memnew(VSeparator));
 
@@ -2097,10 +2127,12 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	onion_toggle->set_theme_type_variation(SceneStringName(FlatButton));
 	onion_toggle->set_toggle_mode(true);
 	onion_toggle->set_tooltip_text(TTR("Enable Onion Skinning"));
+	onion_toggle->set_accessibility_name(TTRC("Onion Skinning"));
 	onion_toggle->connect(SceneStringName(pressed), callable_mp(this, &AnimationPlayerEditor::_onion_skinning_menu).bind(ONION_SKINNING_ENABLE));
 	hb->add_child(onion_toggle);
 
 	onion_skinning = memnew(MenuButton);
+	onion_skinning->set_accessibility_name(TTRC("Onion Skinning Options"));
 	onion_skinning->set_flat(false);
 	onion_skinning->set_theme_type_variation("FlatMenuButton");
 	onion_skinning->set_tooltip_text(TTR("Onion Skinning Options"));
@@ -2127,6 +2159,7 @@ AnimationPlayerEditor::AnimationPlayerEditor(AnimationPlayerEditorPlugin *p_plug
 	pin->set_theme_type_variation(SceneStringName(FlatButton));
 	pin->set_toggle_mode(true);
 	pin->set_tooltip_text(TTR("Pin AnimationPlayer"));
+	pin->set_accessibility_name(TTRC("Pin AnimationPlayer"));
 	hb->add_child(pin);
 	pin->connect(SceneStringName(pressed), callable_mp(this, &AnimationPlayerEditor::_pin_pressed));
 
@@ -2391,6 +2424,10 @@ bool AnimationPlayerEditorPlugin::handles(Object *p_object) const {
 
 void AnimationPlayerEditorPlugin::make_visible(bool p_visible) {
 	if (p_visible) {
+		// if AnimationTree editor is visible, do not occupy the bottom panel
+		if (AnimationTreeEditor::get_singleton() && AnimationTreeEditor::get_singleton()->is_visible_in_tree()) {
+			return;
+		}
 		EditorNode::get_bottom_panel()->make_item_visible(anim_editor);
 		anim_editor->set_process(true);
 		anim_editor->ensure_visibility();
@@ -2399,7 +2436,7 @@ void AnimationPlayerEditorPlugin::make_visible(bool p_visible) {
 
 AnimationPlayerEditorPlugin::AnimationPlayerEditorPlugin() {
 	anim_editor = memnew(AnimationPlayerEditor(this));
-	EditorNode::get_bottom_panel()->add_item(TTR("Animation"), anim_editor, ED_SHORTCUT_AND_COMMAND("bottom_panels/toggle_animation_bottom_panel", TTRC("Toggle Animation Bottom Panel"), KeyModifierMask::ALT | Key::N));
+	EditorNode::get_bottom_panel()->add_item(TTRC("Animation"), anim_editor, ED_SHORTCUT_AND_COMMAND("bottom_panels/toggle_animation_bottom_panel", TTRC("Toggle Animation Bottom Panel"), KeyModifierMask::ALT | Key::N));
 }
 
 AnimationPlayerEditorPlugin::~AnimationPlayerEditorPlugin() {

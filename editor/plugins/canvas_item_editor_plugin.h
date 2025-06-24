@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef CANVAS_ITEM_EDITOR_PLUGIN_H
-#define CANVAS_ITEM_EDITOR_PLUGIN_H
+#pragma once
 
 #include "editor/plugins/editor_plugin.h"
 #include "scene/gui/box_container.h"
@@ -68,8 +67,6 @@ public:
 	List<Dictionary> pre_drag_bones_undo_state;
 
 	Dictionary undo_state;
-
-	CanvasItemEditorSelectedItem() {}
 };
 
 class CanvasItemEditor : public VBoxContainer {
@@ -255,10 +252,12 @@ private:
 	bool key_scale = false;
 
 	bool pan_pressed = false;
-	Vector2 temp_pivot = Vector2(INFINITY, INFINITY);
+	Vector2 temp_pivot = Vector2(Math::INF, Math::INF);
 
 	bool ruler_tool_active = false;
 	Point2 ruler_tool_origin;
+	real_t ruler_width_scaled = 16.0;
+	int ruler_font_size = 8;
 	Point2 node_create_position;
 
 	MenuOption last_option;
@@ -369,6 +368,7 @@ private:
 	Transform2D original_transform;
 
 	Point2 box_selecting_to;
+	CursorShape cursor_shape_override = CURSOR_ARROW;
 
 	Ref<StyleBoxTexture> select_sb;
 	Ref<Texture2D> select_handle;
@@ -585,6 +585,7 @@ public:
 	void focus_selection();
 	void center_at(const Point2 &p_pos);
 
+	void set_cursor_shape_override(CursorShape p_shape = CURSOR_ARROW);
 	virtual CursorShape get_cursor_shape(const Point2 &p_pos) const override;
 
 	ThemePreviewMode get_theme_preview() const { return theme_preview; }
@@ -603,7 +604,7 @@ protected:
 	void _notification(int p_what);
 
 public:
-	virtual String get_plugin_name() const override { return "2D"; }
+	virtual String get_plugin_name() const override { return TTRC("2D"); }
 	bool has_main_screen() const override { return true; }
 	virtual void edit(Object *p_object) override;
 	virtual bool handles(Object *p_object) const override;
@@ -615,7 +616,6 @@ public:
 	CanvasItemEditor *get_canvas_item_editor() { return canvas_item_editor; }
 
 	CanvasItemEditorPlugin();
-	~CanvasItemEditorPlugin();
 };
 
 class CanvasItemEditorViewport : public Control {
@@ -665,5 +665,3 @@ public:
 	CanvasItemEditorViewport(CanvasItemEditor *p_canvas_item_editor);
 	~CanvasItemEditorViewport();
 };
-
-#endif // CANVAS_ITEM_EDITOR_PLUGIN_H

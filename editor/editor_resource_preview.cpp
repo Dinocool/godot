@@ -93,9 +93,6 @@ void EditorResourcePreviewGenerator::_bind_methods() {
 	GDVIRTUAL_BIND(_can_generate_small_preview);
 }
 
-EditorResourcePreviewGenerator::EditorResourcePreviewGenerator() {
-}
-
 void EditorResourcePreviewGenerator::DrawRequester::request_and_wait(RID p_viewport) {
 	Callable request_vp_update_once = callable_mp(RS::get_singleton(), &RS::viewport_set_update_mode).bind(p_viewport, RS::VIEWPORT_UPDATE_ONCE);
 
@@ -218,9 +215,15 @@ void EditorResourcePreview::_generate_preview(Ref<ImageTexture> &r_texture, Ref<
 		}
 
 		if (r_small_texture.is_null() && r_texture.is_valid() && preview_generators[i]->generate_small_preview_automatically()) {
-			Ref<Image> small_image = r_texture->get_image();
-			small_image = small_image->duplicate();
-			small_image->resize(small_thumbnail_size, small_thumbnail_size, Image::INTERPOLATE_CUBIC);
+			Ref<Image> small_image = r_texture->get_image()->duplicate();
+			Vector2i new_size = Vector2i(1, 1) * small_thumbnail_size;
+			const real_t aspect = small_image->get_size().aspect();
+			if (aspect > 1.0) {
+				new_size.y /= aspect;
+			} else {
+				new_size.x *= aspect;
+			}
+			small_image->resize(new_size.x, new_size.y, Image::INTERPOLATE_CUBIC);
 			r_small_texture.instantiate();
 			r_small_texture->set_image(small_image);
 		}
@@ -265,7 +268,7 @@ const Dictionary EditorResourcePreview::get_preview_metadata(const String &p_pat
 void EditorResourcePreview::_iterate() {
 	preview_mutex.lock();
 
-	if (queue.size() == 0) {
+	if (queue.is_empty()) {
 		preview_mutex.unlock();
 		return;
 	}
@@ -387,7 +390,7 @@ void EditorResourcePreview::_write_preview_cache(Ref<FileAccess> p_file, int p_t
 	p_file->store_line(itos(p_has_small_texture));
 	p_file->store_line(itos(p_modified_time));
 	p_file->store_line(p_hash);
-	p_file->store_line(VariantUtilityFunctions::var_to_str(p_metadata).replace("\n", " "));
+	p_file->store_line(VariantUtilityFunctions::var_to_str(p_metadata).replace_char('\n', ' '));
 	p_file->store_line(itos(CURRENT_METADATA_VERSION));
 }
 

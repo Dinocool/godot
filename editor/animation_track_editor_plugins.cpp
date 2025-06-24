@@ -413,7 +413,7 @@ Rect2 AnimationTrackEditSpriteFrame::get_key_rect(int p_index, float p_pixels_se
 			animation_name = animations.front()->get();
 		} else {
 			// Go through other track to find if animation is set
-			String animation_path = get_animation()->track_get_path(get_track());
+			String animation_path = String(get_animation()->track_get_path(get_track()));
 			animation_path = animation_path.replace(":frame", ":animation");
 			int animation_track = get_animation()->find_track(animation_path, get_animation()->track_get_type(get_track()));
 			float track_time = get_animation()->track_get_key_time(get_track(), p_index);
@@ -505,7 +505,7 @@ void AnimationTrackEditSpriteFrame::draw_key(int p_index, float p_pixels_sec, in
 			animation_name = animations.front()->get();
 		} else {
 			// Go through other track to find if animation is set
-			String animation_path = get_animation()->track_get_path(get_track());
+			String animation_path = String(get_animation()->track_get_path(get_track()));
 			animation_path = animation_path.replace(":frame", ":animation");
 			int animation_track = get_animation()->find_track(animation_path, get_animation()->track_get_type(get_track()));
 			float track_time = get_animation()->track_get_key_time(get_track(), p_index);
@@ -1051,13 +1051,13 @@ void AnimationTrackEditTypeAudio::gui_input(const Ref<InputEvent> &p_event) {
 
 			int end = ofs + len * get_timeline()->get_zoom_scale();
 
-			if (end >= get_timeline()->get_name_limit() && end <= get_size().width - get_timeline()->get_buttons_width() && ABS(mm->get_position().x - end) < 5 * EDSCALE) {
+			if (end >= get_timeline()->get_name_limit() && end <= get_size().width - get_timeline()->get_buttons_width() && Math::abs(mm->get_position().x - end) < 5 * EDSCALE) {
 				len_resizing_start = false;
 				use_hsize_cursor = true;
 				len_resizing_index = i;
 			}
 
-			if (ofs >= get_timeline()->get_name_limit() && ofs <= get_size().width - get_timeline()->get_buttons_width() && ABS(mm->get_position().x - ofs) < 5 * EDSCALE) {
+			if (ofs >= get_timeline()->get_name_limit() && ofs <= get_size().width - get_timeline()->get_buttons_width() && Math::abs(mm->get_position().x - ofs) < 5 * EDSCALE) {
 				len_resizing_start = true;
 				use_hsize_cursor = true;
 				len_resizing_index = i;
@@ -1320,9 +1320,6 @@ void AnimationTrackEditTypeAnimation::draw_key(int p_index, float p_pixels_sec, 
 
 void AnimationTrackEditTypeAnimation::set_node(Object *p_object) {
 	id = p_object->get_instance_id();
-}
-
-AnimationTrackEditTypeAnimation::AnimationTrackEditTypeAnimation() {
 }
 
 /////////

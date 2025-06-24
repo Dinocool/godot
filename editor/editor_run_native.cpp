@@ -81,10 +81,10 @@ void EditorRunNative::_notification(int p_what) {
 				}
 				if (popup->get_item_count() == 0) {
 					remote_debug->set_disabled(true);
-					remote_debug->set_tooltip_text(TTR("No Remote Deploy export presets configured."));
+					remote_debug->set_tooltip_text(TTRC("No Remote Deploy export presets configured."));
 				} else {
 					remote_debug->set_disabled(false);
-					remote_debug->set_tooltip_text(TTR("Remote Deploy"));
+					remote_debug->set_tooltip_text(TTRC("Remote Deploy"));
 				}
 
 				first = false;
@@ -135,10 +135,7 @@ Error EditorRunNative::start_run_native(int p_id) {
 		bool is_arch_enabled = preset->get(preset_arch);
 
 		if (!is_arch_enabled) {
-			String warning_message = vformat(TTR("Warning: The CPU architecture \"%s\" is not active in your export preset.\n\n"), Variant(architecture));
-			warning_message += TTR("Run \"Remote Deploy\" anyway?");
-
-			run_native_confirm->set_text(warning_message);
+			run_native_confirm->set_text(vformat(TTR("Warning: The CPU architecture \"%s\" is not active in your export preset.\n\nRun \"Remote Deploy\" anyway?"), architecture));
 			run_native_confirm->popup_centered();
 			return OK;
 		}
@@ -202,8 +199,10 @@ EditorRunNative::EditorRunNative() {
 	remote_debug = memnew(MenuButton);
 	remote_debug->set_flat(false);
 	remote_debug->set_theme_type_variation("RunBarButton");
+	remote_debug->get_popup()->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
 	remote_debug->get_popup()->connect(SceneStringName(id_pressed), callable_mp(this, &EditorRunNative::start_run_native));
-	remote_debug->set_tooltip_text(TTR("Remote Deploy"));
+	remote_debug->set_tooltip_text(TTRC("Remote Deploy"));
+	remote_debug->set_accessibility_name(TTRC("Remote Deploy"));
 	remote_debug->set_disabled(true);
 
 	add_child(remote_debug);

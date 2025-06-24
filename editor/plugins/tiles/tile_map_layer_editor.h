@@ -28,13 +28,11 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef TILE_MAP_LAYER_EDITOR_H
-#define TILE_MAP_LAYER_EDITOR_H
+#pragma once
 
 #include "tile_atlas_view.h"
 
 #include "core/os/thread.h"
-#include "scene/2d/tile_map.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/check_box.h"
 #include "scene/gui/flow_container.h"
@@ -47,6 +45,7 @@
 #include "scene/gui/tab_bar.h"
 #include "scene/gui/tree.h"
 
+class TileMapLayer;
 class TileMapLayerEditor;
 
 class TileMapLayerSubEditorPlugin : public Object {
@@ -68,13 +67,14 @@ public:
 	virtual void forward_canvas_draw_over_viewport(Control *p_overlay) {}
 	virtual void tile_set_changed() {}
 	virtual void edit(ObjectID p_tile_map_layer_id) {}
+	virtual void draw_tile_coords_over_viewport(Control *p_overlay, const TileMapLayer *p_edited_layer, Ref<TileSet> p_tile_set, bool p_show_rectangle_size, const Vector2i &p_rectangle_origin);
 };
 
 class TileMapLayerEditorTilesPlugin : public TileMapLayerSubEditorPlugin {
 	GDCLASS(TileMapLayerEditorTilesPlugin, TileMapLayerSubEditorPlugin);
 
 public:
-	enum {
+	enum TileTransformType {
 		TRANSFORM_ROTATE_LEFT,
 		TRANSFORM_ROTATE_RIGHT,
 		TRANSFORM_FLIP_H,
@@ -146,8 +146,8 @@ private:
 	HashMap<Vector2i, TileMapCell> _draw_bucket_fill(Vector2i p_coords, bool p_contiguous, bool p_erase);
 	void _stop_dragging();
 
-	void _apply_transform(int p_type);
-	int _get_transformed_alternative(int p_alternative_id, int p_transform);
+	void _apply_transform(TileTransformType p_type);
+	int _get_transformed_alternative(int p_alternative_id, TileTransformType p_transform);
 
 	///// Selection system. /////
 	RBSet<Vector2i> tile_map_selection;
@@ -240,7 +240,6 @@ public:
 	virtual void edit(ObjectID p_tile_map_layer_id) override;
 
 	TileMapLayerEditorTilesPlugin();
-	~TileMapLayerEditorTilesPlugin();
 };
 
 class TileMapLayerEditorTerrainsPlugin : public TileMapLayerSubEditorPlugin {
@@ -332,7 +331,6 @@ public:
 	virtual void edit(ObjectID p_tile_map_layer_id) override;
 
 	TileMapLayerEditorTerrainsPlugin();
-	~TileMapLayerEditorTerrainsPlugin();
 };
 
 class TileMapLayerEditor : public VBoxContainer {
@@ -349,6 +347,9 @@ private:
 	void _find_tile_map_layers_in_scene(Node *p_current, const Node *p_owner, Vector<TileMapLayer *> &r_list) const;
 	void _update_tile_map_layers_in_scene_list_cache();
 	void _node_change(Node *p_node);
+
+	Control *custom_overlay = nullptr;
+	void _draw_overlay();
 
 	// Vector to keep plugins.
 	Vector<TileMapLayerSubEditorPlugin *> tile_map_editor_plugins;
@@ -423,4 +424,4 @@ public:
 	static Vector<Vector2i> get_line(const TileMapLayer *p_tile_map_layer, Vector2i p_from_cell, Vector2i p_to_cell);
 };
 
-#endif // TILE_MAP_LAYER_EDITOR_H
+VARIANT_ENUM_CAST(TileMapLayerEditorTilesPlugin::TileTransformType);

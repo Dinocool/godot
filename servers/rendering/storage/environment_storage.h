@@ -28,8 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef ENVIRONMENT_STORAGE_H
-#define ENVIRONMENT_STORAGE_H
+#pragma once
 
 #include "core/templates/rid_owner.h"
 #include "servers/rendering_server.h"
@@ -312,5 +311,3 @@ public:
 	RID environment_get_material_override(RID p_env) const;
 	void environment_set_material_override(RID p_env, RID p_material);
 };
-
-#endif // ENVIRONMENT_STORAGE_H

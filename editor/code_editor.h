@@ -28,21 +28,20 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef CODE_EDITOR_H
-#define CODE_EDITOR_H
+#pragma once
 
 #include "scene/gui/box_container.h"
-#include "scene/gui/button.h"
-#include "scene/gui/check_box.h"
 #include "scene/gui/code_edit.h"
 #include "scene/gui/dialogs.h"
-#include "scene/gui/label.h"
-#include "scene/gui/popup.h"
-#include "scene/main/timer.h"
 
-class MenuButton;
+class Button;
+class CheckBox;
 class CodeTextEditor;
+class Label;
 class LineEdit;
+class MenuButton;
+class RichTextLabel;
+class Timer;
 
 class GotoLinePopup : public PopupPanel {
 	GDCLASS(GotoLinePopup, PopupPanel);
@@ -80,14 +79,13 @@ class FindReplaceBar : public HBoxContainer {
 	Button *find_next = nullptr;
 	CheckBox *case_sensitive = nullptr;
 	CheckBox *whole_words = nullptr;
-	TextureButton *hide_button = nullptr;
+	Button *hide_button = nullptr;
 
 	LineEdit *replace_text = nullptr;
 	Button *replace = nullptr;
 	Button *replace_all = nullptr;
 	CheckBox *selection_only = nullptr;
 
-	VBoxContainer *vbc_lineedit = nullptr;
 	HBoxContainer *hbc_button_replace = nullptr;
 	HBoxContainer *hbc_option_replace = nullptr;
 
@@ -140,7 +138,6 @@ public:
 	bool is_case_sensitive() const;
 	bool is_whole_words() const;
 	bool is_selection_only() const;
-	void set_error(const String &p_label);
 
 	void set_text_edit(CodeTextEditor *p_text_editor);
 
@@ -166,8 +163,8 @@ class CodeTextEditor : public VBoxContainer {
 	FindReplaceBar *find_replace_bar = nullptr;
 	HBoxContainer *status_bar = nullptr;
 
-	Button *toggle_scripts_button = nullptr;
-	Control *toggle_scripts_list = nullptr;
+	Button *toggle_files_button = nullptr;
+	Control *toggle_files_list = nullptr;
 	Button *error_button = nullptr;
 	Button *warning_button = nullptr;
 
@@ -185,7 +182,7 @@ class CodeTextEditor : public VBoxContainer {
 
 	float zoom_factor = 1.0f;
 
-	Label *error = nullptr;
+	RichTextLabel *error = nullptr;
 	int error_line;
 	int error_column;
 
@@ -213,6 +210,8 @@ class CodeTextEditor : public VBoxContainer {
 	void _zoom_out();
 	void _zoom_to(float p_zoom_factor);
 
+	void _update_error_content_height();
+
 	void _error_button_pressed();
 	void _warning_button_pressed();
 	void _set_show_errors_panel(bool p_show);
@@ -221,7 +220,7 @@ class CodeTextEditor : public VBoxContainer {
 
 	void _zoom_popup_id_pressed(int p_idx);
 
-	void _toggle_scripts_pressed();
+	void _toggle_files_pressed();
 
 protected:
 	virtual void _load_theme_settings() {}
@@ -299,10 +298,8 @@ public:
 	void validate_script();
 
 	void set_toggle_list_control(Control *p_control);
-	void show_toggle_scripts_button();
-	void update_toggle_scripts_button();
+	void show_toggle_files_button();
+	void update_toggle_files_button();
 
 	CodeTextEditor();
 };
-
-#endif // CODE_EDITOR_H
