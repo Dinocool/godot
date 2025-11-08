@@ -432,7 +432,7 @@ Error SceneDebugger::_msg_rq_screenshot(const Array &p_args) {
 
 	Viewport *viewport = SceneTree::get_singleton()->get_root();
 	ERR_FAIL_NULL_V_MSG(viewport, ERR_UNCONFIGURED, "Cannot get a viewport from the main screen.");
-	Ref<ViewportTexture> texture = viewport->get_texture();
+	Ref<ViewportTexture> texture = viewport->get_texture(ViewportTexture::BUFFER_COLOR);
 	ERR_FAIL_COND_V_MSG(texture.is_null(), ERR_UNCONFIGURED, "Cannot get a viewport texture from the main screen.");
 	Ref<Image> img = texture->get_image();
 	ERR_FAIL_COND_V_MSG(img.is_null(), ERR_UNCONFIGURED, "Cannot get an image from a viewport texture of the main screen.");
