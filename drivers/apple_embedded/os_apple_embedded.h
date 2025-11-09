@@ -37,7 +37,7 @@
 #import "drivers/apple/joypad_apple.h"
 #import "drivers/coreaudio/audio_driver_coreaudio.h"
 #include "drivers/unix/os_unix.h"
-#include "servers/audio_server.h"
+#include "servers/audio/audio_server.h"
 #include "servers/rendering/renderer_compositor.h"
 
 #if defined(RD_ENABLED)
@@ -137,6 +137,9 @@ public:
 	void on_exit_background();
 
 	virtual Rect2 calculate_boot_screen_rect(const Size2 &p_window_size, const Size2 &p_imgrect_size) const override;
+
+	virtual bool request_permission(const String &p_name) override;
+	virtual Vector<String> get_granted_permissions() const override;
 };
 
 #endif // APPLE_EMBEDDED_ENABLED

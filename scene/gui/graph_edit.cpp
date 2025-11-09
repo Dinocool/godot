@@ -44,6 +44,7 @@
 #include "scene/gui/scroll_bar.h"
 #include "scene/gui/spin_box.h"
 #include "scene/gui/view_panner.h"
+#include "scene/resources/material.h"
 #include "scene/resources/style_box_flat.h"
 #include "scene/theme/theme_db.h"
 
@@ -587,6 +588,12 @@ void GraphEdit::_graph_element_deselected(Node *p_node) {
 	emit_signal(SNAME("node_deselected"), graph_element);
 }
 
+void GraphEdit::_graph_element_visibility_changed(GraphElement *p_graph_element) {
+	if (p_graph_element->is_selected() && !p_graph_element->is_visible()) {
+		p_graph_element->set_selected(false);
+	}
+}
+
 void GraphEdit::_graph_element_resize_request(const Vector2 &p_new_minsize, Node *p_node) {
 	GraphElement *graph_element = Object::cast_to<GraphElement>(p_node);
 	ERR_FAIL_NULL(graph_element);
@@ -700,6 +707,7 @@ void GraphEdit::add_child_notify(Node *p_child) {
 		graph_element->connect("position_offset_changed", callable_mp(this, &GraphEdit::_graph_element_moved).bind(graph_element));
 		graph_element->connect("node_selected", callable_mp(this, &GraphEdit::_graph_element_selected).bind(graph_element));
 		graph_element->connect("node_deselected", callable_mp(this, &GraphEdit::_graph_element_deselected).bind(graph_element));
+		graph_element->connect(SceneStringName(visibility_changed), callable_mp(this, &GraphEdit::_graph_element_visibility_changed).bind(graph_element));
 
 		GraphNode *graph_node = Object::cast_to<GraphNode>(graph_element);
 		if (graph_node) {
@@ -756,6 +764,7 @@ void GraphEdit::remove_child_notify(Node *p_child) {
 		graph_element->disconnect("position_offset_changed", callable_mp(this, &GraphEdit::_graph_element_moved));
 		graph_element->disconnect("node_selected", callable_mp(this, &GraphEdit::_graph_element_selected));
 		graph_element->disconnect("node_deselected", callable_mp(this, &GraphEdit::_graph_element_deselected));
+		graph_element->disconnect(SceneStringName(visibility_changed), callable_mp(this, &GraphEdit::_graph_element_visibility_changed));
 
 		GraphNode *graph_node = Object::cast_to<GraphNode>(graph_element);
 		if (graph_node) {
@@ -853,7 +862,7 @@ void GraphEdit::_notification(int p_what) {
 			// Draw background fill.
 			draw_style_box(theme_cache.panel, Rect2(Point2(), get_size()));
 
-			if (has_focus()) {
+			if (has_focus(true)) {
 				draw_style_box(theme_cache.panel_focus, Rect2(Point2(), get_size()));
 			}
 
@@ -1607,7 +1616,7 @@ void GraphEdit::_draw_minimap_connection_line(const Vector2 &p_from_graph_positi
 		colors.push_back(p_from_color.lerp(p_to_color, normalized_curve_position));
 	}
 
-	minimap->draw_polyline_colors(points, colors, 0.5, lines_antialiased);
+	minimap->draw_polyline_colors(points, Vector<Color>(colors), 0.5, lines_antialiased);
 }
 
 void GraphEdit::_update_connections() {
@@ -2041,6 +2050,10 @@ void GraphEdit::gui_input(const Ref<InputEvent> &p_ev) {
 				continue;
 			}
 
+			if (!graph_element->is_visible()) {
+				continue;
+			}
+
 			// Only select frames when the box selection is fully enclosing them.
 			bool is_frame = Object::cast_to<GraphFrame>(graph_element);
 			Rect2 r = graph_element->get_rect();
@@ -2171,6 +2184,10 @@ void GraphEdit::gui_input(const Ref<InputEvent> &p_ev) {
 				GraphElement *selected_element = Object::cast_to<GraphElement>(get_child(i));
 
 				if (!selected_element) {
+					continue;
+				}
+
+				if (!selected_element->is_visible()) {
 					continue;
 				}
 
@@ -3080,7 +3097,7 @@ void GraphEdit::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "zoom_step"), "set_zoom_step", "get_zoom_step");
 
 	ADD_GROUP("Minimap", "minimap_");
-	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "minimap_enabled"), "set_minimap_enabled", "is_minimap_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "minimap_enabled", PROPERTY_HINT_GROUP_ENABLE), "set_minimap_enabled", "is_minimap_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "minimap_size", PROPERTY_HINT_NONE, "suffix:px"), "set_minimap_size", "get_minimap_size");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "minimap_opacity"), "set_minimap_opacity", "get_minimap_opacity");
 
@@ -3239,7 +3256,6 @@ GraphEdit::GraphEdit() {
 	zoom_minus_button->set_theme_type_variation(SceneStringName(FlatButton));
 	zoom_minus_button->set_visible(show_zoom_buttons);
 	zoom_minus_button->set_tooltip_text(ETR("Zoom Out"));
-	zoom_minus_button->set_accessibility_name(ETR("Zoom Out"));
 	zoom_minus_button->set_focus_mode(FOCUS_ACCESSIBILITY);
 	menu_hbox->add_child(zoom_minus_button);
 	zoom_minus_button->connect(SceneStringName(pressed), callable_mp(this, &GraphEdit::_zoom_minus));
@@ -3248,7 +3264,6 @@ GraphEdit::GraphEdit() {
 	zoom_reset_button->set_theme_type_variation(SceneStringName(FlatButton));
 	zoom_reset_button->set_visible(show_zoom_buttons);
 	zoom_reset_button->set_tooltip_text(ETR("Zoom Reset"));
-	zoom_reset_button->set_accessibility_name(ETR("Zoom Reset"));
 	zoom_reset_button->set_focus_mode(FOCUS_ACCESSIBILITY);
 	menu_hbox->add_child(zoom_reset_button);
 	zoom_reset_button->connect(SceneStringName(pressed), callable_mp(this, &GraphEdit::_zoom_reset));
@@ -3257,7 +3272,6 @@ GraphEdit::GraphEdit() {
 	zoom_plus_button->set_theme_type_variation(SceneStringName(FlatButton));
 	zoom_plus_button->set_visible(show_zoom_buttons);
 	zoom_plus_button->set_tooltip_text(ETR("Zoom In"));
-	zoom_plus_button->set_accessibility_name(ETR("Zoom In"));
 	zoom_plus_button->set_focus_mode(FOCUS_ACCESSIBILITY);
 	menu_hbox->add_child(zoom_plus_button);
 	zoom_plus_button->connect(SceneStringName(pressed), callable_mp(this, &GraphEdit::_zoom_plus));
@@ -3270,7 +3284,6 @@ GraphEdit::GraphEdit() {
 	toggle_grid_button->set_toggle_mode(true);
 	toggle_grid_button->set_pressed(true);
 	toggle_grid_button->set_tooltip_text(ETR("Toggle the visual grid."));
-	toggle_grid_button->set_accessibility_name(ETR("Grid"));
 	toggle_grid_button->set_focus_mode(FOCUS_ACCESSIBILITY);
 	menu_hbox->add_child(toggle_grid_button);
 	toggle_grid_button->connect(SceneStringName(pressed), callable_mp(this, &GraphEdit::_show_grid_toggled));
@@ -3280,7 +3293,6 @@ GraphEdit::GraphEdit() {
 	toggle_snapping_button->set_visible(show_grid_buttons);
 	toggle_snapping_button->set_toggle_mode(true);
 	toggle_snapping_button->set_tooltip_text(ETR("Toggle snapping to the grid."));
-	toggle_snapping_button->set_accessibility_name(ETR("Snap to Grid"));
 	toggle_snapping_button->set_pressed(snapping_enabled);
 	toggle_snapping_button->set_focus_mode(FOCUS_ACCESSIBILITY);
 	menu_hbox->add_child(toggle_snapping_button);
@@ -3293,7 +3305,6 @@ GraphEdit::GraphEdit() {
 	snapping_distance_spinbox->set_step(1);
 	snapping_distance_spinbox->set_value(snapping_distance);
 	snapping_distance_spinbox->set_tooltip_text(ETR("Change the snapping distance."));
-	snapping_distance_spinbox->set_accessibility_name(ETR("Snapping Distance"));
 	menu_hbox->add_child(snapping_distance_spinbox);
 	snapping_distance_spinbox->connect(SceneStringName(value_changed), callable_mp(this, &GraphEdit::_snapping_distance_changed));
 
@@ -3304,7 +3315,6 @@ GraphEdit::GraphEdit() {
 	minimap_button->set_visible(show_minimap_button);
 	minimap_button->set_toggle_mode(true);
 	minimap_button->set_tooltip_text(ETR("Toggle the graph minimap."));
-	minimap_button->set_accessibility_name(ETR("Minimap"));
 	minimap_button->set_pressed(show_grid);
 	minimap_button->set_focus_mode(FOCUS_ACCESSIBILITY);
 	menu_hbox->add_child(minimap_button);
@@ -3313,11 +3323,10 @@ GraphEdit::GraphEdit() {
 	arrange_button = memnew(Button);
 	arrange_button->set_theme_type_variation(SceneStringName(FlatButton));
 	arrange_button->set_visible(show_arrange_button);
-	arrange_button->set_accessibility_name(ETR("Auto Arrange"));
+	arrange_button->set_tooltip_text(ETR("Automatically arrange selected nodes."));
 	arrange_button->connect(SceneStringName(pressed), callable_mp(this, &GraphEdit::arrange_nodes));
 	arrange_button->set_focus_mode(FOCUS_ACCESSIBILITY);
 	menu_hbox->add_child(arrange_button);
-	arrange_button->set_tooltip_text(ETR("Automatically arrange selected nodes."));
 
 	// Minimap.
 

@@ -194,16 +194,14 @@ opts.Add(
 opts.Add(BoolVariable("minizip", "Enable ZIP archive support using minizip", True))
 opts.Add(BoolVariable("brotli", "Enable Brotli for decompression and WOFF2 fonts support", True))
 opts.Add(BoolVariable("xaudio2", "Enable the XAudio2 audio driver on supported platforms", False))
-opts.Add(BoolVariable("vulkan", "Enable the vulkan rendering driver", True))
+opts.Add(BoolVariable("vulkan", "Enable the Vulkan rendering driver", True))
 opts.Add(BoolVariable("opengl3", "Enable the OpenGL/GLES3 rendering driver", True))
 opts.Add(BoolVariable("d3d12", "Enable the Direct3D 12 rendering driver on supported platforms", False))
 opts.Add(BoolVariable("metal", "Enable the Metal rendering driver on supported platforms (Apple arm64 only)", False))
 opts.Add(BoolVariable("use_volk", "Use the volk library to load the Vulkan loader dynamically", True))
-opts.Add(BoolVariable("disable_exceptions", "Force disabling exception handling code", True))
-opts.Add("custom_modules", "A list of comma-separated directory paths containing custom modules to build.", "")
-opts.Add(BoolVariable("custom_modules_recursive", "Detect custom modules recursively for each specified path.", True))
 opts.Add(BoolVariable("accesskit", "Use AccessKit C SDK", True))
 opts.Add(("accesskit_sdk_path", "Path to the AccessKit C SDK", ""))
+opts.Add(BoolVariable("sdl", "Enable the SDL3 input driver", True))
 
 # Advanced options
 opts.Add(
@@ -212,7 +210,7 @@ opts.Add(
     )
 )
 opts.Add(BoolVariable("tests", "Build the unit tests", False))
-opts.Add(BoolVariable("fast_unsafe", "Enable unsafe options for faster rebuilds", False))
+opts.Add(BoolVariable("fast_unsafe", "Enable unsafe options for faster incremental builds", False))
 opts.Add(BoolVariable("ninja", "Use the ninja backend for faster rebuilds", False))
 opts.Add(BoolVariable("ninja_auto_run", "Run ninja automatically after generating the ninja file", True))
 opts.Add("ninja_file", "Path to the generated ninja file", "build.ninja")
@@ -233,6 +231,7 @@ opts.Add("object_prefix", "Custom prefix added to the base filename of all gener
 opts.Add(BoolVariable("vsproj", "Generate a Visual Studio solution", False))
 opts.Add("vsproj_name", "Name of the Visual Studio solution", "godot")
 opts.Add("import_env_vars", "A comma-separated list of environment variables to copy from the outer environment.", "")
+opts.Add(BoolVariable("disable_exceptions", "Force disabling exception handling code", True))
 opts.Add(BoolVariable("disable_3d", "Disable 3D nodes for a smaller executable", False))
 opts.Add(BoolVariable("disable_advanced_gui", "Disable advanced GUI nodes and behaviors", False))
 opts.Add(BoolVariable("disable_physics_2d", "Disable 2D physics nodes and server", False))
@@ -240,7 +239,10 @@ opts.Add(BoolVariable("disable_physics_3d", "Disable 3D physics nodes and server
 opts.Add(BoolVariable("disable_navigation_2d", "Disable 2D navigation features", False))
 opts.Add(BoolVariable("disable_navigation_3d", "Disable 3D navigation features", False))
 opts.Add(BoolVariable("disable_xr", "Disable XR nodes and server", False))
+opts.Add(BoolVariable("disable_overrides", "Disable project settings overrides and related CLI arguments", False))
 opts.Add("build_profile", "Path to a file containing a feature build profile", "")
+opts.Add("custom_modules", "A list of comma-separated directory paths containing custom modules to build.", "")
+opts.Add(BoolVariable("custom_modules_recursive", "Detect custom modules recursively for each specified path.", True))
 opts.Add(BoolVariable("modules_enabled_by_default", "If no, disable all modules except ones explicitly enabled", True))
 opts.Add(BoolVariable("no_editor_splash", "Don't use the custom splash screen for the editor", True))
 opts.Add(
@@ -263,6 +265,14 @@ opts.Add(
         True,
     )
 )
+opts.Add(
+    EnumVariable(
+        "library_type",
+        "Build library type",
+        "executable",
+        ("executable", "static_library", "shared_library"),
+    )
+)
 
 # Thirdparty libraries
 opts.Add(BoolVariable("builtin_brotli", "Use the built-in Brotli library", True))
@@ -275,6 +285,7 @@ opts.Add(BoolVariable("builtin_msdfgen", "Use the built-in MSDFgen library", Tru
 opts.Add(BoolVariable("builtin_glslang", "Use the built-in glslang library", True))
 opts.Add(BoolVariable("builtin_graphite", "Use the built-in Graphite library", True))
 opts.Add(BoolVariable("builtin_harfbuzz", "Use the built-in HarfBuzz library", True))
+opts.Add(BoolVariable("builtin_sdl", "Use the built-in SDL library", True))
 opts.Add(BoolVariable("builtin_icu4c", "Use the built-in ICU library", True))
 opts.Add(BoolVariable("builtin_libjpeg_turbo", "Use the built-in libjpeg-turbo library", True))
 opts.Add(BoolVariable("builtin_libogg", "Use the built-in libogg library", True))
@@ -467,16 +478,6 @@ for tool in custom_tools:
 # Add default include paths.
 env.Prepend(CPPPATH=["#"])
 
-# Allow marking includes as external/system to avoid raising warnings.
-env["_CCCOMCOM"] += " $_CPPEXTINCFLAGS"
-env["CPPEXTPATH"] = []
-if env.scons_version < (4, 2):
-    env["_CPPEXTINCFLAGS"] = "${_concat(EXTINCPREFIX, CPPEXTPATH, EXTINCSUFFIX, __env__, RDirs, TARGET, SOURCE)}"
-else:
-    env["_CPPEXTINCFLAGS"] = (
-        "${_concat(EXTINCPREFIX, CPPEXTPATH, EXTINCSUFFIX, __env__, RDirs, TARGET, SOURCE, affect_signature=False)}"
-    )
-
 # configure ENV for platform
 env.platform_exporters = platform_exporters
 env.platform_apis = platform_apis
@@ -528,10 +529,10 @@ env.Decider("MD5-timestamp")
 
 # SCons speed optimization controlled by the `fast_unsafe` option, which provide
 # more than 10 s speed up for incremental rebuilds.
-# Unsafe as they reduce the certainty of rebuilding all changed files, so it's
-# enabled by default for `debug` builds, and can be overridden from command line.
+# Unsafe as they reduce the certainty of rebuilding all changed files.
+# If you use it and run into corrupted incremental builds, try to turn it off.
 # Ref: https://github.com/SCons/scons/wiki/GoFastButton
-if methods.get_cmdline_bool("fast_unsafe", env.dev_build):
+if env["fast_unsafe"]:
     env.SetOption("implicit_cache", 1)
     env.SetOption("max_drift", 60)
 
@@ -553,6 +554,13 @@ if not env["deprecated"]:
 
 if env["precision"] == "double":
     env.Append(CPPDEFINES=["REAL_T_IS_DOUBLE"])
+
+# Library Support
+if env["library_type"] != "executable":
+    if "library" not in env.get("supported", []):
+        print_error(f"Library builds unsupported for {env['platform']}")
+        Exit(255)
+    env.Append(CPPDEFINES=["LIBGODOT_ENABLED"])
 
 # Default num_jobs to local cpu count if not user specified.
 # SCons has a peculiarity where user-specified options won't be overridden
@@ -632,6 +640,7 @@ if env["strict_checks"]:
 
 # Run SCU file generation script if in a SCU build.
 if env["scu_build"]:
+    env.Append(CPPDEFINES=["SCU_BUILD_ENABLED"])
     max_includes_per_scu = 8
     if env.dev_build:
         max_includes_per_scu = 1024
@@ -687,17 +696,11 @@ elif methods.using_clang(env):
     # Apple LLVM versions differ from upstream LLVM version \o/, compare
     # in https://en.wikipedia.org/wiki/Xcode#Toolchain_versions
     if methods.is_apple_clang(env):
-        if cc_version_major < 10:
+        if cc_version_major < 16:
             print_error(
-                "Detected Apple Clang version older than 10, which does not fully "
-                "support C++17. Supported versions are Apple Clang 10 and later."
+                "Detected Apple Clang version older than 16, supported versions are Apple Clang 16 (Xcode 16) and later."
             )
             Exit(255)
-        elif env["debug_paths_relative"] and cc_version_major < 12:
-            print_warning(
-                "Apple Clang < 12 doesn't support -ffile-prefix-map, disabling `debug_paths_relative` option."
-            )
-            env["debug_paths_relative"] = False
     else:
         if cc_version_major < 6:
             print_error(
@@ -741,7 +744,7 @@ if env["arch"] == "x86_64":
         env.Append(CCFLAGS=["/d2archSSE42"])
     else:
         # `-msse2` is implied when compiling for x86_64.
-        env.Append(CCFLAGS=["-msse4.2"])
+        env.Append(CCFLAGS=["-msse4.2", "-mpopcnt"])
 elif env["arch"] == "x86_32":
     # Be more conservative with instruction sets on 32-bit x86 to improve compatibility.
     # SSE and SSE2 are present on all CPUs that support 64-bit, even if running a 32-bit OS.
@@ -963,19 +966,6 @@ else:  # GCC, Clang
     if env["werror"]:
         env.AppendUnique(CCFLAGS=["-Werror"])
 
-# Configure external includes.
-if env.msvc:
-    if not methods.using_clang(env):
-        if cc_version_major < 16 or (cc_version_major == 16 and cc_version_minor < 10):
-            env.AppendUnique(CCFLAGS=["/experimental:external"])
-        env.AppendUnique(CCFLAGS=["/external:anglebrackets"])
-    env.AppendUnique(CCFLAGS=["/external:W0"])
-    env["EXTINCPREFIX"] = "/external:I"
-    env["EXTINCSUFFIX"] = ""
-else:
-    env["EXTINCPREFIX"] = "-isystem "
-    env["EXTINCSUFFIX"] = ""
-
 if hasattr(detect, "get_program_suffix"):
     suffix = "." + detect.get_program_suffix()
 else:
@@ -1039,6 +1029,9 @@ if env["minizip"]:
     env.Append(CPPDEFINES=["MINIZIP_ENABLED"])
 if env["brotli"]:
     env.Append(CPPDEFINES=["BROTLI_ENABLED"])
+
+if not env["disable_overrides"]:
+    env.Append(CPPDEFINES=["OVERRIDE_ENABLED"])
 
 if not env["verbose"]:
     methods.no_verbose(env)

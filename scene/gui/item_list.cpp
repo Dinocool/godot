@@ -43,7 +43,8 @@ void ItemList::_shape_text(int p_idx) {
 	} else {
 		item.text_buf->set_direction((TextServer::Direction)item.text_direction);
 	}
-	item.text_buf->add_string(item.xl_text, theme_cache.font, theme_cache.font_size, item.language);
+	const String &lang = item.language.is_empty() ? _get_locale() : item.language;
+	item.text_buf->add_string(item.xl_text, theme_cache.font, theme_cache.font_size, lang);
 	if (icon_mode == ICON_MODE_TOP && max_text_lines > 0) {
 		item.text_buf->set_break_flags(TextServer::BREAK_MANDATORY | TextServer::BREAK_WORD_BOUND | TextServer::BREAK_GRAPHEME_BOUND | TextServer::BREAK_TRIM_START_EDGE_SPACES | TextServer::BREAK_TRIM_END_EDGE_SPACES);
 	} else {
@@ -208,11 +209,20 @@ void ItemList::set_item_icon(int p_idx, const Ref<Texture2D> &p_icon) {
 	}
 	ERR_FAIL_INDEX(p_idx, items.size());
 
-	if (items[p_idx].icon == p_icon) {
+	Item &item = items.write[p_idx];
+	if (item.icon == p_icon) {
 		return;
 	}
 
-	items.write[p_idx].icon = p_icon;
+	const Callable redraw = callable_mp((CanvasItem *)this, &CanvasItem::queue_redraw);
+	if (item.icon.is_valid()) {
+		item.icon->disconnect_changed(redraw);
+	}
+	item.icon = p_icon;
+	if (p_icon.is_valid()) {
+		p_icon->connect_changed(redraw);
+	}
+
 	queue_redraw();
 	shape_changed = true;
 }
@@ -1204,19 +1214,35 @@ void ItemList::_accessibility_action_scroll_set(const Variant &p_data) {
 }
 
 void ItemList::_accessibility_action_scroll_up(const Variant &p_data) {
-	scroll_bar_v->set_value(scroll_bar_v->get_value() - scroll_bar_v->get_page() / 4);
+	if ((DisplayServer::AccessibilityScrollUnit)p_data == DisplayServer::SCROLL_UNIT_ITEM) {
+		scroll_bar_v->set_value(scroll_bar_v->get_value() - scroll_bar_v->get_page() / 4);
+	} else {
+		scroll_bar_v->set_value(scroll_bar_v->get_value() - scroll_bar_v->get_page());
+	}
 }
 
 void ItemList::_accessibility_action_scroll_down(const Variant &p_data) {
-	scroll_bar_v->set_value(scroll_bar_v->get_value() + scroll_bar_v->get_page() / 4);
+	if ((DisplayServer::AccessibilityScrollUnit)p_data == DisplayServer::SCROLL_UNIT_ITEM) {
+		scroll_bar_v->set_value(scroll_bar_v->get_value() + scroll_bar_v->get_page() / 4);
+	} else {
+		scroll_bar_v->set_value(scroll_bar_v->get_value() + scroll_bar_v->get_page());
+	}
 }
 
 void ItemList::_accessibility_action_scroll_left(const Variant &p_data) {
-	scroll_bar_h->set_value(scroll_bar_h->get_value() - scroll_bar_h->get_page() / 4);
+	if ((DisplayServer::AccessibilityScrollUnit)p_data == DisplayServer::SCROLL_UNIT_ITEM) {
+		scroll_bar_h->set_value(scroll_bar_h->get_value() - scroll_bar_h->get_page() / 4);
+	} else {
+		scroll_bar_h->set_value(scroll_bar_h->get_value() - scroll_bar_h->get_page());
+	}
 }
 
 void ItemList::_accessibility_action_scroll_right(const Variant &p_data) {
-	scroll_bar_h->set_value(scroll_bar_h->get_value() + scroll_bar_h->get_page() / 4);
+	if ((DisplayServer::AccessibilityScrollUnit)p_data == DisplayServer::SCROLL_UNIT_ITEM) {
+		scroll_bar_h->set_value(scroll_bar_h->get_value() + scroll_bar_h->get_page() / 4);
+	} else {
+		scroll_bar_h->set_value(scroll_bar_h->get_value() + scroll_bar_h->get_page());
+	}
 }
 
 void ItemList::_accessibility_action_scroll_into_view(const Variant &p_data, int p_index) {
@@ -1367,7 +1393,7 @@ void ItemList::_notification(int p_what) {
 			Ref<StyleBox> sbsel;
 			Ref<StyleBox> cursor;
 
-			if (has_focus()) {
+			if (has_focus(true)) {
 				sbsel = theme_cache.selected_focus_style;
 				cursor = theme_cache.cursor_focus_style;
 			} else {
@@ -1491,7 +1517,7 @@ void ItemList::_notification(int p_what) {
 						draw_style_box(sbsel, r);
 					}
 					if (should_draw_hovered_selected_bg) {
-						if (has_focus()) {
+						if (has_focus(true)) {
 							draw_style_box(theme_cache.hovered_selected_focus_style, r);
 						} else {
 							draw_style_box(theme_cache.hovered_selected_style, r);
@@ -1578,8 +1604,6 @@ void ItemList::_notification(int p_what) {
 				}
 
 				if (!items[i].text.is_empty()) {
-					Vector2 size2 = items[i].text_buf->get_size();
-
 					Color txt_modulate;
 					if (items[i].selected && hovered == i) {
 						txt_modulate = theme_cache.font_hovered_selected_color;
@@ -1598,18 +1622,19 @@ void ItemList::_notification(int p_what) {
 					}
 
 					if (icon_mode == ICON_MODE_TOP && max_text_lines > 0) {
-						text_ofs += base_ofs;
-						text_ofs += items[i].rect_cache.position;
-
 						text_ofs.y += MAX(theme_cache.v_separation, 0) / 2;
+						text_ofs.x += MAX(theme_cache.h_separation, 0) / 2;
 
 						items.write[i].text_buf->set_alignment(HORIZONTAL_ALIGNMENT_CENTER);
 
-						float text_w = items[i].rect_cache.size.width;
-						if (wraparound_items && items[i].rect_cache.size.width > width) {
-							text_w -= items[i].rect_cache.size.width - width;
+						float text_w = items[i].rect_cache.size.width - text_ofs.x * 2;
+						if (wraparound_items && text_w + text_ofs.x > width) {
+							text_w = width - text_ofs.x;
 						}
 						items.write[i].text_buf->set_width(text_w);
+
+						text_ofs += base_ofs;
+						text_ofs += items[i].rect_cache.position;
 
 						if (rtl) {
 							text_ofs.x = size.width - text_ofs.x - text_w;
@@ -1621,18 +1646,8 @@ void ItemList::_notification(int p_what) {
 
 						items[i].text_buf->draw(get_canvas_item(), text_ofs, txt_modulate);
 					} else {
-						if (fixed_column_width > 0) {
-							size2.x = MIN(size2.x, fixed_column_width);
-						}
-
-						if (icon_mode == ICON_MODE_TOP) {
-							text_ofs.x += (items[i].rect_cache.size.width - size2.x) / 2;
-							text_ofs.x += MAX(theme_cache.h_separation, 0) / 2;
-							text_ofs.y += MAX(theme_cache.v_separation, 0) / 2;
-						} else {
-							text_ofs.y += (items[i].rect_cache.size.height - size2.y) / 2;
-							text_ofs.x += MAX(theme_cache.h_separation, 0) / 2;
-						}
+						text_ofs.y += (items[i].rect_cache.size.height - items[i].text_buf->get_size().y) / 2;
+						text_ofs.x += MAX(theme_cache.h_separation, 0) / 2;
 
 						real_t text_width_ofs = text_ofs.x;
 
@@ -1690,7 +1705,7 @@ void ItemList::_notification(int p_what) {
 				draw_style_box(cursor, cursor_rcache);
 			}
 
-			if (has_focus()) {
+			if (has_focus(true)) {
 				RenderingServer::get_singleton()->canvas_item_add_clip_ignore(get_canvas_item(), true);
 				size.x -= (scroll_bar_h->get_max() - scroll_bar_h->get_page());
 				draw_style_box(theme_cache.focus_style, Rect2(Point2(), size));

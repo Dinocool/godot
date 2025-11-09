@@ -35,11 +35,12 @@
 #include "core/templates/paged_allocator.h"
 #include "core/templates/self_list.h"
 #include "scene/main/scene_tree_fti.h"
-#include "scene/resources/mesh.h"
 
 #undef Window
 
+class ArrayMesh;
 class PackedScene;
+class InputEvent;
 class Node;
 #ifndef _3D_DISABLED
 class Node3D;
@@ -146,7 +147,14 @@ private:
 	HashMap<StringName, Group> group_map;
 	bool _quit = false;
 
-	bool _physics_interpolation_enabled = false;
+	// Static so we can get directly instead of via SceneTree pointer.
+	static bool _physics_interpolation_enabled;
+
+	// Note that physics interpolation is hard coded to OFF in the editor,
+	// therefore we have a second bool to enable e.g. configuration warnings
+	// to only take effect when the project is using physics interpolation.
+	static bool _physics_interpolation_enabled_in_project;
+
 	SceneTreeFTI scene_tree_fti;
 
 	StringName tree_changed_name = "tree_changed";
@@ -329,7 +337,7 @@ public:
 	void _accessibility_force_update();
 	void _accessibility_notify_change(const Node *p_node, bool p_remove = false);
 	void _flush_accessibility_changes();
-	void _process_accessibility_changes(DisplayServer::WindowID p_window_id);
+	void _process_accessibility_changes(int p_window_id); // Effectively DisplayServer::WindowID
 
 	virtual void initialize() override;
 
@@ -416,6 +424,7 @@ public:
 	Node *get_current_scene() const;
 	Error change_scene_to_file(const String &p_path);
 	Error change_scene_to_packed(const Ref<PackedScene> &p_scene);
+	Error change_scene_to_node(Node *p_node);
 	Error reload_current_scene();
 	void unload_current_scene();
 
@@ -446,7 +455,11 @@ public:
 	//default texture settings
 
 	void set_physics_interpolation_enabled(bool p_enabled);
-	bool is_physics_interpolation_enabled() const;
+	bool is_physics_interpolation_enabled() const { return _physics_interpolation_enabled; }
+
+	// Different name to disambiguate fast static versions from the user bound versions.
+	static bool is_fti_enabled() { return _physics_interpolation_enabled; }
+	static bool is_fti_enabled_in_project() { return _physics_interpolation_enabled_in_project; }
 
 #ifndef _3D_DISABLED
 	void client_physics_interpolation_add_node_3d(SelfList<Node3D> *p_elem);

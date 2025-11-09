@@ -31,11 +31,11 @@
 #include "gdscript_language_protocol.h"
 
 #include "core/config/project_settings.h"
-#include "editor/doc_tools.h"
-#include "editor/editor_help.h"
+#include "editor/doc/doc_tools.h"
+#include "editor/doc/editor_help.h"
 #include "editor/editor_log.h"
 #include "editor/editor_node.h"
-#include "editor/editor_settings.h"
+#include "editor/settings/editor_settings.h"
 
 GDScriptLanguageProtocol *GDScriptLanguageProtocol::singleton = nullptr;
 
@@ -177,7 +177,7 @@ Dictionary GDScriptLanguageProtocol::initialize(const Dictionary &p_params) {
 
 		String root;
 		Variant root_uri_var = p_params["rootUri"];
-		Variant root_var = p_params["rootPath"];
+		Variant root_var = p_params.get("rootPath", Variant());
 		if (root_uri_var.is_string()) {
 			root = get_workspace()->get_file_path(root_uri_var);
 		} else if (root_var.is_string()) {
@@ -194,7 +194,7 @@ Dictionary GDScriptLanguageProtocol::initialize(const Dictionary &p_params) {
 	}
 
 	String root_uri = p_params["rootUri"];
-	String root = p_params["rootPath"];
+	String root = p_params.get("rootPath", "");
 	bool is_same_workspace;
 #ifndef WINDOWS_ENABLED
 	is_same_workspace = root.to_lower() == workspace->root.to_lower();
