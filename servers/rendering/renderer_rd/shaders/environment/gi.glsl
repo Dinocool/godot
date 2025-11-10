@@ -623,7 +623,17 @@ void process_gi(ivec2 pos, vec3 vertex, inout vec4 ambient_light, inout vec4 ref
 			roughness = 1.0 - roughness;
 		}
 		roughness /= (127.0 / 255.0);
-		vec3 view = -normalize(mat3(scene_data.cam_transform) * (vertex - scene_data.eye_offset[gl_GlobalInvocationID.z].xyz));
+
+		// FRED ortho fix: Correct view vector calculation for orthographic projection
+		vec3 view;
+		if (params.orthogonal) {
+			// For orthographic, view direction is constant forward vector
+			view = -normalize(mat3(scene_data.cam_transform) * vec3(0.0, 0.0, -1.0));
+		} else {
+			// For perspective, use existing calculation
+			view = -normalize(mat3(scene_data.cam_transform) * (vertex - scene_data.eye_offset[gl_GlobalInvocationID.z].xyz));
+		}
+
 		vertex = mat3(scene_data.cam_transform) * vertex;
 		normal = normalize(mat3(scene_data.cam_transform) * normal);
 		vec3 reflection = normalize(reflect(-view, normal));

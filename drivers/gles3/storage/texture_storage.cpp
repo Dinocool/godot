@@ -2700,7 +2700,7 @@ void TextureStorage::render_target_set_override(RID p_render_target, RID p_color
 	ERR_FAIL_COND(rt->direct_to_screen);
 
 	// Remember what our current color output is.
-	RID was_color_texture = render_target_get_texture(p_render_target);
+	RID was_color_texture = render_target_get_texture(p_render_target, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 
 	bool create_new_color_fbo = true;
 	bool create_new_velocity_fbo = true;
@@ -2732,7 +2732,7 @@ void TextureStorage::render_target_set_override(RID p_render_target, RID p_color
 	rt->overridden.is_overridden = true;
 
 	// Update to our new color output.
-	RID new_color_texture = render_target_get_texture(p_render_target);
+	RID new_color_texture = render_target_get_texture(p_render_target, RS::VIEWPORT_TEXTURE_BUFFER_COLOR);
 	if (was_color_texture.is_valid() && new_color_texture.is_valid()) {
 		texture_remap_proxies(was_color_texture, new_color_texture);
 	}

@@ -215,7 +215,11 @@ half sample_directional_soft_shadow(texture2D shadow, vec3 pssm_coord, vec2 tex_
 
 #endif // SHADOWS_DISABLED
 
-void light_process_directional_shadow(uint i, vec3 vertex, vec3 geo_normal, SceneData scene_data, inout uint shadow0, inout uint shadow1) {
+void light_process_directional_shadow(uint i, vec3 vertex, vec3 geo_normal, SceneData scene_data, uint instance_index
+#ifdef USE_LIGHTMAP
+, vec2 uv2_interp
+#endif
+, inout uint shadow0, inout uint shadow1) {
 #ifndef SHADOWS_DISABLED
 
 float shadowmask = 1.0;
@@ -229,7 +233,7 @@ float shadowmask = 1.0;
 
 			if (shadowmask_mode != LIGHTMAP_SHADOWMASK_MODE_NONE) {
 				const uint slice = instances.data[instance_index].gi_offset >> 16;
-				const vec2 scaled_uv = uv2 * instances.data[instance_index].lightmap_uv_scale.zw + instances.data[instance_index].lightmap_uv_scale.xy;
+				const vec2 scaled_uv = uv2_interp * instances.data[instance_index].lightmap_uv_scale.zw + instances.data[instance_index].lightmap_uv_scale.xy;
 				const vec3 uvw = vec3(scaled_uv, float(slice));
 
 				if (sc_use_lightmap_bicubic_filter()) {
@@ -472,10 +476,20 @@ float shadowmask = 1.0;
 float sample_directional_shadow(uint light_idx, vec3 vertex) {
     uint shadow0 = 0;
     uint shadow1 = 0;
- 
+
     float shadow = 1.0; // no shadow
- 
-    light_process_directional_shadow(light_idx, vertex, normalize(normal_interp), scene_data_block.data, shadow0, shadow1);
+
+#ifdef USING_MOBILE_RENDERER
+    uint instance_index = draw_call.instance_index;
+#else
+    uint instance_index = instance_index_interp;
+#endif
+
+    light_process_directional_shadow(light_idx, vertex, normalize(normal_interp), scene_data_block.data, instance_index
+#ifdef USE_LIGHTMAP
+, uv2_interp
+#endif
+, shadow0, shadow1);
  
     if (light_idx < 4) {
         shadow = float(shadow0 >> (light_idx * 8u) & 0xFFu) / 255.0;

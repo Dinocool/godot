@@ -1757,7 +1757,7 @@ void fragment_shader(in SceneData scene_data) {
 		uint ofs = instances.data[instance_index].gi_offset & 0xFFFF;
 		uint slice = instances.data[instance_index].gi_offset >> 16;
 		vec3 uvw;
-		uvw.xy = uv2 * instances.data[instance_index].lightmap_uv_scale.zw + instances.data[instance_index].lightmap_uv_scale.xy;
+		uvw.xy = uv2_interp * instances.data[instance_index].lightmap_uv_scale.zw + instances.data[instance_index].lightmap_uv_scale.xy;
 		uvw.z = float(slice);
 
 		if (uses_sh) {
@@ -2188,7 +2188,11 @@ void fragment_shader(in SceneData scene_data) {
 					continue; // Statically baked light and object uses lightmap, skip
 				}
 
-				light_process_directional_shadow(i, vertex, geo_normal, scene_data, shadow0, shadow1);
+				light_process_directional_shadow(i, vertex, geo_normal, scene_data, instance_index
+#ifdef USE_LIGHTMAP
+, uv2_interp
+#endif
+, shadow0, shadow1);
 	}
 
 #endif // SHADOWS_DISABLED
