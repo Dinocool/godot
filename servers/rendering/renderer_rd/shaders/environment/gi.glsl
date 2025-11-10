@@ -481,6 +481,232 @@ void sdfgi_process(vec3 vertex, vec3 normal, vec3 reflection, float roughness, o
 	}
 }
 
+// --- helper for ORTHO distance in cascade cell space (rotation-stable) ---
+float sdfgi_cell_chebyshev_dist(vec3 p, uint ci) {
+	vec3 cell = (p - sdfgi.cascades[ci].position) * sdfgi.cascades[ci].to_cell;
+	return max(abs(cell.x), max(abs(cell.y), abs(cell.z)));
+}
+
+// --- ORTHOGRAPHIC IMPLEMENTATION (distance math swapped to cell-space Chebyshev) ---
+void sdfgi_process_orthographic(vec3 vertex, vec3 normal, vec3 reflection, float roughness, out vec4 ambient_light, out vec4 reflection_light) {
+	//make vertex orientation the world one, but still align to camera
+	vertex.y *= sdfgi.y_mult;
+	normal.y *= sdfgi.y_mult;
+	reflection.y *= sdfgi.y_mult;
+
+	//renormalize
+	normal = normalize(normal);
+	reflection = normalize(reflection);
+
+	vec3 cam_pos = vertex;
+	vec3 cam_normal = normal;
+
+	vec4 light_accum = vec4(0.0);
+
+	uint cascade = 0xFFFFFFFF;
+	vec3 cascade_pos;
+
+	for (uint i = 0; i < sdfgi.max_cascades; i++) {
+		cascade_pos = (cam_pos - sdfgi.cascades[i].position) * sdfgi.cascades[i].to_probe;
+
+		if (any(lessThan(cascade_pos, vec3(0.0))) || any(greaterThanEqual(cascade_pos, sdfgi.cascade_probe_size))) {
+			continue; //skip cascade
+		}
+
+		cascade = i;
+		break;
+	}
+
+	if (cascade < SDFGI_MAX_CASCADES) {
+		ambient_light = vec4(0, 0, 0, 1);
+		reflection_light = vec4(0, 0, 0, 1);
+
+		float blend;
+		vec3 diffuse, specular;
+		sdfvoxel_gi_process(cascade, cascade_pos, cam_pos, cam_normal, reflection, roughness, diffuse, specular);
+
+		{
+			//process blend (unchanged)
+			float blend_from = (float(sdfgi.probe_axis_size - 1) / 2.0) - 2.5;
+			float blend_to = blend_from + 2.0;
+
+			vec3 inner_pos = cam_pos * sdfgi.cascades[cascade].to_probe;
+
+			float len = length(inner_pos);
+
+			inner_pos = abs(normalize(inner_pos));
+			len *= max(inner_pos.x, max(inner_pos.y, inner_pos.z));
+
+			if (len >= blend_from) {
+				blend = smoothstep(blend_from, blend_to, len);
+			} else {
+				blend = 0.0;
+			}
+		}
+
+		if (blend > 0.0) {
+			if (cascade == sdfgi.max_cascades - 1) {
+				ambient_light.a = 1.0 - blend;
+				reflection_light.a = 1.0 - blend;
+			} else {
+				vec3 diffuse2, specular2;
+				cascade_pos = (cam_pos - sdfgi.cascades[cascade + 1].position) * sdfgi.cascades[cascade + 1].to_probe;
+				sdfvoxel_gi_process(cascade + 1, cascade_pos, cam_pos, cam_normal, reflection, roughness, diffuse2, specular2);
+				diffuse = mix(diffuse, diffuse2, blend);
+				specular = mix(specular, specular2, blend);
+			}
+		}
+
+		ambient_light.rgb = diffuse;
+
+		if (roughness < 0.2) {
+			vec3 pos_to_uvw = 1.0 / sdfgi.grid_size;
+			vec4 light_accum = vec4(0.0);
+
+			float blend_size = (sdfgi.grid_size.x / float(sdfgi.probe_axis_size - 1)) * 0.5;
+
+			// half-size in CELLS for each cascade (grid-aligned)
+			float half_cells[SDFGI_MAX_CASCADES];
+			for (uint i = 0; i < sdfgi.max_cascades; i++) {
+				half_cells[i] = (sdfgi.grid_size.x * 0.5 - blend_size);
+			}
+
+			// pick cascade by cell-space Chebyshev distance
+			uint pick = 0xFFFF;
+			float base_distance_cells = 0.0;
+			for (uint i = 0; i < sdfgi.max_cascades; i++) {
+				float di = sdfgi_cell_chebyshev_dist(cam_pos, i);
+				if (pick == 0xFFFF && di < half_cells[i]) {
+					pick = i;
+					base_distance_cells = di;
+				}
+			}
+			cascade = min(pick, sdfgi.max_cascades - 1);
+
+			vec3 ray_pos = cam_pos;
+			vec3 ray_dir = reflection;
+
+			{
+				float prev_radius = cascade > 0 ? half_cells[cascade - 1] : 0.0;
+				float base_blend = (base_distance_cells - prev_radius) / (half_cells[cascade] - prev_radius);
+				float bias = (1.0 + base_blend) * 1.1;
+				vec3 abs_ray_dir = abs(ray_dir);
+				//bias to avoid self occlusion (unchanged direction/units)
+				ray_pos += (ray_dir * 1.0 / max(abs_ray_dir.x, max(abs_ray_dir.y, abs_ray_dir.z)) + cam_normal * 1.4) * bias / sdfgi.cascades[cascade].to_cell;
+			}
+
+			float softness = 0.2 + min(1.0, roughness * 5.0) * 4.0; //approximation to roughness
+
+			uint i = 0;
+			bool found = false;
+			while (true) {
+				// terminate when outside far cascade in cell-space Chebyshev
+				{
+					uint far = sdfgi.max_cascades - 1;
+					float dcell_far = sdfgi_cell_chebyshev_dist(ray_pos, far);
+					if (dcell_far >= half_cells[far] || light_accum.a > 0.99) {
+						break;
+					}
+				}
+
+				// process current cascade when inside (cell Chebyshev)
+				if (!found && i >= cascade) {
+					float dcell_here = sdfgi_cell_chebyshev_dist(ray_pos, i);
+					if (dcell_here < half_cells[i]) {
+						uint next_i = min(i + 1, sdfgi.max_cascades - 1);
+						cascade = max(i, cascade); //never go down
+
+						vec3 pos = ray_pos - sdfgi.cascades[i].position;
+						pos *= sdfgi.cascades[i].to_cell * pos_to_uvw;
+
+						float fdistance = textureLod(sampler3D(sdf_cascades[i], linear_sampler), pos, 0.0).r * 255.0 - 1.1;
+
+						vec4 hit_light = vec4(0.0);
+						if (fdistance < softness) {
+							hit_light.rgb = textureLod(sampler3D(light_cascades[i], linear_sampler), pos, 0.0).rgb;
+							hit_light.rgb *= 0.5;
+							hit_light.a = clamp(1.0 - (fdistance / softness), 0.0, 1.0);
+							hit_light.rgb *= hit_light.a;
+						}
+
+						fdistance /= sdfgi.cascades[i].to_cell;
+
+						if (i < (sdfgi.max_cascades - 1)) {
+							pos = ray_pos - sdfgi.cascades[next_i].position;
+							pos *= sdfgi.cascades[next_i].to_cell * pos_to_uvw;
+
+							float fdistance2 = textureLod(sampler3D(sdf_cascades[next_i], linear_sampler), pos, 0.0).r * 255.0 - 1.1;
+
+							vec4 hit_light2 = vec4(0.0);
+							if (fdistance2 < softness) {
+								hit_light2.rgb = textureLod(sampler3D(light_cascades[next_i], linear_sampler), pos, 0.0).rgb;
+								hit_light2.rgb *= 0.5;
+								hit_light2.a = clamp(1.0 - (fdistance2 / softness), 0.0, 1.0);
+								hit_light2.rgb *= hit_light2.a;
+							}
+
+							// blend in cell-space Chebyshev units
+							float prev_radius = i == 0 ? 0.0 : half_cells[max(0, int(i) - 1)];
+							float cur_dist = dcell_here;
+							float blend = clamp((cur_dist - prev_radius) / (half_cells[i] - prev_radius), 0.0, 1.0);
+
+							fdistance2 /= sdfgi.cascades[next_i].to_cell;
+
+							hit_light = mix(hit_light, hit_light2, blend);
+							fdistance = mix(fdistance, fdistance2, blend);
+						}
+
+						light_accum += hit_light;
+						ray_pos += ray_dir * fdistance;
+						found = true;
+					}
+				}
+
+				i++;
+				if (i == sdfgi.max_cascades) {
+					i = 0;
+					found = false;
+				}
+			}
+
+			vec3 light = light_accum.rgb / max(light_accum.a, 0.00001);
+			float alpha = min(1.0, light_accum.a);
+
+			float b = min(1.0, roughness * 5.0);
+			float sa = 1.0 - b;
+
+			reflection_light.a = alpha * sa + b;
+			vec3 final_spec;
+			if (reflection_light.a == 0) {
+				final_spec = vec3(0.0);
+			} else {
+				final_spec = (light * alpha * sa + specular * b) / reflection_light.a;
+			}
+			reflection_light.rgb = final_spec;
+		} else {
+			reflection_light.rgb = specular;
+		}
+
+		ambient_light.rgb *= sdfgi.energy;
+		reflection_light.rgb *= sdfgi.energy;
+	} else {
+		ambient_light = vec4(0);
+		reflection_light = vec4(0);
+	}
+}
+
+// --- SWITCH: call the right one ---
+void sdfgi_process_perspective_aware(vec3 vertex, vec3 normal, vec3 reflection, float roughness, out vec4 ambient_light, out vec4 reflection_light) {
+	if (params.orthogonal) {
+		sdfgi_process_orthographic(vertex, normal, reflection, roughness, ambient_light, reflection_light);
+	} else {
+		sdfgi_process(vertex, normal, reflection, roughness, ambient_light, reflection_light);
+	}
+}
+
+
+
+
 //standard voxel cone trace
 vec4 voxel_cone_trace(texture3D probe, vec3 cell_size, vec3 pos, vec3 direction, float tan_half_angle, float max_distance, float p_bias) {
 	float dist = p_bias;
@@ -624,22 +850,13 @@ void process_gi(ivec2 pos, vec3 vertex, inout vec4 ambient_light, inout vec4 ref
 		}
 		roughness /= (127.0 / 255.0);
 
-		// FRED ortho fix: Correct view vector calculation for orthographic projection
-		vec3 view;
-		if (params.orthogonal) {
-			// For orthographic, view direction is constant forward vector
-			view = -normalize(mat3(scene_data.cam_transform) * vec3(0.0, 0.0, -1.0));
-		} else {
-			// For perspective, use existing calculation
-			view = -normalize(mat3(scene_data.cam_transform) * (vertex - scene_data.eye_offset[gl_GlobalInvocationID.z].xyz));
-		}
-
+		vec3 view = -normalize(mat3(scene_data.cam_transform) * (vertex - scene_data.eye_offset[gl_GlobalInvocationID.z].xyz));
 		vertex = mat3(scene_data.cam_transform) * vertex;
 		normal = normalize(mat3(scene_data.cam_transform) * normal);
 		vec3 reflection = normalize(reflect(-view, normal));
 
 #ifdef USE_SDFGI
-		sdfgi_process(vertex, normal, reflection, roughness, ambient_light, reflection_light);
+		sdfgi_process_perspective_aware(vertex, normal, reflection, roughness, ambient_light, reflection_light);
 #endif
 
 #ifdef USE_VOXEL_GI_INSTANCES
@@ -727,6 +944,9 @@ void main() {
 	vertex.y = -vertex.y;
 
 	process_gi(pos, vertex, ambient_light, reflection_light);
+
+	//ambient_light = vec4(0.0);
+	//reflection_light = vec4(vertex*0.01,0.0);
 
 	if (sc_half_res) {
 		pos >>= 1;

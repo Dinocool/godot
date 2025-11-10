@@ -81,13 +81,7 @@ void main() {
 	vec3 ray_pos;
 	vec3 ray_dir;
 	{
-		ray_pos = vec3(params.cam_origin[0], params.cam_origin[1], params.cam_origin[2]);
-
-		ray_dir.xy = ((vec2(screen_pos) / vec2(params.screen_size)) * 2.0 - 1.0);
-		ray_dir.z = params.z_near;
-
-		ray_dir = (vec4(ray_dir, 1.0) * mat4(params.inv_projection)).xyz;
-
+		// Build camera basis first (both branches need it)
 		mat3 cam_basis;
 		{
 			vec3 c0 = vec3(params.cam_basis[0][0], params.cam_basis[0][1], params.cam_basis[0][2]);
@@ -95,9 +89,45 @@ void main() {
 			vec3 c2 = vec3(params.cam_basis[2][0], params.cam_basis[2][1], params.cam_basis[2][2]);
 			cam_basis = mat3(c0, c1, c2);
 		}
-		ray_dir = normalize(cam_basis * ray_dir);
+
+		// Detect orthographic from inverse projection (projective term absent)
+		bool is_orthographic = abs(params.inv_projection[2][3]) < 1e-6;
+
+		if (is_orthographic) {
+			// ORTHO: rays are parallel; per-pixel origin from unprojecting NDC on a chosen depth slice
+
+			// Start from camera origin by default (will be overwritten below)
+			ray_pos = vec3(params.cam_origin[0], params.cam_origin[1], params.cam_origin[2]);
+
+			// Screen -> NDC in [-1,1]; do NOT apply y_mult here (we keep your global flip below)
+			vec2 uv  = vec2(screen_pos) / vec2(params.screen_size);
+			vec3 ndc = vec3(uv * 2.0 - 1.0, 0.0); // use 0.0 = near (choose 1.0 if you prefer far)
+
+			// Unproject to VIEW space using your mat3x4 (right-multiply: vec4 * mat3x4 -> vec3)
+			vec3 view_pos = (vec4(ndc, 1.0) * params.inv_projection);
+
+			// Per-pixel world-space origin
+			ray_pos = cam_basis * view_pos + vec3(params.cam_origin[0], params.cam_origin[1], params.cam_origin[2]);
+
+			// Direction is constant -Z in camera space, rotated to world
+			vec3 dir_cam = vec3(0.0, 0.0, -1.0);
+			ray_dir = normalize(cam_basis * dir_cam);
+
+		} else {
+			// PERSPECTIVE: keep your existing math unchanged
+			ray_pos = vec3(params.cam_origin[0], params.cam_origin[1], params.cam_origin[2]);
+
+			ray_dir.xy = ((vec2(screen_pos) / vec2(params.screen_size)) * 2.0 - 1.0);
+			ray_dir.z  = params.z_near;
+
+			// right-multiply: vec4 * mat3x4 -> vec3 (your packing expects this)
+			ray_dir    = (vec4(ray_dir, 1.0) * mat4(params.inv_projection)).xyz;
+
+			ray_dir    = normalize(cam_basis * ray_dir);
+		}
 	}
 
+	// keep your existing post-scale + renormalize (applies to both branches)
 	ray_pos.y *= params.y_mult;
 	ray_dir.y *= params.y_mult;
 	ray_dir = normalize(ray_dir);
