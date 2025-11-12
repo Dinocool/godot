@@ -236,8 +236,9 @@ void ViewportTexture::set_buffer_mode(BufferMode p_buffer_mode) {
 			buffer_rid = vp->normal_rough_texture_rid;
 			break;
 	}
-
-	RS::get_singleton()->texture_proxy_update(proxy, buffer_rid);
+	if (proxy_ph.is_valid()) {
+		RS::get_singleton()->texture_proxy_update(proxy, buffer_rid);
+	}
 }
 
 ViewportTexture::BufferMode ViewportTexture::get_buffer_mode() const {
