@@ -460,7 +460,9 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_font(SceneStringName(font), "TextEdit", Ref<Font>());
 	theme->set_font_size(SceneStringName(font_size), "TextEdit", -1);
 
+#ifndef DISABLE_DEPRECATED
 	theme->set_color("background_color", "TextEdit", Color(0, 0, 0, 0));
+#endif // DISABLE_DEPRECATED
 	theme->set_color(SceneStringName(font_color), "TextEdit", control_font_color);
 	theme->set_color("font_selected_color", "TextEdit", Color(0, 0, 0, 0));
 	theme->set_color("font_readonly_color", "TextEdit", control_font_disabled_color);
@@ -501,7 +503,9 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_font(SceneStringName(font), "CodeEdit", Ref<Font>());
 	theme->set_font_size(SceneStringName(font_size), "CodeEdit", -1);
 
+#ifndef DISABLE_DEPRECATED
 	theme->set_color("background_color", "CodeEdit", Color(0, 0, 0, 0));
+#endif // DISABLE_DEPRECATED
 	theme->set_color("completion_background_color", "CodeEdit", Color(0.17, 0.16, 0.2));
 	theme->set_color("completion_selected_color", "CodeEdit", Color(0.26, 0.26, 0.27));
 	theme->set_color("completion_existing_color", "CodeEdit", Color(0.87, 0.87, 0.87, 0.13));
@@ -659,6 +663,11 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	focus_style->set_draw_center(false);
 	focus_style->set_border_color(style_focus_color);
 	theme->set_stylebox("focus", "ScrollContainer", focus_style);
+
+	theme->set_icon("scroll_hint_vertical", "ScrollContainer", icons["scroll_hint_vertical"]);
+	theme->set_icon("scroll_hint_horizontal", "ScrollContainer", icons["scroll_hint_horizontal"]);
+	theme->set_color("scroll_hint_vertical_color", "ScrollContainer", Color(0, 0, 0));
+	theme->set_color("scroll_hint_horizontal_color", "ScrollContainer", Color(0, 0, 0));
 
 	// Window
 
@@ -879,6 +888,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_icon("arrow", "Tree", icons["arrow_down"]);
 	theme->set_icon("arrow_collapsed", "Tree", icons["arrow_right"]);
 	theme->set_icon("arrow_collapsed_mirrored", "Tree", icons["arrow_left"]);
+	theme->set_icon("scroll_hint", "Tree", icons["scroll_hint_vertical"]);
 
 	theme->set_font("title_button_font", "Tree", Ref<Font>());
 	theme->set_font(SceneStringName(font), "Tree", Ref<Font>());
@@ -899,6 +909,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_color("parent_hl_line_color", "Tree", Color(0.27, 0.27, 0.27));
 	theme->set_color("children_hl_line_color", "Tree", Color(0.27, 0.27, 0.27));
 	theme->set_color("custom_button_font_highlight", "Tree", control_font_hover_color);
+	theme->set_color("scroll_hint_color", "Tree", Color(0, 0, 0));
 
 	theme->set_constant("h_separation", "Tree", Math::round(4 * scale));
 	theme->set_constant("v_separation", "Tree", Math::round(4 * scale));
@@ -944,6 +955,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_color("font_selected_color", "ItemList", control_font_pressed_color);
 	theme->set_color("font_outline_color", "ItemList", Color(0, 0, 0));
 	theme->set_color("guide_color", "ItemList", Color(0.7, 0.7, 0.7, 0.25));
+	theme->set_color("scroll_hint_color", "ItemList", Color(0, 0, 0));
 	theme->set_stylebox("hovered", "ItemList", make_flat_stylebox(Color(1, 1, 1, 0.07)));
 	theme->set_stylebox("hovered_selected", "ItemList", make_flat_stylebox(style_hover_selected_color));
 	theme->set_stylebox("hovered_selected_focus", "ItemList", make_flat_stylebox(style_hover_selected_color));
@@ -951,6 +963,7 @@ void fill_default_theme(Ref<Theme> &theme, const Ref<Font> &default_font, const 
 	theme->set_stylebox("selected_focus", "ItemList", make_flat_stylebox(style_selected_color));
 	theme->set_stylebox("cursor", "ItemList", focus);
 	theme->set_stylebox("cursor_unfocused", "ItemList", focus);
+	theme->set_icon("scroll_hint", "ItemList", icons["scroll_hint_vertical"]);
 
 	theme->set_constant("outline_size", "ItemList", 0);
 

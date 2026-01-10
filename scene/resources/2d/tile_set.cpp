@@ -5850,6 +5850,7 @@ void TileSetScenesCollectionSource::set_scene_tile_display_placeholder(int p_id,
 }
 
 bool TileSetScenesCollectionSource::get_scene_tile_display_placeholder(int p_id) const {
+	p_id = TileSetAtlasSource::alternative_no_transform(p_id);
 	ERR_FAIL_COND_V(!scenes.has(p_id), false);
 	return scenes[p_id].display_placeholder;
 }
@@ -5880,8 +5881,9 @@ bool TileSetScenesCollectionSource::_set(const StringName &p_name, const Variant
 			return true;
 		} else if (components.size() >= 3 && components[2] == "display_placeholder") {
 			if (!has_scene_tile_id(scene_id)) {
-				create_scene_tile(p_value, scene_id);
+				create_scene_tile(Ref<PackedScene>(), scene_id);
 			}
+			set_scene_tile_display_placeholder(scene_id, p_value);
 
 			return true;
 		}
@@ -5898,7 +5900,7 @@ bool TileSetScenesCollectionSource::_get(const StringName &p_name, Variant &r_re
 			r_ret = scenes[components[1].to_int()].scene;
 			return true;
 		} else if (components.size() >= 3 && components[2] == "display_placeholder") {
-			r_ret = scenes[components[1].to_int()].scene;
+			r_ret = scenes[components[1].to_int()].display_placeholder;
 			return true;
 		}
 	}
@@ -6397,7 +6399,7 @@ void TileData::remove_collision_polygon(int p_layer_id, int p_polygon_index) {
 void TileData::set_collision_polygon_points(int p_layer_id, int p_polygon_index, Vector<Vector2> p_polygon) {
 	ERR_FAIL_INDEX(p_layer_id, physics.size());
 	ERR_FAIL_INDEX(p_polygon_index, physics[p_layer_id].polygons.size());
-	ERR_FAIL_COND_MSG(p_polygon.size() != 0 && p_polygon.size() < 3, "Invalid polygon. Needs either 0 or more than 3 points.");
+	ERR_FAIL_COND_MSG(p_polygon.size() != 0 && p_polygon.size() < 3, "Invalid polygon. Needs either 0 or at least 3 points.");
 
 	TileData::PhysicsLayerTileData::PolygonShapeTileData &polygon_shape_tile_data = physics.write[p_layer_id].polygons.write[p_polygon_index];
 

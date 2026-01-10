@@ -1074,6 +1074,19 @@ void GDScript::_bind_methods() {
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &GDScript::_new, MethodInfo("new"));
 }
 
+void GDScript::set_path_cache(const String &p_path) {
+	if (is_root_script()) {
+		Script::set_path_cache(p_path);
+	}
+
+	path = p_path;
+	path_valid = true;
+
+	for (KeyValue<StringName, Ref<GDScript>> &kv : subclasses) {
+		kv.value->set_path_cache(p_path);
+	}
+}
+
 void GDScript::set_path(const String &p_path, bool p_take_over) {
 	if (is_root_script()) {
 		Script::set_path(p_path, p_take_over);
@@ -2282,11 +2295,18 @@ void GDScriptLanguage::init() {
 		GDExtensionManager::get_singleton()->connect("extension_loaded", callable_mp(this, &GDScriptLanguage::_extension_loaded));
 		GDExtensionManager::get_singleton()->connect("extension_unloading", callable_mp(this, &GDScriptLanguage::_extension_unloading));
 	}
-#endif
+#endif // TOOLS_ENABLED
+
+#ifdef DEBUG_ENABLED
+	GDScriptParser::update_project_settings();
+	if (!ProjectSettings::get_singleton()->is_connected("settings_changed", callable_mp_static(&GDScriptParser::update_project_settings))) {
+		ProjectSettings::get_singleton()->connect("settings_changed", callable_mp_static(&GDScriptParser::update_project_settings));
+	}
+#endif // DEBUG_ENABLED
 
 #ifdef TESTS_ENABLED
 	GDScriptTests::GDScriptTestRunner::handle_cmdline();
-#endif
+#endif // TESTS_ENABLED
 }
 
 #ifdef TOOLS_ENABLED
@@ -2806,6 +2826,17 @@ bool GDScriptLanguage::handles_global_class_type(const String &p_type) const {
 }
 
 String GDScriptLanguage::get_global_class_name(const String &p_path, String *r_base_type, String *r_icon_path, bool *r_is_abstract, bool *r_is_tool) const {
+	LocalVector<String> r_vec;
+	return _get_global_class_name(p_path, r_base_type, r_icon_path, r_is_abstract, r_is_tool, r_vec);
+}
+
+String GDScriptLanguage::_get_global_class_name(const String &p_path, String *r_base_type, String *r_icon_path, bool *r_is_abstract, bool *r_is_tool, LocalVector<String> &r_visited) const {
+	if (r_visited.has(p_path)) {
+		return String();
+	}
+
+	r_visited.push_back(p_path);
+
 	Error err;
 	Ref<FileAccess> f = FileAccess::open(p_path, FileAccess::READ, &err);
 	if (err) {
@@ -2845,7 +2876,7 @@ String GDScriptLanguage::get_global_class_name(const String &p_path, String *r_b
 				if (!subclass->extends_path.is_empty()) {
 					if (subclass->extends.is_empty()) {
 						// We only care about the referenced class_name.
-						_ALLOW_DISCARD_ get_global_class_name(subclass->extends_path, r_base_type);
+						_ALLOW_DISCARD_ _get_global_class_name(subclass->extends_path, r_base_type, nullptr, nullptr, nullptr, r_visited);
 						subclass = nullptr;
 						break;
 					} else {
@@ -2950,7 +2981,7 @@ GDScriptLanguage::GDScriptLanguage() {
 	profiling = false;
 	profile_native_calls = false;
 	script_frame_time = 0;
-#endif
+#endif // DEBUG_ENABLED
 
 	_debug_max_call_stack = GLOBAL_DEF_RST(PropertyInfo(Variant::INT, "debug/settings/gdscript/max_call_stack", PROPERTY_HINT_RANGE, "512," + itos(GDScriptFunction::MAX_CALL_DEPTH - 1) + ",1"), 1024);
 	track_call_stack = GLOBAL_DEF_RST("debug/settings/gdscript/always_track_call_stacks", false);
@@ -2961,20 +2992,29 @@ GDScriptLanguage::GDScriptLanguage() {
 	track_locals = track_locals || EngineDebugger::is_active();
 
 	GLOBAL_DEF("debug/gdscript/warnings/enable", true);
-	GLOBAL_DEF("debug/gdscript/warnings/exclude_addons", true);
-	GLOBAL_DEF("debug/gdscript/warnings/renamed_in_godot_4_hint", true);
+
+	GLOBAL_DEF(PropertyInfo(Variant::DICTIONARY,
+					   "debug/gdscript/warnings/directory_rules",
+					   PROPERTY_HINT_TYPE_STRING,
+					   vformat("%d/%d:;%d/%d:Exclude,Include", Variant::STRING, PROPERTY_HINT_DIR, Variant::INT, PROPERTY_HINT_ENUM)),
+			Dictionary({ { "res://addons", GDScriptParser::WarningDirectoryRule::DECISION_EXCLUDE } }));
+
 	for (int i = 0; i < (int)GDScriptWarning::WARNING_MAX; i++) {
-		GDScriptWarning::Code code = (GDScriptWarning::Code)i;
-		Variant default_enabled = GDScriptWarning::get_default_value(code);
-		String path = GDScriptWarning::get_settings_path_from_code(code);
-		GLOBAL_DEF(GDScriptWarning::get_property_info(code), default_enabled);
-	}
+		const GDScriptWarning::Code code = (GDScriptWarning::Code)i;
+		const Variant default_value = GDScriptWarning::get_default_value(code);
+		GLOBAL_DEF(GDScriptWarning::get_property_info(code), default_value);
 
 #ifndef DISABLE_DEPRECATED
-	ProjectSettings::get_singleton()->set_as_internal("debug/gdscript/warnings/property_used_as_function", true);
-	ProjectSettings::get_singleton()->set_as_internal("debug/gdscript/warnings/constant_used_as_function", true);
-	ProjectSettings::get_singleton()->set_as_internal("debug/gdscript/warnings/function_used_as_property", true);
-#endif
+		if (i >= GDScriptWarning::FIRST_DEPRECATED_WARNING) {
+			const String setting_path = GDScriptWarning::get_setting_path_from_code(code);
+			ProjectSettings::get_singleton()->set_as_internal(setting_path, true);
+		}
+#endif // DISABLE_DEPRECATED
+	}
+
+	// TODO: This setting has nothing to do with warnings. It should be moved at the next compatibility breakage,
+	// if the setting is still relevant at that time.
+	GLOBAL_DEF("debug/gdscript/warnings/renamed_in_godot_4_hint", true);
 #endif // DEBUG_ENABLED
 }
 
